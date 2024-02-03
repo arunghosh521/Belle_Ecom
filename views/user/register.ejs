@@ -1,0 +1,295 @@
+<%- include('../layouts/header.ejs') -%>
+        <!--Body Content-->
+        <div id="page-content">
+    	<!--Page Title-->
+    	<div class="page section-header text-center">
+			<div class="page-title">
+        		<div class="wrapper"><h1 class="page-width">Create an Account</h1></div>
+      		</div>
+		</div>
+        <!--End Page Title-->
+        
+        <div class="container">
+        	<div class="row">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 main-col offset-md-3">
+                	<div class="mb-4">
+                       <form method="post" action="/register" id="CustomerLoginForm" accept-charset="UTF-8" class="contact-form">	
+                          <div class="row">
+	                          <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="form-group">
+                                    <label for="FirstName">First Name</label>
+                                    <input type="text" name="fname" placeholder="" id="FirstName" required autofocus="">
+                                    <p id="nameAlert" style="color: red;"></p>
+                                </div>
+                                </div>
+                               <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="form-group">
+                                    <label for="LastName">Last Name</label>
+                                    <input type="text" name="lname" placeholder="" id="LastName">
+                                </div>
+                               </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="form-group">
+                                    <label for="CustomerEmail">Email</label>
+                                    <input type="email" name="email" placeholder="example@gmail.com" id="CustomerEmail" required class="" autocorrect="off" autocapitalize="off" autofocus="">
+                                    <p id="emailAlert" style="color: red;"></p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="form-group">
+                                    <label for="CustomerPassword">Password</label>
+                                    <input type="password" value="" name="password" required placeholder="" id="CustomerPassword" class="">                        	
+                                    <p id="alertPassword" style="color: red;"></p>
+                                    <p><%= messages.existmessage? messages.existmessage:"" %></p>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="text-center col-12 col-sm-12 col-md-12 col-lg-12">
+                                <input type="submit" class="btn mb-3" value="Create" id="submitButton">                            </div>
+                            <!-- user/register.ejs -->
+                        
+                  
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12" id="otpSection" hidden>
+                        <div class="form-group">
+                            <p>OTP has sent to the registered email</p>
+                            <label for="otpInput">Enter OTP</label>
+                            <input type="text" name="otp" placeholder="" id="otpInput">
+                            <br><br>
+                            <p id="timerDisplay" style="color: red;"></p>
+                            <input type="button" class="btn mb-3" value="Submit OTP" id="submitBtnOtp">                            
+                            <input type="button" class="btn mb-3" value="Resend OTP" id="resendBtn">
+                        </div>
+                        </div>
+                    </div>
+                         </div>
+                     </form>
+                    </div>
+               	</div>
+            </div>
+        </div>
+        
+    </div>
+    <!--End Body Content-->
+
+    
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let fNameInput = document.getElementById('FirstName');
+            let nameAlert = document.getElementById('nameAlert');
+            let inputPassword = document.getElementById('CustomerPassword');
+            let alertPassword = document.getElementById('alertPassword');
+            let emailInput = document.getElementById('CustomerEmail');
+            let emailAlert = document.getElementById('emailAlert');
+
+    
+            fNameInput.addEventListener('change', function(){
+                console.log('typing');
+                let fname = fNameInput.value;
+                fetch('/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ firstname: fname }),
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.fnameStatus) {
+                        nameAlert.innerText = data.fnameStatus;
+                    } else {
+                        nameAlert.innerText = ''; // Clear the message if there is no error
+                    }
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+
+            emailInput.addEventListener('change', function(){
+                let email = emailInput.value;
+                fetch('/validate', {
+                    method:'POST',
+                    headers:{
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(({email:email})),
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.emailStatus) {
+                        emailAlert.innerText = data.emailStatus;
+                    }else {
+                        emailAlert.innerText = '';
+                    }
+                })
+                .catch(error => {
+                    console.log('EmailValidationError', error);
+                });
+            });
+    
+            inputPassword.addEventListener('change', function(){
+                console.log('typing');
+                let Pfield = inputPassword.value;
+                fetch('/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: Pfield }),
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.passwordStatus) {
+                        alertPassword.innerText = data.passwordStatus;
+                    } else {
+                        alertPassword.innerText = ''; // Clear the message 
+                    }
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let submitButton = document.getElementById('submitButton');
+        let otpSection = document.getElementById('otpSection');
+        let otpInput = document.getElementById('otpInput');
+        let form = document.getElementById('CustomerLoginForm');
+        let submitOtpBtn = document.getElementById('submitBtnOtp');
+        let resendButton = document.getElementById('resendBtn');
+        let CustomerEmail = document.getElementById('CustomerEmail');
+        let CustomerPassword = document.getElementById('CustomerPassword');
+        let FirstName = document.getElementById('FirstName');
+        let LastName = document.getElementById('LastName');
+        let timerDisplay = document.getElementById('timerDisplay')
+
+        let otpExpirationTime = 60;
+        let cuntdownTimer;
+        submitOtpBtn.disabled = true;
+    
+        submitButton.addEventListener('click', function (e) {
+            console.log("clicked");
+                e.preventDefault();
+                // Generate and send OTP when the section is revealed
+                fetch('/generate-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('CustomerEmail').value,
+                        fname:FirstName.value,
+                        lname:LastName.value,
+                        password:CustomerPassword.value,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+            // OTP sent successfully, show OTP section
+            otpSection.removeAttribute('hidden');
+            // Optionally, hide unnecessary form fields
+            document.getElementById('FirstName').setAttribute('readonly', false);
+            document.getElementById('LastName').setAttribute('readonly', false);
+            document.getElementById('CustomerEmail').setAttribute('readonly', false);
+            document.getElementById('CustomerPassword').setAttribute('readonly', false);
+            // You can add more fields as needed
+            submitOtpBtn.disabled = false;
+
+            // Access the generated OTP and show a success message
+           // alert('OTP sent successfully.');
+            startTimer();
+        } else {
+            // Handle the case where OTP sending failed
+            alert('Failed to send OTP. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.log('Error', error);
+    });
+});
+
+    submitOtpBtn.addEventListener('click', function(){
+
+        let enteredOtp = otpInput.value;
+        fetch('/submitOtp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                otp: enteredOtp,
+                email:CustomerEmail.value,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                
+                form.reset();
+                FirstName.removeAttribute('readonly');
+                LastName.removeAttribute('readonly');
+                CustomerEmail.removeAttribute('readonly');
+                CustomerPassword.removeAttribute('readonly');
+
+                stopTimer();
+                window.location.href = '/login';
+            } else {
+                alert('Failed to submit OTP. Please try again.');
+            }
+        })
+        .catch(error => {
+        console.log('Error', error);
+        });
+    });
+        resendButton.addEventListener('click', function () {
+            submitOtpBtn.disabled = false;
+            fetch('/resend-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: document.getElementById('CustomerEmail').value,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.log('Error', error);
+            });
+        });
+
+        function startTimer(){
+            let seconds = otpExpirationTime;
+            timerDisplay.innerText = `OTP will expire in ${seconds} seconds`;
+
+            cuntdownTimer = setInterval(function(){
+                seconds--;
+                if(seconds <=0) {
+                    clearInterval(cuntdownTimer);
+                    timerDisplay.innerText = 'OTP has expired';
+                    submitOtpBtn.disabled = true;
+                }else{
+                    timerDisplay.innerText = `OTP will expire in ${seconds} seconds`;
+                }
+            },1000);
+        }
+        function stopTimer() {
+            clearInterval(cuntdownTimer);
+            timerDisplay.innerText = '';
+        }
+
+    });
+    </script>  
+    
+</div>
+
+<%- include('../layouts/footer.ejs') -%>

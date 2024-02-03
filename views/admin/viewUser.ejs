@@ -1,0 +1,123 @@
+<%- include('../adminLayouts/header.ejs') -%>
+
+<!-- Container-fluid starts-->
+<div class="page-body">
+  <!-- All User Table Start -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="title-header option-title">
+              <h5>All Users</h5>
+            </div>
+      
+                <div></div>
+            <div class="table-responsive table-product">
+              <table class="table all-package theme-table" id="table_id">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Block/Unblock</th>
+                    <th>Option</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <% for(let i = 0; i < User.length; i++) { %>
+                  <tr>
+                    <td>
+                      <div class="user-name">
+                        <span><%= User[i].firstname %></span>
+                        <span>Essex Court</span>
+                      </div>
+                    </td>
+                    <td><%= User[i].email %></td>
+                    <td><%= User[i].email %></td>
+                    <td>
+                      <% if(User[i].is_blocked==true){ %>
+                      <button onclick="blockUser()" type="button" class="btn btn-success" data-user-id="<%= User[i]._id %>" data-is-blocked=false>
+                        Unblock
+                      </button>
+                      <% }else{ %>
+                      <button onclick="blockUser()" type="button" class="btn btn-danger" class="btn toggle-btn" data-user-id="<%= User[i]._id %>" data-is-blocked=true>
+                        Block
+                      </button>
+
+                      <% } %>
+
+                    </td>
+                    <td>
+                      <ul>
+                        <li>
+                          <a href="order-detail.html">
+                            <i class="ri-eye-line"></i>
+                          </a>
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <% } %>
+                </tbody>
+
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- All User Table Ends-->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    async function blockUser() {
+      var button = event.target;
+
+      var userId = button.dataset.userId;
+      var isBlocked = button.dataset.isBlocked;
+      let alertSection = document.getElementById('alertSection');
+      console.log("User ID: ", userId);
+      console.log("Is Blocked: ", isBlocked);
+
+      $.ajax({
+        type: 'POST',
+        data: {
+          userId: userId,
+          isBlocked: isBlocked
+        },
+        url: '/admin/listUser/toggleBlock',
+        success: async (res) => {
+          if (res.success) {
+            displayMessage(isBlocked);
+          } else {
+            // Handle unsuccessful response
+            console.error('Toggle block failed');
+          }
+        },
+        error: (err) => {
+          // Handle AJAX error
+          console.error('Error in AJAX request:', err);
+        }
+      });
+      function displayMessage(isBlocked){
+        var alertMessage = isBlocked === 'true'
+        ? "🚫 User blocked successfully!"
+        : "🎉 User unblocked successfully!";
+            Swal.fire({
+                icon:'success',
+                title: 'Alert meaasge',
+                text: alertMessage,
+                willClose: ()=>{
+                    window.location.reload();
+                }
+            });
+      }
+    }
+  </script>
+
+
+  <%- include('../adminLayouts/footer.ejs') -%>

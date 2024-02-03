@@ -1,0 +1,143 @@
+<%- include('../adminLayouts/header.ejs') -%>
+<div class="page-body">
+
+    <!-- Edit Product Add Start -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-sm-8 m-auto">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-header-2">
+                                    <h5>Edit Product</h5>
+                                </div>
+                                <p style="color: red; text-align: center;" ><%= messages.productMsg? messages.productMsg:"" %></p>
+
+                                <form class="theme-form theme-form-2 mega-form" method="post" >
+                                    <div class="mb-4 row align-items-center">
+                                        <label class="form-label-title col-sm-3 mb-0">Product
+                                            Name</label>
+                                            
+                                        <div class="col-sm-9">
+                                            <input class="form-control" name="productName" type="text"
+                                                placeholder="Product Name" value="<%= products.name %>">
+                                        </div>
+                                    </div>
+                                        <div class="mb-4 row align-items-center">
+                                            <label class="form-label-title col-sm-3 mb-0">Product
+                                                Price</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" name="productPrice" type="text"
+                                                    placeholder="Product Price" value="<%= products.price %>">
+                                            </div>
+                                        </div>
+
+
+                                    <div class="mb-4 row align-items-center">
+                                        <label
+                                            class="col-sm-3 col-form-label form-label-title">Category</label>
+                                      <div class="col-sm-9">
+                                            <select class="js-example-basic-single w-100" name="category">
+                                                <option disabled>Category Menu</option>
+                                                    <% categoryData.forEach(category => { %>
+                                                    <option value="<%= category.category %>" <%= category.category === products.category.category? 'selected' : '' %>>
+                                                        <%= category.category %>
+                                                      
+                                                    </option>
+                                               <% }) %>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                        <div class="mb-4 row align-items-center">
+                                            <label class="form-label-title col-sm-3 mb-0">Product
+                                                Quantity</label>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" name="quantity" type="number"
+                                                    placeholder="Product Quantity" value="<%= products.quantity %>">
+                                            <input type="hidden" name="productID" value="<%= products._id %>">
+                                                </div>
+                                        </div>
+
+                                        <div class="mb-4 row align-items-center">
+                                            <label
+                                                class="col-sm-3 col-form-label form-label-title">Size</label>
+                                            <div class="col-sm-9">
+                                                <select class="js-example-basic-single w-100" name="size">
+                                                    <option disabled>Select Size</option>
+                                                    <option>M</option>
+                                                    <option>L </option>
+                                                    <option>XL</option>
+                                                    <option>XXL</option>
+                                                    <option>XXXL</option>                                                   
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4 row align-items-center">
+                                            <label
+                                                class="col-sm-3 col-form-label form-label-title">Color</label>
+                                            <div class="col-sm-9">
+                                                <select class="js-example-basic-single w-100" name="color">
+                                                    <option disabled>Select Color</option>
+                                                    <option>Red</option>
+                                                    <option>White</option>
+                                                    <option>Blue</option>
+                                                    <option>Black</option>                                                                                                   
+                                                </select>
+                                            </div>
+                                        </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-header-2">
+                                    <h5>Description</h5>
+                                </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="row">
+                                                <label class="form-label-title col-sm-3 mb-0">Product
+                                                    Description</label>
+                                                    <div class="col-sm-9">
+                                                        <textarea class="form-control" name="description" rows="3"><%= products.description %></textarea>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="card-header-2">
+                                    <h5>Product Images</h5>
+                                </div>
+
+                                    <div class="mb-4 row align-items-center">
+                                        <label
+                                            class="col-sm-3 col-form-label form-label-title">Images</label>
+                                        <div class="col-sm-9">
+                                            <input class="form-control form-choose" name="images" type="file"
+                                                id="formFile" multiple>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4 row align-items-center">
+                                        <div class="col-sm-3"></div>
+                                        <div class="col-sm-9">
+                                          <button type="submit" class="btn btn-primary">Submit</button>
+                                        </div>
+                                      </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Product Add End -->
+
+<%- include('../adminLayouts/footer.ejs') -%>
