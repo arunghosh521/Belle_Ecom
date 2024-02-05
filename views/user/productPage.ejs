@@ -1,5 +1,4 @@
 <%- include('../layouts/header.ejs') -%>
-
 <!--Body Content-->
 <div id="page-content">
   <!--Collection Banner-->
@@ -7,16 +6,16 @@
     <div class="collection-hero">
       <div class="collection-hero__image"><img class="blur-up lazyload" data-src="/images/cat-women2.jpg" src="/images/cat-women2.jpg" alt="Women" title="Women" /></div>
       <div class="collection-hero__title-wrapper">
-        <h1 class="collection-hero__title page-width">Shop Grid 3 Column</h1>
+        <h1 class="collection-hero__title page-width">Products</h1>
       </div>
     </div>
   </div>
   <!--End Collection Banner-->
 
-  <div class="container">
+  <div class="container-fluid">
     <div class="row">
       <!--Sidebar-->
-      <div class="col-12 col-sm-12 col-md-3 col-lg-3 sidebar filterbar">
+      <div class="col-12 col-sm-12 col-md-3 col-lg-2 sidebar filterbar">
         <div class="closeFilter d-block d-md-none d-lg-none"><i class="icon icon anm anm-times-l"></i></div>
         <div class="sidebar_tags">
           <!--Categories-->
@@ -169,7 +168,7 @@
                   </div>
                   <div class="grid__item">
                     <div class="mini-list-item">
-                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="assets/images/product-images/mini-product-img1.jpg" alt="" /></a> </div>
+                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img1.jpg" alt="" /></a> </div>
                       <div class="details"> <a class="grid-view-item__title" href="#">Block Button Up</a>
                         <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$378.00</span></span></div>
                       </div>
@@ -177,7 +176,7 @@
                   </div>
                   <div class="grid__item">
                     <div class="mini-list-item">
-                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="assets/images/product-images/mini-product-img2.jpg" alt="" /></a> </div>
+                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img2.jpg" alt="" /></a> </div>
                       <div class="details"> <a class="grid-view-item__title" href="#">Balda Button Pant</a>
                         <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$278.60</span></span></div>
                       </div>
@@ -185,7 +184,7 @@
                   </div>
                   <div class="grid__item">
                     <div class="mini-list-item">
-                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="assets/images/product-images/mini-product-img3.jpg" alt="" /></a> </div>
+                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img3.jpg" alt="" /></a> </div>
                       <div class="details"> <a class="grid-view-item__title" href="#">Border Dress in Black/Silver</a>
                         <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$228.00</span></span></div>
                       </div>
@@ -254,13 +253,7 @@
       </div>
       <!--End Sidebar-->
       <!--Main Content-->
-      <div class="col-12 col-sm-12 col-md-9 col-lg-9 main-col">
-        <div class="category-description">
-          <h3>Category Description</h3>
-          <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing.</p>
-          <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.</p>
-        </div>
-        <hr>
+      <div class="col-12 col-sm-12 col-md-9 col-lg-10 main-col">
         <div class="productList">
           <!--Toolbar-->
           <button type="button" class="btn btn-filter d-block d-md-none d-lg-none"> Product Filters</button>
@@ -268,15 +261,11 @@
             <div class="filters-toolbar-wrapper">
               <div class="row">
                 <div class="col-4 col-md-4 col-lg-4 filters-toolbar__item collection-view-as d-flex justify-content-start align-items-center">
-                  <a href="shop-left-sidebar.html" title="Grid View" class="change-view change-view--active">
-                    <img src="/images/grid.jpg" alt="Grid" />
-                  </a>
-                  <a href="shop-listview.html" title="List View" class="change-view">
-                    <img src="/images/list.jpg" alt="List" />
-                  </a>
+                  <a href="/productView" title="Grid View" class="change-view change-view--active"> Product List</a>
+
                 </div>
                 <div class="col-4 col-md-4 col-lg-4 text-center filters-toolbar__item filters-toolbar__item--count d-flex justify-content-center align-items-center">
-                  <span class="filters-toolbar__product-count">Showing: 22</span>
+                  <span class="filters-toolbar__product-count">Showing: 1</span>
                 </div>
                 <div class="col-4 col-md-4 col-lg-4 text-right">
                   <div class="filters-toolbar__item">
@@ -301,17 +290,21 @@
           <!--End Toolbar-->
           <div class="grid-products grid--view-items">
             <div class="row">
-              <div class="col-6 col-sm-6 col-md-4 col-lg-4 item">
-                <!-- start product image -->
-                <% for(let i = 0; i<products.length; i++){ %>
-                <div class="product-image">
+              <% for(i = 0; i<products.length; i++) { %>
+
+              <div class="col-6 col-sm-6 col-md-4 col-lg-3 grid-view-item style2 item">
+
+                <div class="grid-view_image">
                   <!-- start product image -->
-                  <a href="/singleProduct/<%= products[i]._id%>">
+
+                  <a href="/singleProduct?id=<%= products[i]._id %>" class="grid-view-item__link">
+
+                    <% console.log(products[i]._id); %>
                     <!-- image -->
-                    <img class="primary blur-up lazyload" data-src="/uploads/<%= products[i].images %>" src="/uploads/<%= products[i].images %>" alt="image" title="product">
+                    <img class="grid-view-item__image primary blur-up lazyload" data-src="/uploads/<%= products[i].images[0]%>" src="/uploads/<%= products[i].images[0]%>" alt="image" title="product">
                     <!-- End image -->
                     <!-- Hover image -->
-                    <img class="hover blur-up lazyload" data-src="/images/product-images/product-image1-1.jpg" src="/images/product-images/product-image1-1.jpg" alt="image" title="product">
+                    <img class="grid-view-item__image hover blur-up lazyload" data-src="/uploads/<%= products[i].images[1]%>" src="/uploads/<%= products[i].images[1]%>" alt="image" title="product">
                     <!-- End hover image -->
                     <!-- product label -->
                     <div class="product-labels rectangular"><span class="lbl on-sale">-16%</span> <span class="lbl pr-label1">new</span></div>
@@ -319,83 +312,64 @@
                   </a>
                   <!-- end product image -->
 
-                  <!-- Start product button -->
-                  <form class="variants add" action="#" onclick="window.location.href='cart.html'" method="post">
-                    <button class="btn btn-addto-cart" type="button">Select Options</button>
-                  </form>
-                  <div class="button-set">
-                    <a href="javascript:void(0)" title="Quick View" class="quick-view-popup quick-view" data-toggle="modal" data-target="#content_quickview">
-                      <i class="icon anm anm-search-plus-r"></i>
-                    </a>
-                    <div class="wishlist-btn">
-                      <a class="wishlist add-to-wishlist" href="#" title="Add to Wishlist">
-                        <i class="icon anm anm-heart-l"></i>
-                      </a>
+                  <!--start product details -->
+                  <div class="product-details hoverDetails text-center mobile">
+                    <!-- product name -->
+                    <div class="product-name">
+                      <a href="#"><%= products[i].name %></a>
                     </div>
-                    <div class="compare-btn">
-                      <a class="compare add-to-compare" href="compare.html" title="Add to Compare">
-                        <i class="icon anm anm-random-r"></i>
-                      </a>
+                    <!-- End product name -->
+                    <!-- product price -->
+                    <div class="product-price">
+                      <span class="old-price">₹500.00</span>
+                      <span class="price">₹<%= products[i].price %></span>
                     </div>
-                  </div>
-                  <!-- end product button -->
-                </div>
-                <!-- end product image -->
+                    <!-- End product price -->
+                    <div class="product-review">
+                      <i class="font-13 fa fa-star"></i>
+                      <i class="font-13 fa fa-star"></i>
+                      <i class="font-13 fa fa-star"></i>
+                      <i class="font-13 fa fa-star-o"></i>
+                      <i class="font-13 fa fa-star-o"></i>
+                    </div>
+                    <!-- product button -->
+                    <div class="button-set">
+                      <a href="#content_quickview" title="Quick View" class="quick-view-popup quick-view" tabindex="0">
+                        <i class="icon anm anm-search-plus-r"></i>
+                      </a>
+                      <!-- Start product button -->
+                      <form action="#" method="post">
+                        <button class="btn btn--secondary cartIcon btn-addto-cart" type="button"><i class="icon anm anm-bag-l"></i></button>
+                      </form>
+                      <div class="wishlist-btn">
+                        <a class="wishlist add-to-wishlist" href="#" title="Add to Wishlist">
+                          <i class="icon anm anm-heart-l"></i>
+                        </a>
+                      </div>
+                      <div class="compare-btn">
+                        <a class="compare add-to-compare" href="compare.html" title="Add to Compare">
+                          <i class="icon anm anm-random-r"></i>
+                        </a>
 
-                <!--start product details -->
-               
-                <div class="product-details text-center">
-                  <!-- product name -->
-                  <div class="product-name">
-                    <a href="#"><%= products[i].name %></a>
-                  </div>
-                  <!-- End product name -->
-                  <!-- product price -->
-                  <div class="product-price">
-                    <span class="old-price">$500.00</span>
-                    <span class="price"><%= products[i].price %></span>
-                  </div>
-                  
-                  <!-- End product price -->
+                      </div>
 
-                  <div class="product-review">
-                    <i class="font-13 fa fa-star"></i>
-                    <i class="font-13 fa fa-star"></i>
-                    <i class="font-13 fa fa-star"></i>
-                    <i class="font-13 fa fa-star-o"></i>
-                    <i class="font-13 fa fa-star-o"></i>
+                    </div>
+                    <!-- end product button -->
                   </div>
-                  <!-- Variant -->
-                  <ul class="swatches">
-                    <li class="swatch medium rounded"><img src="/images/product-images/variant1.jpg" alt="image" /></li>
-                    <li class="swatch medium rounded"><img src="/images/product-images/variant2.jpg" alt="image" /></li>
-                    <li class="swatch medium rounded"><img src="/images/product-images/variant3.jpg" alt="image" /></li>
-                    <li class="swatch medium rounded"><img src="/images/product-images/variant4.jpg" alt="image" /></li>
-                    <li class="swatch medium rounded"><img src="/images/product-images/variant5.jpg" alt="image" /></li>
-                    <li class="swatch medium rounded"><img src="/images/product-images/variant6.jpg" alt="image" /></li>
-                  </ul>
-                  <!-- End Variant -->
+
+                  <!-- End product details -->
                 </div>
-                <% } %>
-                <!-- End product details -->
               </div>
+
+              <% } %>
             </div>
+
           </div>
         </div>
-        <hr class="clear">
-        <div class="pagination">
-          <ul>
-            <li class="active"><a href="#">1</a></li>
-            <li><a href="#">2</a></li>
-            <li class="next"><a href="#"><i class="fa fa-caret-right" aria-hidden="true"></i></a></li>
-          </ul>
-        </div>
+        <!--End Main Content-->
       </div>
-      <!--End Main Content-->
     </div>
   </div>
+  <!--End Body Content-->
 
-</div>
-<!--End Body Content-->
-
-<%- include('../layouts/footer.ejs') -%>
+  <%- include('../layouts/footer.ejs') -%>

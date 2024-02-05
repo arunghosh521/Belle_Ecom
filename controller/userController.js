@@ -1,6 +1,7 @@
 const { log } = require("sharp/lib/libvips");
 const User = require("../models/userModel");
 const ProductModel = require("../models/addProducts");
+const categoryDB = require("../models/category");
 const asyncHandler = require("express-async-handler");
 const cookieParser = require("cookie-parser");
 // const { isEmail } = require("validator");
@@ -94,10 +95,13 @@ const validateUser = asyncHandler(async (req, res) => {
       response.fnameStatus = "";
     }
 
-    if (email && !/^\S+@gmail\.com$/.test(email)) {
-        response.emailStatus = "Invalid email address";
+    if (!email || email.trim() === "") {
+      console.log("executed");
+      response.emailStatus = "Email address is required";
+    } else if (!/^\S+@gmail\.com$|^\S+@cubene\.com$/.test(email)) {
+      response.emailStatus = "Invalid email address";
     } else {
-      response.emailStatus = "";      
+      response.emailStatus = "";
     }
 
     if (password && password.trim() === "") {
@@ -215,11 +219,14 @@ const loadProductUserView = asyncHandler(async (req, res) => {
   try {
     const user = res.locals.user || null;
     console.log("usergetting productPage ", user);
+    const _id = req.params.id;
+    const category = await categoryDB.findById(_id);
     const products = await ProductModel.find({ is_listed: true });
+    console.log("product", products);
     if (user) {
-      res.render("user/ProductPage", { products, user: true });
+      res.render("user/ProductPage", { products, category, user: true });
     } else {
-      res.render("user/ProductPage", { products, user: false });
+      res.render("user/ProductPage", { products, category, user: false });
     }
   } catch (error) {
     console.log("productPageError", error);
@@ -227,20 +234,26 @@ const loadProductUserView = asyncHandler(async (req, res) => {
 });
 
 const loadSingleProductUserView = asyncHandler(async (req, res) => {
+  
   try {
+    console.log("single Product");
     const user = res.locals.user || null;
     console.log("usergetting singleproductPage ", user);
 
-    const id = req.params.id;
+    const id = req.query.id;
+    console.log('iam id ',id)
     console.log("prdID:-", id);
     const product = await Product.findById(id);
-    console.log(product);
+    console.log("singleProduct",product);
+    
     if (user) {
       res.render("user/singleProduct", { product, user: true });
     } else {
       res.render("user/singleProduct", { product, user: false });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log("loadSinglePageError", error);
+  }
 });
 
 module.exports = {

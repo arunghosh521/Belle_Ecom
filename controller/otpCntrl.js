@@ -87,6 +87,7 @@ const saveOtpToDb = asyncHandler(async (req,email,otp)=>{
         } catch (error) {
           console.error('Error retrieving OTP from the database:', error);
           throw error; 
+          
         }
       });
 

@@ -8,7 +8,7 @@ const cacheControl = require('../config/cacheCntrl');
 
 
 router.get("/",userController.loadHome);
-router.use(userAuthMiddleware);
+//router.use(userAuthMiddleware);
 router
   .route("/register")
   .get(userController.loadRegister)
@@ -21,9 +21,9 @@ router
   .route("/login")
   .get(cacheControl, userController.loadLogin)
   .post(userController.loginUserCtrl);
-router.get("/logout", cacheControl, userController.userLogout);
+router.get("/logout",  userController.userLogout);
 router.get('/productView', userController.loadProductUserView);
-router.get('/singleProduct/:id', userController.loadSingleProductUserView);
+router.get('/singleProduct', userController.loadSingleProductUserView);
 
 
 
