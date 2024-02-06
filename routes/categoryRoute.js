@@ -1,6 +1,7 @@
 const express = require("express");
 const catRoute = express.Router();
 const categoryController = require("../controller/categoryController");
+const {isLogin, isLogout} = require("../middlewares/adminAuth");
 
 catRoute.get("", categoryController.loadCategory);
 catRoute

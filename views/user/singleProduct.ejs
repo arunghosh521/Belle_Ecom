@@ -130,10 +130,12 @@
                   </div>
                 </div>
                 <div class="product-form__item--submit">
-                  <button type="button" name="add" class="btn product-form__cart-submit">
-                    <span id="AddToCartText-product-template">Add to cart</span>
-                  </button>
-                </div>
+                    <a href="/cart?id=<%= product._id %>" class="btn product-form__cart-submit">
+                        <button type="button" name="add">
+                            <span id="AddToCartText-product-template">Add to cart</span>
+                        </button>
+                    </a>
+                </div>                
                 <div class="shopify-payment-button" data-shopify="payment-button">
                   <button type="button" class="shopify-payment-button__button shopify-payment-button__button--unbranded">Buy it now</button>
                 </div>

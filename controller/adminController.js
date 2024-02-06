@@ -3,15 +3,8 @@ const UserDb = require("../models/userModel");
 
 const loadAdminlogin = asyncHandler(async (req, res) => {
   try {
-    res.set('Cache-Control', 'no-store, no-cache');
-    const admin = res.locals.admin;
-    console.log("adminGettinChecking", admin);
     let success = req.flash("fmessage")[0];
-    if (admin) {
-      res.render("admin/dashboard", { message: success });
-    } else {
       res.render("admin/adminLogin", { message: success });
-    }
   } catch (error) {
     console.log("loadAdminlogin", error);
   }

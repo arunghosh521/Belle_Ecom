@@ -2,6 +2,7 @@ const { log } = require("sharp/lib/libvips");
 const User = require("../models/userModel");
 const ProductModel = require("../models/addProducts");
 const categoryDB = require("../models/category");
+const CartDB = require("../models/cart");
 const asyncHandler = require("express-async-handler");
 const cookieParser = require("cookie-parser");
 // const { isEmail } = require("validator");
@@ -17,16 +18,13 @@ const {
 } = require("../controller/otpCntrl");
 const { sentOtpToUserEmail } = require("../controller/emailCntrl");
 const Product = require("../models/addProducts");
+
 //Rendering the home page
 const loadHome = async (req, res) => {
   try {
-    const user = res.locals.user || null;
-    console.log("usergetting HomePage ", user);
-    if (user) {
-      res.render("user/home", { user: true, message: "" });
-    } else {
-      res.render("user/home", { user: false, message: "" });
-    }
+    const userData = await User.findOne({ _id: req.session.userId });
+    console.log("usergetting HomePage ", userData);
+    res.render("user/home", { user: userData });
   } catch (error) {
     console.log(error);
   }
@@ -36,14 +34,8 @@ const loadHome = async (req, res) => {
 const loadRegister = async (req, res) => {
   try {
     let success = req.flash("fmessage")[0];
-    const user = req.user || null;
-    console.log("usergetting ", user);
-    res.locals.user = user;
-    if (req.user) {
-      res.render("user/register", { user: true, message: success });
-    } else {
-      res.render("user/register", { user: false, message: success });
-    }
+    const userData = await User.findOne({ _id: req.session.userId });
+    res.render("user/register", { user: userData, message: success });
   } catch (error) {
     console.error("Error in loadRegister:", error);
     res.status(500).send("Internal Server Error");
@@ -54,14 +46,8 @@ const loadRegister = async (req, res) => {
 const loadLogin = async (req, res) => {
   try {
     let success = req.flash("fmessage")[0];
-    const user = res.locals.user || null;
-    console.log("usergetting ", user);
-    res.locals.user = user;
-    if (req.user) {
-      res.render("user/login", { user: true, message: success });
-    } else {
-      res.render("user/login", { user: false, message: success });
-    }
+    const userData = await User.findOne({ _id: req.session.userId });
+    res.render("user/login", { user: userData, message: success });
     console.log("usergetting Checking", res.locals.user);
   } catch (error) {
     console.log(error);
@@ -98,7 +84,7 @@ const validateUser = asyncHandler(async (req, res) => {
     if (!email || email.trim() === "") {
       console.log("executed");
       response.emailStatus = "Email address is required";
-    } else if (!/^\S+@gmail\.com$|^\S+@cubene\.com$/.test(email)) {
+    } else if (!/^\S+@gmail\.com$|^\S+@rungel\.net$/.test(email)) {
       response.emailStatus = "Invalid email address";
     } else {
       response.emailStatus = "";
@@ -198,6 +184,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       if (findUser && (await findUser.isPasswordMatched(password))) {
         if (findUser.is_verified === true) {
           req.session.userId = findUser._id;
+
           console.log("loggingGetting", req.session.userId);
 
           res.render("user/home", { user: findUser });
@@ -217,42 +204,52 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
 
 const loadProductUserView = asyncHandler(async (req, res) => {
   try {
-    const user = res.locals.user || null;
-    console.log("usergetting productPage ", user);
+    const userData = await User.findOne({ _id: req.session.userId });
+
     const _id = req.params.id;
     const category = await categoryDB.findById(_id);
     const products = await ProductModel.find({ is_listed: true });
     console.log("product", products);
-    if (user) {
-      res.render("user/ProductPage", { products, category, user: true });
-    } else {
-      res.render("user/ProductPage", { products, category, user: false });
-    }
+    res.render("user/ProductPage", { products, category, user: userData });
   } catch (error) {
     console.log("productPageError", error);
   }
 });
 
 const loadSingleProductUserView = asyncHandler(async (req, res) => {
-  
   try {
-    console.log("single Product");
-    const user = res.locals.user || null;
-    console.log("usergetting singleproductPage ", user);
-
+    const userData = await User.findOne({ _id: req.session.userId });
     const id = req.query.id;
-    console.log('iam id ',id)
+    console.log("iam id ", id);
     console.log("prdID:-", id);
     const product = await Product.findById(id);
-    console.log("singleProduct",product);
-    
-    if (user) {
-      res.render("user/singleProduct", { product, user: true });
-    } else {
-      res.render("user/singleProduct", { product, user: false });
-    }
+    console.log("singleProduct", product);
+    res.render("user/singleProduct", { product, user: userData });
   } catch (error) {
     console.log("loadSinglePageError", error);
+  }
+});
+
+const loadUserProfile = asyncHandler(async (req, res) => {
+  try {
+    const userData = await User.findOne({ _id: req.session.userId });
+
+    res.render("user/userProfile", { user: userData });
+  } catch (error) {
+    console.log("loadUserProfileError", error);
+  }
+});
+
+const loadUserCart = asyncHandler(async (req, res) => {
+  try {
+    const userData = await User.findOne({ _id: req.session.userId });
+    const productID = req.query.id;
+    console.log("product ID", productID);
+    const cartProduct = await CartDB.findById().populate("Product");
+    console.log("cartProduct", cartProduct);
+    res.render("user/userCart", { user: userData, cartProduct });
+  } catch (error) {
+    console.log("userCartError", error);
   }
 });
 
@@ -269,4 +266,6 @@ module.exports = {
   submitOtpHandler,
   loadProductUserView,
   loadSingleProductUserView,
+  loadUserProfile,
+  loadUserCart,
 };

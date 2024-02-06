@@ -1,18 +1,34 @@
-const asyncHandler = require("express-async-handler");
+const isLogin= async(req,res,next)=>{
 
-const userAuthMiddleware = asyncHandler(async(req,res,next)=>{
+    try {
+        
+        if (req.session.userId) {
+            next();
+        }else{
+            res.redirect('/login');
+        }
+
+    } catch (error) {
+        console.log(error.message);
+    } 
+
+}
+
+const isLogout= async(req,res,next)=>{
+
     try {
         if(req.session.userId){
-            res.locals.user = req.session.userId; 
-            console.log('locals userMiddleware',res.locals.user);  
-        }else{
-            res.locals.user = null;    
-        }
-        next();
+            res.redirect('/');
+         }else {
+         next();
+         }
     } catch (error) {
-        next(error);
-        console.log('userAuthMiddlewareError', error);
+        console.log(error.message);
     }
-})
 
-module.exports = {userAuthMiddleware};
+} 
+
+module.exports = {
+    isLogin,
+    isLogout
+}
