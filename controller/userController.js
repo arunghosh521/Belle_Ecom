@@ -2,7 +2,6 @@ const { log } = require("sharp/lib/libvips");
 const User = require("../models/userModel");
 const ProductModel = require("../models/addProducts");
 const categoryDB = require("../models/category");
-const CartDB = require("../models/cart");
 const asyncHandler = require("express-async-handler");
 const cookieParser = require("cookie-parser");
 // const { isEmail } = require("validator");
@@ -22,9 +21,10 @@ const Product = require("../models/addProducts");
 //Rendering the home page
 const loadHome = async (req, res) => {
   try {
+    
     const userData = await User.findOne({ _id: req.session.userId });
     console.log("usergetting HomePage ", userData);
-    res.render("user/home", { user: userData });
+    res.render("user/home", { user: userData});
   } catch (error) {
     console.log(error);
   }
@@ -232,26 +232,39 @@ const loadSingleProductUserView = asyncHandler(async (req, res) => {
 
 const loadUserProfile = asyncHandler(async (req, res) => {
   try {
-    const userData = await User.findOne({ _id: req.session.userId });
 
-    res.render("user/userProfile", { user: userData });
+    const userData = await User.findOne({ _id: req.session.userId });
+    res.render("user/userProfile", { user: userData, message: req.flash('updateMsg') });
   } catch (error) {
     console.log("loadUserProfileError", error);
   }
 });
 
-const loadUserCart = asyncHandler(async (req, res) => {
+const editProfileCntrl = asyncHandler(async(req,res)=>{
   try {
-    const userData = await User.findOne({ _id: req.session.userId });
-    const productID = req.query.id;
-    console.log("product ID", productID);
-    const cartProduct = await CartDB.findById().populate("Product");
-    console.log("cartProduct", cartProduct);
-    res.render("user/userCart", { user: userData, cartProduct });
+    console.log("editProfiule");
+    const {Fname, Lname, UserID, Email} = req.body;
+    console.log(req.body);
+    const UserData = await User.findById({_id:UserID});
+    console.log("existUser", existingUser);
+    if (UserData && UserData._id.toString() !== UserID.toString()) {
+      req.flash("updateMsg", 'User with this email already exists');
+      res.redirect('/userProfile');
+    } else {
+      
+      const updatedUser = await User.findByIdAndUpdate({_id:UserID},{$set:{firstname:Fname, lastname:Lname, email:Email}},{new:true})
+console.log("updatedUser", updatedUser);
+      await updatedUser.save();
+
+
+      req.flash("updateMsg", 'Updated successfully');
+      res.redirect('/userProfile');
+    }
   } catch (error) {
-    console.log("userCartError", error);
+    console.log("EditUserError", error);
   }
 });
+
 
 module.exports = {
   loadRegister,
@@ -267,5 +280,5 @@ module.exports = {
   loadProductUserView,
   loadSingleProductUserView,
   loadUserProfile,
-  loadUserCart,
+  editProfileCntrl,
 };

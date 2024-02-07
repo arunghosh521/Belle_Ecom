@@ -130,8 +130,8 @@
                   </div>
                 </div>
                 <div class="product-form__item--submit">
-                    <a href="/cart?id=<%= product._id %>" class="btn product-form__cart-submit">
-                        <button type="button" name="add">
+                    <a href="/cart?id=<%= product._id %>"  id="addToCartButton">
+                        <button type="button" class="btn product-form__cart-submit" name="add">
                             <span id="AddToCartText-product-template">Add to cart</span>
                         </button>
                     </a>
@@ -1172,6 +1172,21 @@
         });
     });
     </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const addToCartBtn = document.getElementById('addToCartButton');
+      const productId = "<%= product._id %>";
+
+      addToCartBtn.addEventListener('click', function(event) {
+        console.log("clicked cart button");
+          event.preventDefault();
+          addToCartBtn.setAttribute('href', '/cart?id=' + productId);
+          addToCartBtn.querySelector('#AddToCartText-product-template').innerText = "Go to cart";
+      });
+  });
+</script>
+
 
 <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="pswp__bg"></div>

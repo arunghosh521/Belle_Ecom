@@ -2,15 +2,12 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controller/userController");
 //const checkUserBlocked = require("../middlewares/userCheck");
-const {isLogin, isLogout} = require('../middlewares/userAuth');
+const { isLogin, isLogout, isBlocked } = require("../middlewares/userAuth");
 
-
-
-router.get("/",userController.loadHome);
-//router.use(userAuthMiddleware);
+router.get("/", userController.loadHome);
 router
   .route("/register")
-  .get(isLogout,userController.loadRegister)
+  .get(isLogout, userController.loadRegister)
   .post(userController.createUser);
 router.post("/validate", userController.validateUser);
 router.post("/generate-otp", userController.generateOtpCntrl);
@@ -21,12 +18,16 @@ router
   .get(isLogout, userController.loadLogin)
   .post(userController.loginUserCtrl);
 router.get("/logout", isLogin, userController.userLogout);
-router.get('/productView', userController.loadProductUserView);
-router.get('/singleProduct', isLogin, userController.loadSingleProductUserView);
-router.get('/userProfile', isLogin, userController.loadUserProfile);
-router.get('/cart', isLogin, userController.loadUserCart);
+router.get("/productView", userController.loadProductUserView);
+router.get(
+  "/singleProduct",
+  isLogin,
+  isBlocked,
+  userController.loadSingleProductUserView
+);
+router
+  .route("/userProfile")
+  .get(isLogin, isBlocked, userController.loadUserProfile)
+  .post(userController.editProfileCntrl);
 
-
-
-
-module.exports = router; 
+module.exports = router;

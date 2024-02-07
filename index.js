@@ -14,14 +14,20 @@ const authRouter = require("./routes/authRoute");
 const adminRouter = require("./routes/adminRoute");
 const categoryRouter = require("./routes/categoryRoute");
 const productRouter = require("./routes/productRoute");
+const cartRouter = require("./routes/cartRoute");
 
 dbConnect();
+
+const TwoDaysValidity = 2 * 24 * 60 * 60 * 1000;
 
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      maxAge: TwoDaysValidity,
+    }
   })
 );
 
@@ -49,6 +55,9 @@ app.use("/admin/product", productRouter);
 
 //adminRoute
 app.use("/admin", adminRouter);
+
+//cartRoute
+app.use("/cart", cartRouter.cartRoute);
 
 //userRoute
 app.use("/", authRouter);

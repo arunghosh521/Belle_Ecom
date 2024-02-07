@@ -65,15 +65,10 @@
                         <!-- User is logged in -->
                         <span class="user-menu d-block d-lg-none"><i class="anm anm-user-al" aria-hidden="true"></i></span>
                         <ul class="customer-links list-inline">
-                            <li>Welcome, &nbsp; <%=user.firstname %></li>
+                            <li>Welcome, &nbsp; <%=user.firstname %>  <%= user.lastname %></li>
                             <li><a href="/logout">Logout</a></li>
-                            <li><a href="wishlist.html">Wishlist</a></li>
-
-                           
-
+                            <li><a href="wishlist.html">Wishlist</a></li>  
                         </ul>
-
-
                        
                     <% } else { %>
                         <!-- User is not logged in -->
