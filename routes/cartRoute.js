@@ -5,7 +5,9 @@ const {isLogin, isLogout, isBlocked} = require('../middlewares/userAuth');
 
 
 
-cartRoute.get('', isLogin, isBlocked, cartController.loadUserCart);
+cartRoute.route('')
+.get(isLogin, isBlocked, cartController.loadUserCart)
+.post(cartController.insertCartItem);
 
 
 module.exports = {cartRoute}
