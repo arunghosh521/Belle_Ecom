@@ -1,143 +1,434 @@
 <%- include('../adminLayouts/header.ejs') -%>
+
+<style>
+  .close-image {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 1;
+  }
+</style>
+
 <div class="page-body">
 
-    <!-- Edit Product Add Start -->
-    <div class="container-fluid">
+  <!-- Edit Product Add Start -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
         <div class="row">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-sm-8 m-auto">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="card-header-2">
-                                    <h5>Edit Product</h5>
-                                </div>
-                                <p style="color: red; text-align: center;" ><%= messages.productMsg? messages.productMsg:"" %></p>
-
-                                <form class="theme-form theme-form-2 mega-form" method="post" >
-                                    <div class="mb-4 row align-items-center">
-                                        <label class="form-label-title col-sm-3 mb-0">Product
-                                            Name</label>
-                                            
-                                        <div class="col-sm-9">
-                                            <input class="form-control" name="productName" type="text"
-                                                placeholder="Product Name" value="<%= products.name %>">
-                                        </div>
-                                    </div>
-                                        <div class="mb-4 row align-items-center">
-                                            <label class="form-label-title col-sm-3 mb-0">Product
-                                                Price</label>
-                                            <div class="col-sm-9">
-                                                <input class="form-control" name="productPrice" type="text"
-                                                    placeholder="Product Price" value="<%= products.price %>">
-                                            </div>
-                                        </div>
-
-
-                                    <div class="mb-4 row align-items-center">
-                                        <label
-                                            class="col-sm-3 col-form-label form-label-title">Category</label>
-                                      <div class="col-sm-9">
-                                            <select class="js-example-basic-single w-100" name="category">
-                                                <option disabled>Category Menu</option>
-                                                    <% categoryData.forEach(category => { %>
-                                                    <option value="<%= category.category %>" <%= category.category === products.category.category? 'selected' : '' %>>
-                                                        <%= category.category %>
-                                                      
-                                                    </option>
-                                               <% }) %>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                        <div class="mb-4 row align-items-center">
-                                            <label class="form-label-title col-sm-3 mb-0">Product
-                                                Quantity</label>
-                                            <div class="col-sm-9">
-                                                <input class="form-control" name="quantity" type="number"
-                                                    placeholder="Product Quantity" value="<%= products.quantity %>">
-                                            <input type="hidden" name="productID" value="<%= products._id %>">
-                                                </div>
-                                        </div>
-
-                                        <div class="mb-4 row align-items-center">
-                                            <label
-                                                class="col-sm-3 col-form-label form-label-title">Size</label>
-                                            <div class="col-sm-9">
-                                                <select class="js-example-basic-single w-100" name="size">
-                                                    <option disabled>Select Size</option>
-                                                    <option>M</option>
-                                                    <option>L </option>
-                                                    <option>XL</option>
-                                                    <option>XXL</option>
-                                                    <option>XXXL</option>                                                   
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-4 row align-items-center">
-                                            <label
-                                                class="col-sm-3 col-form-label form-label-title">Color</label>
-                                            <div class="col-sm-9">
-                                                <select class="js-example-basic-single w-100" name="color">
-                                                    <option disabled>Select Color</option>
-                                                    <option>Red</option>
-                                                    <option>White</option>
-                                                    <option>Blue</option>
-                                                    <option>Black</option>                                                                                                   
-                                                </select>
-                                            </div>
-                                        </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="card-header-2">
-                                    <h5>Description</h5>
-                                </div>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="row">
-                                                <label class="form-label-title col-sm-3 mb-0">Product
-                                                    Description</label>
-                                                    <div class="col-sm-9">
-                                                        <textarea class="form-control" name="description" rows="3"><%= products.description %></textarea>
-                                                    </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="card-header-2">
-                                    <h5>Product Images</h5>
-                                </div>
-
-                                    <div class="mb-4 row align-items-center">
-                                        <label
-                                            class="col-sm-3 col-form-label form-label-title">Images</label>
-                                        <div class="col-sm-9">
-                                            <input class="form-control form-choose" name="images" type="file"
-                                                id="formFile" multiple>
-                                        </div>
-                                    </div>
-                                    <div class="mb-4 row align-items-center">
-                                        <div class="col-sm-3"></div>
-                                        <div class="col-sm-9">
-                                          <button type="submit" class="btn btn-primary">Submit</button>
-                                        </div>
-                                      </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+          <div class="col-sm-8 m-auto">
+            <div class="card">
+              <div class="card-body">
+                <div class="card-header-2">
+                  <h5>Edit Product</h5>
                 </div>
-            </div>
-        </div>
-    </div>
-    <!-- Edit Product Add End -->
+                <p style="color: red; text-align: center;"><%= messages.productMsg? messages.productMsg:"" %></p>
 
-<%- include('../adminLayouts/footer.ejs') -%>
+                <form class="theme-form theme-form-2 mega-form" method="post" id="productForm" enctype="multipart/form-data">
+
+                  <div class="mb-4 row align-items-center">
+                    <label class="form-label-title col-sm-3 mb-0">Product
+                      Name</label>
+
+                    <div class="col-sm-9">
+                      <input class="form-control" name="productName" type="text" id="productNameField" placeholder="Product Name" value="<%= products.name %>">
+                      <p id="pNameAlert" style="color: red;"></p>
+                    </div>
+                  </div>
+                  <div class="mb-4 row align-items-center">
+                    <label class="form-label-title col-sm-3 mb-0">Product
+                      Price</label>
+                    <div class="col-sm-9">
+                      <input class="form-control" name="productPrice" type="text" id="productPriceField" placeholder="Product Price" value="<%= products.price %>">
+                      <p id="pPriceAlert" style="color: red;"></p>
+                    </div>
+                  </div>
+
+
+                  <div class="mb-4 row align-items-center">
+                    <label class="col-sm-3 col-form-label form-label-title">Category</label>
+                    <div class="col-sm-9">
+                      <select class="js-example-basic-single w-100" name="category">
+                        <option disabled>Category Menu</option>
+                        <% categoryData.forEach(category => { %>
+                        <option value="<%= category.category %>" <%= category.category === products.category.category? 'selected' : '' %>>
+                          <%= category.category %>
+                        </option>
+                        <% }) %>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-4 row align-items-center">
+                    <label class="form-label-title col-sm-3 mb-0">Product
+                      Quantity</label>
+                    <div class="col-sm-9">
+                      <input class="form-control" name="quantity" type="number" id="productQuantityField" placeholder="Product Quantity" value="<%= products.quantity %>">
+                      <p id="pQuantityAlert" style="color: red;"></p>
+                      <input type="hidden" name="productID" value="<%= productId %>">
+                      <input type="hidden" name="categoryID" value="<%= categoryData[0]._id %>">
+                    </div>
+                  </div>
+
+                  <div class="mb-4 row align-items-center">
+                    <label class="col-sm-3 col-form-label form-label-title">Size</label>
+                    <div class="col-sm-9">
+                      <select class="js-example-basic-single w-100" name="size">
+                        <option disabled>Select Size</option>
+                        <option>M</option>
+                        <option>L </option>
+                        <option>XL</option>
+                        <option>XXL</option>
+                        <option>XXXL</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-4 row align-items-center">
+                    <label class="col-sm-3 col-form-label form-label-title">Color</label>
+                    <div class="col-sm-9">
+                      <select class="js-example-basic-single w-100" name="color">
+                        <option disabled>Select Color</option>
+                        <option>Red</option>
+                        <option>White</option>
+                        <option>Blue</option>
+                        <option>Black</option>
+                      </select>
+                    </div>
+                  </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <div class="card-header-2">
+                  <h5>Description</h5>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <div class="row">
+                      <label class="form-label-title col-sm-3 mb-0">Product
+                        Description</label>
+                      <div class="col-sm-9">
+                        <textarea class="form-control" name="description" rows="3"><%= products.description %></textarea>
+                        <p id="wordCountDisplay" class="text-muted">Word Count: 0/100</p>
+                        <p id="pDescriptionAlert" style="color: red;"></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <div class="card-header-2">
+                  <h5>Product Images</h5>
+                </div>
+
+                <div class="mb-3" id="image-preview" style="display: flex; flex-wrap: wrap;">
+                  <% products.images.forEach(image => { %>
+                  <div class="mb-3" style="position: relative; flex: 0 0 calc(25% - 1rem);">
+                    <img src="/uploads/<%= image %>" alt="Product Image" class="img-thumbnail" style="max-width: 100%; height: 130px;">
+                    <button type="button" class="btn btn-danger btn-sm close-image" data-image="/uploads/<%= image %>">&times;</button>
+                  </div>
+                  <% }) %>
+                </div>
+
+                <div class="mb-4 row align-items-center">
+                  <label class="col-sm-3 col-form-label form-label-title">Images</label>
+                  <div class="col-sm-9">
+                    <input class="form-control form-choose" name="image" type="file" id="formFile" accept="image/*" multiple onchange="previewImages(event)">
+                  </div>
+                </div>
+                <div class="mb-4 row align-items-center">
+                  <div class="col-sm-3"></div>
+                  <div class="col-sm-9">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </div>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Product Add End -->
+  
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+
+
+
+  <script>
+    toastr.options = {
+      "closeButton": false,
+      "debug": false,
+      "newestOnTop": true,
+      "progressBar": false,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+      let productForm = document.getElementById('productForm');
+      let productName = document.getElementById('productNameField');
+      let pNameAlert = document.getElementById('pNameAlert');
+      let productPrice = document.getElementById('productPriceField');
+      let pPriceAlert = document.getElementById('pPriceAlert');
+      let productQuantity = document.getElementById('productQuantityField');
+      let pQuantityAlert = document.getElementById('pQuantityAlert');
+      let pDescription = document.querySelector('textarea[name="description"]');
+      let pDescriptionAlert = document.getElementById('pDescriptionAlert');
+      let wordCountDisplay = document.getElementById('wordCountDisplay');
+
+      productForm.addEventListener('submit', function(event) {
+        if (pNameAlert.innerText || pPriceAlert.innerText || pQuantityAlert.innerText || pDescriptionAlert.innerText) {
+          event.preventDefault();
+          toastr.info('validation Failed. form submission prevented');
+
+          console.log('validation Failed. form submission prevented');
+        }
+      });
+
+      productName.addEventListener('input', function() {
+        console.log('typing');
+        let pName = productName.value;
+        fetch('/admin/product/validateProduct', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              productName: pName
+            }),
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.pNameStatus) {
+              pNameAlert.innerText = data.pNameStatus;
+            } else {
+              pNameAlert.innerText = '';
+            }
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      });
+
+
+      productPrice.addEventListener('input', function() {
+        console.log('typing');
+        let pQuantity = productPrice.value;
+        fetch('/admin/product/validateProduct', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              productPrice: pQuantity
+            }),
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.pPriceStatus) {
+              pPriceAlert.innerText = data.pPriceStatus;
+            } else {
+              pPriceAlert.innerText = '';
+            }
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      });
+
+
+      pDescription.addEventListener('input', function() {
+        console.log('typing');
+        let pDescriptionInput = pDescription.value;
+        fetch('/admin/product/validateProduct', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              productDescription: pDescriptionInput
+            }),
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.pDescriptionStatus) {
+              pDescriptionAlert.innerText = data.pDescriptionStatus;
+            } else {
+              pDescriptionAlert.innerText = '';
+            }
+            updateWordCount(pDescriptionInput);
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      });
+
+      function updateWordCount(description) {
+        const words = description.trim().split(/\s+/);
+        const wordCount = words.length;
+        const remainingWords = Math.max(0, 100 - wordCount);
+        wordCountDisplay.innerText = `Word Count: ${wordCount}/${remainingWords}`
+      }
+
+
+      productQuantity.addEventListener('input', function() {
+        console.log('typing');
+        let pPrice = productQuantity.value;
+        fetch('/admin/product/validateProduct', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              productQuantity: pPrice
+            }),
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.pQuantityStatus) {
+              pQuantityAlert.innerText = data.pQuantityStatus;
+            } else {
+              pQuantityAlert.innerText = '';
+            }
+            console.log(data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+      });
+    });
+  </script>
+
+
+
+
+
+
+
+  <script>
+    function previewImages(event) {
+      const previewDiv = document.getElementById('image-preview');
+      previewDiv.innerHTML = '';
+
+      const files = event.target.files;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'img-thumbnail';
+          img.style.maxWidth = '100px';
+          previewDiv.appendChild(img);
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function previewAddProductImage(event) {
+      const previewDiv = document.getElementById('add-product-image-preview');
+      previewDiv.innerHTML = '';
+
+      const files = event.target.files;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'img-thumbnail';
+          img.style.maxWidth = '100px';
+          previewDiv.appendChild(img);
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    const productId = '<%= products._id %>';
+
+    document.querySelectorAll('.close-image').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const imageUrl = this.getAttribute('data-image');
+
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "You won't be able to revert this!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch('/admin/product/deleteImage?id=' + productId, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  imageUrl: imageUrl
+                })
+              })
+              .then(response => {
+                if (response.ok) {
+                  this.parentNode.remove();
+                  Swal.fire(
+                    'Deleted!',
+                    'Your image has been deleted.',
+                    'success'
+                  );
+                } else {
+                  console.log('Failed to delete image');
+                  Swal.fire(
+                    'Failed!',
+                    'There was an error deleting your image.',
+                    'error'
+                  );
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                Swal.fire(
+                  'Error!',
+                  'An error occurred while trying to delete your image.',
+                  'error'
+                );
+              });
+          }
+        });
+      });
+    });
+  </script>
+
+
+
+
+  <%- include('../adminLayouts/footer.ejs') -%>
+
+
+
+  

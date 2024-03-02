@@ -1,4 +1,14 @@
 <%- include('../adminLayouts/header.ejs') -%>
+<style>
+    .long-text {
+     max-width: 200px;
+     text-overflow: ellipsis;
+     overflow: hidden;
+     white-space: nowrap;
+     word-wrap: break-word;
+    }
+    </style>
+
 <div class="page-body">
     <div class="container-fluid">
         <div class="row">
@@ -46,7 +56,7 @@
                                                     </div>
                                                 </td>
                                     
-                                                <td><%= product.name %></td>
+                                                <td class="long-text"><%= product.name %></td>
                                                 <td>
                                                     <% if (product.category) { %>
                                                       <%= product.category.category %>
@@ -55,7 +65,7 @@
                                                     <% } %>
                                                   </td>
                                                 <td><%= product.quantity %></td>
-                                                <td class="bi bi-currency-rupee">$<%= product.price %></td>
+                                                <td class="bi bi-currency-rupee">₹<%= product.price %></td>
                                                 <td>
                                                     <% if(product.is_listed==true){ %>
                                                     <button onclick="listUser()" type="button" class="btn btn-success" data-product-id="<%= product._id %>" data-is-listed=false>

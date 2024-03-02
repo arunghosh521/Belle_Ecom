@@ -1,4 +1,40 @@
 <%- include('../layouts/header.ejs') -%>
+
+<style>
+  .loader {
+    border: 8px solid #f3f3f3;
+    /* Light grey */
+    border-top: 8px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+    display: none;
+    /* Initially hide loader */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  #showPassword {
+    margin-top: 10px;
+  }
+</style>
+
+
+
 <!--Body Content-->
 <div id="page-content">
   <!--Page Title-->
@@ -41,6 +77,7 @@
                 <div class="form-group">
                   <label for="CustomerPassword">Password</label>
                   <input type="password" value="" name="password" required placeholder="" id="CustomerPassword" class="">
+                  <input type="checkbox" id="showPassword"> Show Password
                   <p id="alertPassword" style="color: red;"></p>
                   <p><%= messages.existmessage? messages.existmessage:"" %></p>
                 </div>
@@ -48,9 +85,11 @@
             </div>
             <div class="row">
               <div class="text-center col-12 col-sm-12 col-md-12 col-lg-12">
-                <button  class="btn mb-3" id="submitButton">Create</button>
+                <button class="btn mb-3" id="submitButton">Create</button>
                 <p id="validationDisplay" style="color: red;"></p>
               </div>
+              <div id="loader" class="loader"></div>
+
               <!-- user/register.ejs -->
 
 
@@ -58,7 +97,8 @@
                 <div class="form-group">
                   <p>OTP has sent to the registered email</p>
                   <label for="otpInput">Enter OTP</label>
-                  <input type="text" name="otp" placeholder="" id="otpInput">
+                  <input type="text" name="otp" placeholder="" id="otpInput" required>
+                  <p id="alertOtp" style="color: red;"></p>
                   <br><br>
                   <p id="timerDisplay" style="color: red;"></p>
                   <input type="button" class="btn mb-3" value="Submit OTP" id="submitBtnOtp">
@@ -76,6 +116,26 @@
 
 <!--End Body Content-->
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+
+
+
+<script>
+    document.getElementById('showPassword').addEventListener('change', function() {
+      var passwordInput = document.getElementById('CustomerPassword');
+      if (this.checked) {
+        passwordInput.type = 'text';
+      } else {
+        passwordInput.type = 'password';
+      }
+    });
+  </script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -88,13 +148,16 @@
     let emailInput = document.getElementById('CustomerEmail');
     let emailAlert = document.getElementById('emailAlert');
     let SubmitButton = document.getElementById('submitButton');
+    let otpInput = document.getElementById('otpInput');
+    let alertOtp = document.getElementById('alertOtp');
+    let submitOtpBtn = document.getElementById('submitBtnOtp');
 
     console.log("before disabled out side event");
     SubmitButton.disabled = true;
 
     registerForm.addEventListener('submit', function(event) {
       console.log("register form clicked");
-      if (!fNameInput.value || !emailInput.value|| inputPassword.value) {
+      if (!fNameInput.value || !emailInput.value || inputPassword.value) {
         return false
         validationAlert.innerText = 'All fields are required.';
         console.log('validation Failed. form submission prevented');
@@ -109,8 +172,6 @@
     });
 
     fNameInput.addEventListener('input', function() {
-      console.log("fname clicked");
-      console.log('typing');
       let fname = fNameInput.value;
       fetch('/validate', {
           method: 'POST',
@@ -136,7 +197,6 @@
     });
 
     emailInput.addEventListener('input', function() {
-      console.log("email clicked");
       let email = emailInput.value;
       fetch('/validate', {
           method: 'POST',
@@ -161,46 +221,100 @@
     });
 
     inputPassword.addEventListener('input', function() {
-  console.log("password clicked");
-  console.log('typing');
-  let Pfield = inputPassword.value;
-  fetch('/validate', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      password: Pfield
-    }),
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.passwordStatus) {
-      alertPassword.innerText = data.passwordStatus;
-    } else {
-      alertPassword.innerText = ''; // Clear the message 
-    }
-    console.log(data);
-    enableSubmitBtn(); // Call enableSubmitBtn only after password validation is complete
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
-});
+
+      let Pfield = inputPassword.value;
+      fetch('/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            password: Pfield
+          }),
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.passwordStatus) {
+            alertPassword.innerText = data.passwordStatus;
+          } else {
+            alertPassword.innerText = ''; 
+          }
+          console.log(data);
+          enableSubmitBtn(); 
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    });
+
+    otpInput.addEventListener('input', function() {
+
+      let otpField = otpInput.value;
+      fetch('/validate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            OTP: otpField
+          }),
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.otpStatus) {
+            alertOtp.innerText = data.otpStatus;
+          } else {
+            alertOtp.innerText = '';  
+          }
+          console.log(data);
+          enableOtpSubmitBtn();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+
+    })
+
+
 
     function enableSubmitBtn() {
-  if (nameAlert.innerText === "" && emailAlert.innerText === "" && alertPassword.innerText === "") {
-    SubmitButton.disabled = false;
-  } else {
-    SubmitButton.disabled = true;
-  }
-}
+      if (nameAlert.innerText === "" && emailAlert.innerText === "" && alertPassword.innerText === "") {
+        SubmitButton.disabled = false;
+      } else {
+        SubmitButton.disabled = true;
+      }
+    }
+
+    function enableOtpSubmitBtn() {
+      if(alertOtp.innerText === ""){
+        submitOtpBtn.disabled = false;
+      }else{
+        submitOtpBtn.disabled = true;
+      }
+    }
 
   });
 </script>
 
 
 <script>
+  toastr.options = {
+  "closeButton": false,
+  "debug": false,
+  "newestOnTop": true,
+  "progressBar": false,
+  "positionClass": "toast-top-right",
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "300",
+  "hideDuration": "1000",
+  "timeOut": "5000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+};
   document.addEventListener('DOMContentLoaded', function() {
     let submitButton = document.getElementById('submitButton');
     let otpSection = document.getElementById('otpSection');
@@ -212,7 +326,8 @@
     let CustomerPassword = document.getElementById('CustomerPassword');
     let FirstName = document.getElementById('FirstName');
     let LastName = document.getElementById('LastName');
-    let timerDisplay = document.getElementById('timerDisplay')
+    let timerDisplay = document.getElementById('timerDisplay');
+    let loader = document.getElementById('loader');
 
     let otpExpirationTime = 60;
     let cuntdownTimer;
@@ -220,9 +335,8 @@
     resendButton.disable = false;
 
     submitButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log("clicked");
-      // Generate and send OTP when the section is revealed
+      e.preventDefault();
+      loader.style.display = 'block';
       fetch('/generate-otp', {
           method: 'POST',
           headers: {
@@ -237,6 +351,7 @@
         })
         .then(response => response.json())
         .then(data => {
+          loader.style.display = 'none';
           if (data.success) {
             // OTP sent successfully, show OTP section
             otpSection.removeAttribute('hidden');
@@ -245,19 +360,20 @@
             document.getElementById('LastName').setAttribute('readonly', false);
             document.getElementById('CustomerEmail').setAttribute('readonly', false);
             document.getElementById('CustomerPassword').setAttribute('readonly', false);
-            // You can add more fields as needed
+            submitButton.disabled = true;
             submitOtpBtn.disabled = false;
             resendButton.disabled = true;
-            // Access the generated OTP and show a success message
-            // alert('OTP sent successfully.');
+            
+            toastr.success(data.message);
+
             startTimer();
           } else {
-            // Handle the case where OTP sending failed
-            alert('Failed to send OTP. Please try again.');
+            toastr.info(data.message);
           }
         })
         .catch(error => {
           console.log('Error', error);
+          loader.style.display = 'none';
         });
     });
 
@@ -272,6 +388,9 @@
           body: JSON.stringify({
             otp: enteredOtp,
             email: CustomerEmail.value,
+            fname: FirstName.value,
+            lname: LastName.value,
+            password: CustomerPassword.value,
           }),
         })
         .then(response => response.json())
@@ -285,9 +404,9 @@
             CustomerPassword.removeAttribute('readonly');
 
             stopTimer();
-            window.location.href = '/login';
+            window.location.href = '/';
           } else {
-            alert('Failed to submit OTP. Please try again.');
+            toastr.info(data.message);
           }
         })
         .catch(error => {
@@ -308,7 +427,8 @@
           })
           .then(response => response.json())
           .then(data => {
-            alert(data.message);
+            startTimer();
+            toastr.info(data.message);
           })
           .catch(error => {
             console.log('Error', error);

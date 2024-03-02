@@ -1,4 +1,32 @@
 <%- include('../adminLayouts/header.ejs') -%>
+<style>
+  .img-container {
+    position: relative;
+    /* Position relative to allow absolute positioning of close button */
+    display: inline-block;
+    /* Display inline to stack images horizontally */
+    margin-right: 10px;
+    /* Adjust margin as needed */
+  }
+
+  .close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    /* Semi-transparent white background */
+    border: none;
+    color: #000;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 3px;
+    line-height: 1;
+    border-radius: 50%;
+    z-index: 1;
+  }
+</style>
+
+
 <div class="page-body">
 
   <!-- New Product Add Start -->
@@ -113,13 +141,14 @@
                 <div class="mb-4 row align-items-center">
                   <label class="col-sm-3 col-form-label form-label-title">Images</label>
                   <div class="col-sm-9">
-                    <input class="form-control form-choose" name="images" type="file" id="formFile" multiple>
+                    <input class="form-control form-choose" name="image" type="file" id="formFile" accept="image/*" multiple>
+                    <div id="imagePreviews" class="mt-2"></div>
                   </div>
                 </div>
                 <div class="mb-4 row align-items-center">
                   <div class="col-sm-3"></div>
                   <div class="col-sm-9">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
                   </div>
                 </div>
                 </form>
@@ -132,7 +161,32 @@
   </div>
   <!-- New Product Add End -->
 
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
   <script>
+    toastr.options = {
+  "closeButton": false,
+  "debug": false,
+  "newestOnTop": true,
+  "progressBar": false,
+  "positionClass": "toast-top-right",
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "300",
+  "hideDuration": "1000",
+  "timeOut": "5000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+};
     document.addEventListener('DOMContentLoaded', function() {
       let productForm = document.getElementById('productForm');
       let productName = document.getElementById('productNameField');
@@ -144,10 +198,12 @@
       let pDescription = document.querySelector('textarea[name="description"]');
       let pDescriptionAlert = document.getElementById('pDescriptionAlert');
       let wordCountDisplay = document.getElementById('wordCountDisplay');
-      
+
       productForm.addEventListener('submit', function(event) {
         if (pNameAlert.innerText || pPriceAlert.innerText || pQuantityAlert.innerText || pDescriptionAlert.innerText) {
           event.preventDefault();
+          toastr.info('validation Failed. form submission prevented');
+
           console.log('validation Failed. form submission prevented');
         }
       });
@@ -169,7 +225,7 @@
             if (data.pNameStatus) {
               pNameAlert.innerText = data.pNameStatus;
             } else {
-              pNameAlert.innerText = ''; // Clear the message if there is no error
+              pNameAlert.innerText = ''; 
             }
             console.log(data);
           })
@@ -196,7 +252,7 @@
             if (data.pPriceStatus) {
               pPriceAlert.innerText = data.pPriceStatus;
             } else {
-              pPriceAlert.innerText = ''; // Clear the message if there is no error
+              pPriceAlert.innerText = ''; 
             }
             console.log(data);
           })
@@ -223,7 +279,7 @@
             if (data.pDescriptionStatus) {
               pDescriptionAlert.innerText = data.pDescriptionStatus;
             } else {
-                pDescriptionAlert.innerText = ''; // Clear the message if there is no error
+              pDescriptionAlert.innerText = ''; 
             }
             updateWordCount(pDescriptionInput);
             console.log(data);
@@ -258,13 +314,67 @@
             if (data.pQuantityStatus) {
               pQuantityAlert.innerText = data.pQuantityStatus;
             } else {
-              pQuantityAlert.innerText = ''; // Clear the message if there is no error
+              pQuantityAlert.innerText = '';
             }
             console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);
           });
+      });
+    });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const fileInput = document.getElementById('formFile');
+      const imagePreviews = document.getElementById('imagePreviews');
+      let imageContainers = []; // Array to store image containers
+
+      // Function to remove an image container
+      function removeImageContainer(container) {
+        container.remove(); // Remove the container from the DOM
+        const index = imageContainers.indexOf(container);
+        if (index !== -1) {
+          imageContainers.splice(index, 1); 
+        }
+      }
+
+      fileInput.addEventListener('change', function(event) {
+        const files = event.target.files;
+
+     
+        imageContainers.forEach(container => removeImageContainer(container));
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+
+          reader.onload = function(e) {
+            const imgContainer = document.createElement('div');
+            imgContainer.classList.add('img-container', 'mr-2');
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.classList.add('img-thumbnail');
+            img.style.width = '130px'; 
+            img.style.height = '180px'; 
+            imgContainer.appendChild(img);
+
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '&times;'; 
+            closeButton.classList.add('close-button');
+            closeButton.addEventListener('click', function() {
+              removeImageContainer(imgContainer); 
+            });
+            imgContainer.appendChild(closeButton);
+
+            imagePreviews.appendChild(imgContainer);
+            imageContainers.push(imgContainer); // Add the container to the array
+          };
+
+          reader.readAsDataURL(file);
+        }
       });
     });
   </script>

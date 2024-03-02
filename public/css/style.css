@@ -1110,7 +1110,7 @@ table { margin-bottom:15px; width:100%; border-collapse:collapse; border-spacing
 .order-table .table td { font-size:13px; padding:8px 5px 5px; }
 .card { border-radius:0; margin-bottom:10px; }
 .card-header { position:relative; padding:6px 15px; }
-.card-header:before{ content:"\f078"; font-family:'FontAwesome'; font-size:13px; position:absolute; right:10px; top:9px; color:#555; }
+.card-header:before{ font-family:'FontAwesome'; font-size:13px; position:absolute; right:10px; top:9px; color:#555; }
 .payment-accordion .card .card-header { background-color:#fff; }
 .payment-accordion .card .card-header a { display:block; font-size:16px; font-weight:500; text-transform:uppercase; }
 .order-button-payment .btn { font-size:13px; font-size:700; padding: 10px 20px; }
@@ -1134,9 +1134,9 @@ table { margin-bottom:15px; width:100%; border-collapse:collapse; border-spacing
   24. Cart Pages
 ========================================================================*/
 .cart__row { position:relative; }
-.cart th { font-weight:400; padding:10px 0 8px; background:#f2f2f2; text-transform:uppercase; padding-left:15px; padding-right:15px; letter-spacing:1px; }
+.cart th { font-weight:400; padding:10px 0 8px; background:#f2f2f2; text-transform:uppercase; padding-left:30px; padding-right:20px; letter-spacing:1px; }
 .cart td { padding:10px; }
-.cart .cart__meta { padding-right:15px; }
+.cart .cart__meta { padding-right:0px; }
 .cart th.cart__meta, .cart td.cart__meta { text-align:left; }
 .cart__image-wrapper a { display:block; }
 .cart .list-view-item__title { color:#000; font-size:1.15385em; min-width:100px; }

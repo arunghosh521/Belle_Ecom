@@ -33,6 +33,9 @@ var userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    image: {
+      type: String
+    },
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,

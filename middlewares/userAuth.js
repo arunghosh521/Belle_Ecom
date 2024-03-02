@@ -28,7 +28,6 @@ const isBlocked = async (req, res, next) => {
   try {
     if (req.session.userId) {
       const userData = await User.findOne({ _id: req.session.userId });
-      console.log("userDataInBlocked", userData);
       if (userData.is_blocked === true) {
         req.session.destroy(); 
         res.redirect('/');

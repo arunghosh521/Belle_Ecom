@@ -1,12 +1,11 @@
 const asyncHandler = require("express-async-handler");
-const Product = require("../models/addProducts");
+const fs = require('fs');
+const path = require('path');
+const Product = require("../models/products");
 const CategoryDB = require("../models/category");
 const AdminDB = require("../models/userModel");
-const multer = require("multer");
-const storage = multer.memoryStorage();
-const uploads = multer({ storage: storage }).array("images", 5);
-const sharp = require("sharp");
-
+const {resizeAndSaveImages} = require('../middlewares/multer');
+const { log } = require("sharp/lib/libvips");
 const loadProducts = asyncHandler(async (req, res) => {
   try {
     const findAdmin = await AdminDB.find();
@@ -66,14 +65,15 @@ const validateProduct = asyncHandler(async (req, res) => {
       response.pPriceStatus = "Product Price cannot be Empty";
     }
 
-    if (productQuantity) {
-      if (parseFloat(productQuantity) < 0) {
-        response.pQuantityStatus =
-          "Product Quantity cannot be a negative value";
+    if (productQuantity === undefined || productQuantity.trim() === "") {
+      response.pQuantityStatus = "Product Quantity cannot be empty or Zero";
+  } else {
+      const parsedQuantity = parseFloat(productQuantity);
+      if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+          response.pQuantityStatus = "Product Quantity must be a positive number";
       }
-    } else {
-      response.pQuantityStatus = "Product Quantity cannot be Empty";
-    }
+  }
+  
 
     if (productDescription) {
       const words = productDescription.trim().split(/\s+/);
@@ -93,13 +93,6 @@ const validateProduct = asyncHandler(async (req, res) => {
 });
 
 const addProductsCntrl = asyncHandler(async (req, res) => {
-  uploads(req, res, async (err) => {
-    var filenames = [];
-    if (err) {
-      console.error("Multer error:", err);
-      return res.status(500).send("Error uploading files.");
-    }
-
     try {
       const {
         productName,
@@ -110,30 +103,13 @@ const addProductsCntrl = asyncHandler(async (req, res) => {
         size,
         color,
       } = req.body;
-      console.log("prdtData:", req.body);
+      console.log('prdtData:', req.body);
 
-      const sharpPromises = req.files.map(async (file, index) => {
-        const filename = `image_${index + 1}.${
-          file.originalname
-        },${Date.now()}.jpg`;
-        const imagePath = `public/uploads/${filename}`;
-
-        await sharp(file.buffer)
-          .resize(300, 250, {
-            fit: "contain",
-            withoutEnlargement: true,
-            background: "white",
-          })
-          .toFile(imagePath, { quality: 90 });
-
-        filenames.push(filename);
-      });
-
-      // Wait for all sharpPromises to resolve before creating the Product
-      await Promise.all(sharpPromises);
+      console.log("imagesfromsystem", req.files);
+      const filenames = await resizeAndSaveImages(req.files);
 
       const findCategory = await CategoryDB.findOne({ category: category });
-      console.log("findCategory:", findCategory);
+      console.log('findCategory:', findCategory);
       const products = new Product({
         name: productName,
         category: findCategory._id,
@@ -148,27 +124,26 @@ const addProductsCntrl = asyncHandler(async (req, res) => {
 
       await products.save();
 
-      //const product = await Product.find();
-
-      res.redirect("/admin/product/listProduct");
+      res.redirect('/admin/product/listProduct');
     } catch (error) {
-      console.error("Error:", error);
-      res.status(500).send("Internal Server Error");
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
     }
   });
-});
+
 
 const loadEditProducts = asyncHandler(async (req, res) => {
   try {
     const _id = req.params.id;
     //console.log("ID:", _id);
     const products = await Product.findById(_id).populate('category');
-    console.log('product',products);
+    console.log("product Data", products);
+
     const category = await CategoryDB.find({ is_listed: true });
    
     const categoryData = Array.isArray(category) ? category : [];
-   // console.log("sfvd", categoryData);
-    res.render("admin/editProduct", { categoryData, products });
+   //console.log("Category Data", categoryData);
+    res.render("admin/editProduct", { categoryData, products, productId: _id });
   } catch (error) {
     console.log("editProductError", error);
   }
@@ -176,7 +151,6 @@ const loadEditProducts = asyncHandler(async (req, res) => {
 
 const toggleListUser = asyncHandler(async (req, res) => {
   try {
-    console.log("body", req.body);
     const { productId, isListed } = req.body;
 
     const products = await Product.findByIdAndUpdate(
@@ -185,7 +159,6 @@ const toggleListUser = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    console.log("Updated user:", products);
 
     res.json({ success: true });
   } catch (error) {
@@ -202,51 +175,64 @@ const updateEditProducts = asyncHandler(async (req, res) => {
       quantity,
       productPrice,
       productID,
-      category,
+      categoryID, 
       size,
       color,
     } = req.body;
-    console.log("prdtData:", req.body);
-    const existingProduct = await Product.findOne({
-      name: { $regex: new RegExp("^" + productName + "$", "i") },
+console.log("bodydataFromeditProduct", req.body);
+    const filenames = await resizeAndSaveImages(req.files)
+    const findCategory = await CategoryDB.findById(categoryID);
+
+    const updateProduct = await Product.findByIdAndUpdate(productID, {
+      name: productName,
+      category: findCategory._id,
+      price: productPrice,
+      description: description,
+      quantity: quantity,
+      size: size,
+      color: color,
+      is_listed: true,
+      images: filenames.map((filename) => `${filename}`),
     });
-    console.log(
-      "existPrdt",
-      productName,
-      existingProduct.category,
-      existingProduct.name,
-      category
-    );
-    if (
-      existingProduct.name == productName &&
-      existingProduct.category == category
-    ) {
-      req.flash("productMsg", "Product already exist");
-      console.log("haii..");
-      const id = req.params.id;
-      res.redirect(`/admin/product/editProduct/${id}`);
-    } else {
-      const findCategory = await CategoryDB.findById({ _id: category });
-      console.log("findCategory:", findCategory);
-      const updateProduct = await Product.findByIdAndUpdate(productID, {
-        name: productName,
-        category: findCategory._id,
-        price: productPrice,
-        description: description,
-        quantity: quantity,
-        size: size,
-        color: color,
-        is_listed: true,
-      });
-      console.log("ProductUpdated", updateProduct);
-      req.flash("productMsg", "Product updated successfully");
-      res.redirect("/admin/product/listProduct");
-    }
+
+    console.log("ProductUpdated", updateProduct);
+    req.flash("productMsg", "Product updated successfully");
+    res.redirect("/admin/product/listProduct");
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
   }
 });
+
+
+const deleteImageControl = asyncHandler(async(req,res) => {
+  try {
+    console.log("deleteImage");
+    const {imageUrl} = req.body;
+    console.log("bodyData:", imageUrl);
+    const productId = req.query.id; 
+    console.log("bodyData:", req.query);
+
+    const imageName = path.basename(imageUrl);
+    console.log("imageName:", imageName);
+
+    const product = await Product.findByIdAndUpdate(productId, {$pull:{images: imageName}});
+
+    const imagePath = `../Belle_Ecom/public${imageUrl}`
+    console.log("imagePath", imagePath);
+    fs.unlink(imagePath, (err) => {
+      if(err) {
+        console.log("Error deleting image:", err);
+        res.status(500).json({error: 'Failed to delete image'});
+      }else{
+        res.status(200).json({message: 'Image deleted successfully'});
+      }
+    });
+  } catch (error) {
+    console.log("deletingImageError", error);
+  }
+})
+
 
 module.exports = {
   loadProducts,
@@ -257,4 +243,5 @@ module.exports = {
   loadEditProducts,
   toggleListUser,
   updateEditProducts,
+  deleteImageControl,
 };

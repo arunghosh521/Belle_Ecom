@@ -2,48 +2,171 @@
 
 <div class="page-body">
 
-    <!-- New Product Add Start -->
-    <div class="container-fluid">
+  <!-- New Product Add Start -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
         <div class="row">
-            <div class="col-12">
-                <div class="row">
-                    <div class="col-sm-8 m-auto">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="card-header-2">
-                                    <h5>Category Information</h5>
-                                </div>
-
-                                <form class="theme-form theme-form-2 mega-form" method="post">
-                                    <div class="mb-4 row align-items-center">
-                                        <label class="form-label-title col-sm-3 mb-0">Category Name</label>
-                                        <div class="col-sm-9">
-                                            <input class="form-control" type="text" name="name"
-                                                placeholder="Category Name">
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb-4 row align-items-center">
-                                        <label class="form-label-title col-sm-3 mb-0">Category Description</label>
-                                        <div class="col-sm-9">
-                                            <textarea class="form-control" rows="3" name="description"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="mb-4 row align-items-center">
-                                        <div class="col-sm-3"></div>
-                                        <div class="col-sm-9">
-                                          <button type="submit" class="btn btn-primary">Submit</button>
-                                        </div>
-                                      </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+          <div class="col-sm-8 m-auto">
+            <div class="card">
+              <div class="card-body">
+                <div class="card-header-2">
+                  <h5>Category Information</h5>
                 </div>
+
+                <form class="theme-form theme-form-2 mega-form" id="formCategory" method="post">
+                  <div class="mb-4 row align-items-center">
+                    <label class="form-label-title col-sm-3 mb-0">Category Name</label>
+                    <div class="col-sm-9">
+                      <input class="form-control" type="text" id="categoryName" name="name" placeholder="Category Name">
+                      <p id="alertCategory" style="color: red;"></p>
+
+                    </div>
+                  </div>
+
+                  <div class="mb-4 row align-items-center">
+                    <label class="form-label-title col-sm-3 mb-0">Category Description</label>
+                    <div class="col-sm-9">
+                      <textarea class="form-control" rows="3" id="descrriptionArea" name="description"></textarea>
+                      <p id="wordCountDisplay" class="text-muted">Word Count: 0/100</p>
+                      <p id="alertDescription" style="color: red;"></p>
+
+                    </div>
+                  </div>
+                  <div class="mb-4 row align-items-center">
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-9">
+                      <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                      <p id="validationAlert" style="color: red;"></p>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-    <!-- New Product Add End -->
+  </div>
+  <!-- New Product Add End -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 
-<%- include('../adminLayouts/footer.ejs') -%>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": false,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+      };
+
+      $('#formCategory').submit(function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        let categoryInput = $('#categoryName').val();
+        let descriptionInput = $('#descrriptionArea').val();
+        let alertCategory = $('#alertCategory');
+        let alertDescription = $('#alertDescription');
+
+        // Perform validation
+        if (alertCategory.val() || alertDescription.val()) {
+          toastr.info('Validation Failed. Form submission prevented');
+          return;
+        }
+
+        // If validation passed, continue with AJAX call or form submission
+        $.ajax({
+          url: '/admin/category/addCategory',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            name: categoryInput,
+            description: descriptionInput
+          }),
+          success: function(data) {
+            if (data.success) {
+              window.location.href = '/admin/category/listCategory';
+            } else {
+              toastr.info(`${data.message}`);
+             // window.location.href = '/admin/category/addCategory';
+
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error("Error", error);
+            toastr.error('An error occurred while validating the input. Please try again later.');
+          }
+        });
+      });
+
+      $('#categoryName').on('input', function() {
+        let catField = $(this).val();
+        $.ajax({
+          url: '/admin/category/validateCategory',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            catName: catField
+          }),
+          success: function(data) {
+            if (data.caterogyStatus) {
+              $('#alertCategory').text(data.caterogyStatus);
+            } else {
+              $('#alertCategory').text("");
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error("Error", error);
+            toastr.error('An error occurred while validating the input. Please try again later.');
+          }
+        });
+      });
+
+      $('#descrriptionArea').on('input', function() {
+        let descriptionField = $(this).val();
+        $.ajax({
+          url: '/admin/category/validateCategory',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            decpArea: descriptionField
+          }),
+          success: function(data) {
+            if (data.descriptionStatus) {
+              $('#alertDescription').text(data.descriptionStatus);
+            } else {
+              $('#alertDescription').text("");
+            }
+            updateWordCount(descriptionField); // Update word count
+          },
+          error: function(xhr, status, error) {
+            console.error("Error", error);
+            toastr.error('An error occurred while validating the input. Please try again later.');
+          }
+        });
+      });
+
+      function updateWordCount(description) {
+        const words = description.trim().split(/\s+/);
+        const wordCount = words.length;
+        const remainingWords = Math.max(0, 100 - wordCount);
+        $('#wordCountDisplay').text(`Word Count: ${wordCount}/${remainingWords}`);
+      }
+    });
+  </script>
+
+  <%- include('../adminLayouts/footer.ejs') -%>

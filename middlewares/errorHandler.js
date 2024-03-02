@@ -1,11 +1,15 @@
 const User = require("../models/userModel");
+const CartDB = require("../models/cart");
 
 const notFound = async (req, res, next) => {
   try {
     res.status(404);
     const user = await User.findOne({ _id: req.session.userId });
+    const cartProduct = await CartDB.findOne({
+      orderBy: req.session.userId,
+    }).populate("products.product");
     // Redirect or render a view for the user
-    res.render("user/404", { user });
+    res.render("user/404", { user, cartProduct });
   } catch (error) {
     next(error); // Forward the error to the error handling middleware
   }
@@ -17,7 +21,7 @@ const errorHandler = (err, req, res, next) => {
   const statusCode = err.statusCode || 500;
 
   if (req.accepts("html")) {
-    res.status(statusCode).render("error", { error: err.message });
+    res.status(statusCode).render("error");
   } else if (req.accepts("json")) {
     res.status(statusCode).json({ error: err.message });
   } else {

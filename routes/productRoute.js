@@ -2,16 +2,27 @@ const express = require("express");
 const productRoute = express.Router();
 const productController = require("../controller/productController");
 const userController = require("../controller/userController");
+const { isLogin, isLogout } = require("../middlewares/adminAuth");
+const multerMiddleware = require("../middlewares/multer");
 
-productRoute.get("", productController.loadProducts);
+productRoute.get("", isLogin, productController.loadProducts);
 productRoute.post("/validateProduct", productController.validateProduct);
 productRoute
   .route("/addProduct")
-  .get(productController.loadAddProducts)
-  .post(productController.addProductsCntrl);
-productRoute.get("/listProduct", productController.loadProductsView);
+  .get(isLogin, productController.loadAddProducts)
+  .post(
+    multerMiddleware.uploads.array("image", 5),
+    productController.addProductsCntrl
+  );
+productRoute.get("/listProduct", isLogin, productController.loadProductsView);
 productRoute.post("/editProduct/toggleList", productController.toggleListUser);
-productRoute.get("/editProduct/:id", productController.loadEditProducts);
-productRoute.post("/editProduct/:id", productController.updateEditProducts);
+productRoute.get("/editProduct/:id", isLogin, productController.loadEditProducts);
+productRoute.post(
+  "/editProduct/:id",
+  multerMiddleware.uploads.array("image", 5),
+  productController.updateEditProducts
+);
+productRoute.delete("/deleteImage", productController.deleteImageControl);
+
 
 module.exports = productRoute;

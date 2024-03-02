@@ -1,34 +1,41 @@
-const isLogin= async(req,res,next)=>{
 
+
+const checkCondition = async (req, res, next, checkType) => {
     try {
-        
-        if (req.session.adminID) {
-            next();
-        }else{
-            res.redirect('/admin/login');
+        if (checkType === 'login') {
+            if (!req.session.adminID) {
+                res.redirect('/admin');
+            } else {
+                next();
+            }
+        } else if (checkType === 'logout') {
+            if (req.session.adminID) {
+                res.redirect('/admin/dashboard');
+            } else {
+                next();
+            }
+        } else {
+            throw new Error('Invalid check type');
         }
-
-    } catch (error) {
-        console.log(error.message);
-    } 
-
-}
-
-const isLogout= async(req,res,next)=>{
-
-    try {
-        if(req.session.adminID){
-            res.redirect('/admin');
-         }else {
-         next();
-         }
     } catch (error) {
         console.log(error.message);
     }
+};
 
-} 
+
+const isLogin = async (req, res, next) => {
+    await checkCondition(req, res, next, 'login');
+};
+
+const isLogout = async (req, res, next) => {
+    await checkCondition(req, res, next, 'logout');
+};
 
 module.exports = {
     isLogin,
-    isLogout
-}
+    isLogout,
+    checkCondition
+};
+
+
+

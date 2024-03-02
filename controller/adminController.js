@@ -1,12 +1,21 @@
 const asyncHandler = require("express-async-handler");
 const UserDb = require("../models/userModel");
+const Product = require("../models/products");
 
 const loadAdminlogin = asyncHandler(async (req, res) => {
   try {
     let success = req.flash("fmessage")[0];
-      res.render("admin/adminLogin", { message: success });
+    res.render("admin/adminLogin", { message: success });
   } catch (error) {
     console.log("loadAdminlogin", error);
+  }
+});
+
+const loadDashboard = asyncHandler(async (req, res) => {
+  try {
+    res.render("admin/dashboard");
+  } catch (error) {
+    console.log("loadDashboardError", error);
   }
 });
 
@@ -19,8 +28,8 @@ const AdminLoginCntrl = asyncHandler(async (req, res) => {
     if (findAdmin && (await findAdmin.isPasswordMatched(password))) {
       if (findAdmin.is_admin === true) {
         req.session.adminID = findAdmin._id;
-        console.log("usergettingLogin", req.session.adminID);
-        return res.render("admin/dashboard", { findAdmin });
+        console.log("admingettingLogin", req.session.adminID);
+        return res.redirect("/admin/dashboard");
       }
     } else {
       req.flash("fmessage", "Invalid Credentials");
@@ -32,7 +41,7 @@ const AdminLoginCntrl = asyncHandler(async (req, res) => {
 
 const logout = asyncHandler(async (req, res) => {
   try {
-    req.session.destroy();
+    req.session.adminID = null;
     console.log("admin logout successfully");
     res.redirect("/admin");
   } catch (error) {
@@ -69,10 +78,12 @@ const toggleBlockUser = asyncHandler(async (req, res) => {
   }
 });
 
+
 module.exports = {
   loadAdminlogin,
   AdminLoginCntrl,
   logout,
   loadUsers,
   toggleBlockUser,
+  loadDashboard,
 };

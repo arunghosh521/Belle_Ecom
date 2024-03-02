@@ -6,7 +6,7 @@ const dbConnect = require("./config/dbConnect");
 const app = express();
 const dotenv = require("dotenv").config();
 const PORT = process.env.PORT || 3001;
-const path = require("path");
+const path = require("path"); 
 const { notFound, errorHandler } = require("./middlewares/errorHandler");
 const cookieParser = require("cookie-parser");
 const nocache = require("nocache");
@@ -15,6 +15,9 @@ const adminRouter = require("./routes/adminRoute");
 const categoryRouter = require("./routes/categoryRoute");
 const productRouter = require("./routes/productRoute");
 const cartRouter = require("./routes/cartRoute");
+const addressRouter = require("./routes/addressRoute");
+const userOrderRoute = require("./routes/userOrderRoute");
+const orderRouter = require("./routes/orderRoute");
 
 dbConnect();
 
@@ -53,11 +56,21 @@ app.use("/admin/category", categoryRouter);
 //productRoute
 app.use("/admin/product", productRouter);
 
+//orderRoute
+app.use("/admin/orderList", orderRouter);
+
+
 //adminRoute
 app.use("/admin", adminRouter);
 
+//addressRoute
+app.use("/address", addressRouter);
+
 //cartRoute
-app.use("/cart", cartRouter.cartRoute);
+app.use("/cart", cartRouter);
+
+//userOrderroute
+app.use("/orderPlaced", userOrderRoute);
 
 //userRoute
 app.use("/", authRouter);

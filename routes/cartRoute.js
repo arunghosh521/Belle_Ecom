@@ -9,5 +9,9 @@ cartRoute.route('')
 .get(isLogin, isBlocked, cartController.loadUserCart)
 .post(cartController.insertCartItem);
 
+cartRoute.post('/update', cartController.cartUpdate)
+cartRoute.get('/checkout', isLogin, isBlocked, cartController.loadCheckout)
+cartRoute.delete('/remove', cartController.removeCartItem)
 
-module.exports = {cartRoute}
+
+module.exports = cartRoute

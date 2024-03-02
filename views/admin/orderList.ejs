@@ -1,0 +1,146 @@
+<%- include('../adminLayouts/header.ejs') -%>
+
+<!-- Order section Start -->
+<div class="page-body">
+  <!-- Table Start -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="title-header option-title">
+              <h5>Order List</h5>
+              <a href="#" class="btn btn-solid">Download all orders</a>
+            </div>
+            <div>
+              <div class="table-responsive">
+                <table class="table all-package order-table theme-table" id="table_id">
+                  <thead>
+                    <tr>
+                      <th>Order Code</th>
+                      <th>Date</th>
+                      <th>Payment Method</th>
+                      <th>Delivery Status</th>
+                      <th>Amount</th>
+                      <th>Option</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <% if(orderData && orderData.length >  0) { %>
+                    <% orderData.forEach(order => { %>
+                    <tr data-bs-toggle="offcanvas" href="#order-details">
+
+                      <td><%= order.orderId %></td>
+                      <td><%= order.orderedDate %></td>
+                      <td><%= order.payment %></td>
+                      <td class="order-status">
+                        <select id="orderStatusDropdown" onchange="updateOrderStatus(this)" data-order-id="<%= order._id %>">
+                            <option value="Not Processed" <% if (order.orderStatus === 'Not Processed') { %> selected <% } %>>Not Processing</option>
+                            <option value="Processing" <% if (order.orderStatus === 'Processing') { %> selected <% } %>>Processing</option>
+                            <option value="Dispatched" <% if (order.orderStatus === 'Dispatched') { %> selected <% } %>>Dispatched</option>
+                            <option value="Cancelled" <% if (order.orderStatus === 'Cancelled') { %> selected <% } %>>Cancelled</option>
+                            <option value="Delivered" <% if (order.orderStatus === 'Delivered') { %> selected <% } %>>Delivered</option>
+                            <option value="Returned" <% if (order.orderStatus === 'Returned') { %> selected <% } %>>Returned</option>
+                        </select>
+                        <input type="hidden" id="orderId" value="<%= order._id %>">                       
+                    </td>
+                    
+
+
+                      <td>$<%= order.orderTotal %></td>
+                      <td>
+                        <ul>
+                          <li>
+                            <a href="/admin/orderList/orderDetails?id=<%= order._id %>">
+                              <i class="ri-eye-line"></i>
+                            </a>
+                          </li>
+
+                        </ul>
+                      </td>
+                    </tr>
+                    <% }); %>
+                    <% } else { %>
+                    <tr>
+                      <td colspan="7">No orders found.</td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Table End -->
+
+  <!-- footer start-->
+  <div class="container-fluid">
+    <footer class="footer">
+      <div class="row">
+        <div class="col-md-12 footer-copyright text-center">
+          <p class="mb-0">Copyright 2022 © Fastkart theme by pixelstrap</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+<!-- Order section End -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function updateOrderStatus(selectElement) {
+        const orderId = selectElement.getAttribute('data-order-id');
+        const newStatus = selectElement.value;
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to change the status after this.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#46ff91",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, change it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/admin/orderList/updateOrderStatus', {
+                    method: "POST",
+                    body: JSON.stringify({ orderId: orderId, newStatus: newStatus }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        Swal.fire("Success!", "Status changed successfully", "success")
+                        .then((value) => {
+                            if (value) {
+                              window.location.href = '/admin/orderList';
+                            }
+                        });
+                    } else {
+                        Swal.fire("Error!", "Order cancelled successfully", "Filed")
+                        .then((value) => {
+                            if (value) {
+                              window.location.href = '/admin/orderList';
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating order status:", error);
+                });
+            }
+        });
+    }
+</script>
+
+
+<%- include('../adminLayouts/footer.ejs') -%>

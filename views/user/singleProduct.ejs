@@ -46,7 +46,12 @@
               <a href="#" class="next" title="Next"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
             </div>
             <div class="prInfoRow">
-              <div class="product-stock"> <span class="instock ">In Stock</span> <span class="outstock hide">Unavailable</span> </div>
+              <% if(product.quantity > 0) { %>
+              <div class="product-stock"> <span class="instock ">In Stock</span> <span class="outstock hide">Unavailable</span> 
+              <% } else { %>
+                <div class="product-stock"> <span class="instock ">Out Stock</span> <span class="outstock hide">Unavailable</span> 
+              <% } %>
+              </div>
               <div class="product-sku">SKU: <span class="variant-sku">19115-rdxs</span></div>
               <div class="product-review"><a class="reviewLink" href="#tab2"><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star-o"></i><i class="font-13 fa fa-star-o"></i><span class="spr-badge-caption">6 reviews</span></a></div>
             </div>
@@ -78,22 +83,40 @@
               <div class="product-action clearfix">
                 <div class="product-form__item--quantity">
                   <div class="wrapQtyBtn">
-                    <div class="qtyField">
-                      <a class="qtyBtn minus" href="javascript:void(0);" onclick="decrementQuantity()"><i class="fa anm anm-minus-r" aria-hidden="true"></i></a>
-                      <input type="text" id="Quantity" name="quantity" value="1" class="product-form__input qty" readonly>
-                      <a class="qtyBtn plus" href="javascript:void(0);" onclick="incrementQuantity()"><i class="fa anm anm-plus-r" aria-hidden="true"></i></a>
 
+
+                    <div class="qtyField">
+                      <% if(product.quantity > 0) { %>
+                      <a class="qtyBtn minus" href="javascript:void(0);"><i class="fa anm anm-minus-r" aria-hidden="true"></i></a>
+                      <input type="text" id="Quantity" name="quantity" value="1" class="product-form__input qty">
+                      <a class="qtyBtn plus" href="javascript:void(0);"><i class="fa anm anm-plus-r" aria-hidden="true"></i></a>
+                      <% } else { %>
+                      <a class="qtyBtn minus" href="javascript:void(0);"><i class="fa anm anm-minus-r" aria-hidden="true" hidden></i></a>
+                      <input type="text" id="Quantity" name="quantity" value="1" class="product-form__input qty" hidden>
+                      <a class="qtyBtn plus" href="javascript:void(0);"><i class="fa anm anm-plus-r" aria-hidden="true" hidden></i></a>
+
+                      <% } %>
                     </div>
                   </div>
                 </div>
                 <div class="product-form__item--submit">
+                  <% if(product.quantity > 0) { %>
                   <button type="button" class="btn product-form__cart-submit" id="addToCartButton" name="add">
                     <span id="AddToCartText-product-template">Add to cart</span>
                   </button>
+                  <% } else { %>
+                  <button style="background-color: red;" type="button" class="btn product-form__cart-submit" id="addToCartButton" name="add" disabled>
+                    <span id="AddToCartText-product-template">Out of Stock</span>
+                  </button>
+                  <% } %>
 
                 </div>
                 <div class="shopify-payment-button" data-shopify="payment-button">
+                  <% if(product.quantity > 0) { %>
                   <button type="button" class="shopify-payment-button__button shopify-payment-button__button--unbranded">Buy it now</button>
+                  <% } else { %>
+                  <button type="button" class="shopify-payment-button__button shopify-payment-button__button--unbranded" hidden>Out of Stock</button>
+                  <% } %>
                 </div>
               </div>
               <!-- End Product Action -->
@@ -1084,6 +1107,8 @@
   </div>
   <!--MainContent-->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
   <script src="/js/vendor/photoswipe.min.js"></script>
   <script src="/js/vendor/photoswipe-ui-default.min.js"></script>
@@ -1130,68 +1155,81 @@
   </script>
 
   <script>
-    function incrementQuantity() {
-      var quantityInput = document.getElementById('Quantity');
-      var currentValue = parseInt(quantityInput.value);
-      quantityInput.value = currentValue + 1;
-    }
-
-    function decrementQuantity() {
-      var quantityInput = document.getElementById('Quantity');
-      var currentValue = parseInt(quantityInput.value);
-      if (currentValue > 1) {
-        quantityInput.value = currentValue - 1;
-      }
-    }
     // Listen for changes in the input field
     document.getElementById('Quantity').addEventListener('input', function() {
-      var quantityInput = this;
-      var currentValue = parseInt(quantityInput.value);
+      const quantityInput = this;
+      const currentValue = parseInt(quantityInput.value, 10); // Ensure integer conversion
+
       if (isNaN(currentValue) || currentValue < 1) {
         quantityInput.value = 1;
       }
     });
-  </script>
 
-
-
-  <script>
     document.addEventListener('DOMContentLoaded', function() {
       const addToCartBtn = document.getElementById('addToCartButton');
       const productId = "<%= product._id %>";
       console.log('productIdFrom page', productId);
-      
 
       const addToCartHandler = async function(event) {
         event.preventDefault();
         try {
           const quantity = document.getElementById('Quantity').value;
-          console.log("quantity", quantity)
-          const response = await addToCart(productId, quantity)
+          console.log("quantity", quantity);
+
+          const response = await addToCart(productId, quantity);
 
           if (response.success) {
             document.getElementById('AddToCartText-product-template').innerText = "Go to cart";
-            addToCartBtn.removeEventListener('click', addToCartHandler); // Remove event listener
+            addToCartBtn.removeEventListener('click', addToCartHandler);
+
             addToCartBtn.addEventListener('click', function(event) {
               event.preventDefault();
-              window.location.href = '/cart' ;
+              window.location.href = '/cart';
+            });
 
-            })
+            Swal.fire({
+              icon: 'success',
+              title: 'Item added to Cart!',
+              showConfirmButton: false,
+              timer: 1500
+            });
+
+            const CartCountSpan = document.getElementById('CartCount');
+            console.log("quantitySpan", CartCountSpan);
+
+            $('.site-cart').load(`/singleProduct?id=${productId} .site-cart`)
 
 
+            if (response.cart) {
+              console.log("cartData", response.cart);
+              CartCountSpan.textContent = response.cart.products.length;
+
+            } else {
+              console.error("cart data is not available");
+            }
           } else {
-            console.log("Failed to add item to cart:", response.error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: response.error
+            });
           }
         } catch (error) {
           console.log("cartBtnError", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred'
+          });
         }
-      }
-      addToCartBtn.addEventListener('click', addToCartHandler);
+      };
 
+      addToCartBtn.addEventListener('click', addToCartHandler);
     });
 
     async function addToCart(productId, quantity) {
       try {
+        console.log("add to cart");
         const response = await fetch('/cart', {
           method: 'POST',
           headers: {
@@ -1202,13 +1240,13 @@
             quantity
           })
         });
-        return await response.json();
+        const data = await response.json();
+        console.log("dataFrom Backend", data);
+
+        return data;
       } catch (error) {
         console.log("Error adding item to cart:", error);
-        return {
-          success: false,
-          error: error.message
-        };
+        return null; // Indicate error by returning null
       }
     }
   </script>

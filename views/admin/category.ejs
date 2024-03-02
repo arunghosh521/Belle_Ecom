@@ -1,5 +1,13 @@
 <%- include('../adminLayouts/header.ejs') -%>
-
+<style>
+    .long-text {
+     max-width: 200px;
+     text-overflow: ellipsis;
+     overflow: hidden;
+     white-space: nowrap;
+     word-wrap: break-word;
+    }
+    </style>
  <!-- Container-fluid starts-->
  <div class="page-body">
     <!-- All User Table Start -->
@@ -34,7 +42,7 @@
                                         <% for(let i = 0; i< categories.length; i++) { %>
                                         <tr>
                                             <td><%= categories[i].category %></td>
-                                            <td><%= categories[i].description %></td>
+                                            <td class="long-text"><%= categories[i].description %></td>
                                             <td><% if(categories[i].is_listed==true){ %>
                                  
                                                 <button onclick="listUser()" type="button" class="btn btn-success" data-category-id="<%= categories[i]._id %>" data-is-listed=false>

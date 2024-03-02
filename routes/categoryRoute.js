@@ -1,18 +1,19 @@
 const express = require("express");
 const catRoute = express.Router();
 const categoryController = require("../controller/categoryController");
-const {isLogin, isLogout} = require("../middlewares/adminAuth");
+const {isLogin} = require("../middlewares/adminAuth");
 
-catRoute.get("", categoryController.loadCategory);
+catRoute.get("", isLogin, categoryController.loadCategory);
 catRoute
   .route("/addCategory")
-  .get(categoryController.loadAddCategory)
+  .get(isLogin, categoryController.loadAddCategory)
   .post(categoryController.addCategoryCntrl);
-catRoute.get("/listCategory", categoryController.CategoryView);
+catRoute.get("/listCategory", isLogin, categoryController.categoryView);
 catRoute
   .route("/editCategory/:id")
-  .get(categoryController.loadEditCategory)
+  .get(isLogin, categoryController.loadEditCategory)
   .post(categoryController.updateCategoryCntrl);
 catRoute.post('/categoryToggleList', categoryController.toggleListcategory)
+catRoute.post('/validateCategory', categoryController.validateCategory)
 
 module.exports = catRoute;

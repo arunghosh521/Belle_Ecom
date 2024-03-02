@@ -1,0 +1,577 @@
+<%- include('../layouts/header.ejs') -%>
+<!-- <link rel="stylesheet" type="text/css" href="/style.min.css"> -->
+<style>
+  main {
+    display: block;
+    position: relative
+  }
+
+  .pb-10 {
+    padding-bottom: 5rem !important
+  }
+
+  .mb-10 {
+    margin-bottom: 5rem !important
+  }
+
+  .pt-10 {
+    padding-top: 5rem !important
+  }
+
+  .step-by {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: .9rem 0
+  }
+
+  .pr-4 {
+    padding-right: 2rem !important
+  }
+
+  .pl-4 {
+    padding-left: 2rem !important
+  }
+
+  .step-by .title.title-step:first-child {
+    margin-left: 0
+  }
+
+  .step-by .title.title-step {
+    margin: 0 3.4rem 0 1rem;
+    font-size: 25px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #666;
+    letter-spacing: -0.5px;
+    padding: .4rem 0
+  }
+
+  .title-simple {
+    display: block
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    transition: color .3s
+  }
+
+  a:hover {
+    color: #26c
+  }
+
+  :focus {
+    outline: 0
+  }
+
+  figure {
+    margin: 0
+  }
+
+  .step-by .title.title-step.active {
+    color: #26c
+  }
+
+  .mt-8 {
+    margin-top: 4rem !important
+  }
+  p {
+    font-size: 1.2rem;
+    line-height: 1.86;
+    font-weight: bold;
+    text-align: right;
+}
+
+  .container-fluid {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-left: auto;
+    margin-right: auto
+  }
+
+  @media (max-width: 479px) {
+
+    .container,
+    .container-fluid {
+      padding-left: 15px;
+      padding-right: 15px
+    }
+  }
+
+  .container-fluid {
+    max-width: 1820px
+  }
+
+  .container {
+    max-width: 1220px
+  }
+
+  .order .order-message {
+    max-width: 28rem;
+    padding: 1rem;
+    box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 1rem
+  }
+
+  .mr-auto {
+    margin-right: auto !important
+  }
+
+  .mr-auto {
+    margin-right: auto !important
+  }
+
+  .align-items-center {
+    align-items: center !important
+  }
+
+  .d-inline-flex {
+    display: inline-flex !important
+  }
+
+  .order .order-message .icon-box-icon {
+    margin-right: 3.2rem
+  }
+
+  .icon-box-icon {
+    display: inline-block;
+    margin-bottom: 2.6rem;
+    font-size: 3.4rem;
+    font-weight: 600;
+    line-height: 0;
+    color: #222
+  }
+
+  .mb-0 {
+    margin-bottom: 0rem !important
+  }
+
+  .order .order-message svg {
+    width: 4rem;
+    height: 4rem;
+    stroke: #26c
+  }
+
+  .icon-box-icon svg {
+    height: 3.4rem;
+    width: 4.8rem
+  }
+
+  .icon-box .icon-box-content {
+    text-align: center
+  }
+
+  .text-left {
+    text-align: left !important
+  }
+
+  .order .order-message .icon-box-title {
+    font-size: 1.7rem
+  }
+
+  .icon-box .icon-box-title {
+    margin: 0 0 .7rem;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    letter-spacing: -.025em;
+    line-height: 1.6
+  }
+
+  .icon-box p {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.72;
+    letter-spacing: 0;
+    color: #666
+  }
+
+  .lh-1 {
+    line-height: 1 !important
+  }
+
+  .ls-m {
+    letter-spacing: -.025em !important
+  }
+
+  .order .order-results {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 4.8rem 0 1.9rem
+  }
+
+  .order .overview-item:not(:last-child) {
+    margin-right: 3rem;
+    padding-right: 3.1rem
+  }
+
+  .order .overview-item {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    flex-wrap: wrap;
+    margin-bottom: 3rem
+  }
+
+  .order .overview-item span {
+    text-transform: uppercase
+  }
+
+  .order .overview-item strong {
+    color: #222;
+    font-weight: 600;
+    font-size: 12px
+  }
+
+  .order .overview-item:not(:last-child) {
+    margin-right: 3rem;
+    padding-right: 3.1rem
+  }
+
+  .order .title {
+    font-size: 1.2rem
+  }
+
+  .title-simple {
+    display: block
+  }
+
+  .title {
+    display: flex;
+    flex-wrap: wrap;
+    position: relative;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 2.6rem;
+    text-transform: capitalize;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.0125em;
+    color: #222
+  }
+
+  .order-details {
+    border: 1px solid #e1e1e1;
+    border-radius: 3px;
+    padding: .4rem 3rem
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse
+  }
+
+  .order-details-table thead {
+    border-bottom: 1px solid #e1e1e1
+  }
+
+  .order .summary-subtotal:last-child {
+    border-bottom: none
+  }
+
+  .summary-subtotal {
+    border-bottom: 1px solid #e1e1e1
+  }
+
+  table td,
+  table th {
+    padding: 0
+  }
+
+  .order-details-table thead .summary-subtitle {
+    font-size: 1.5rem
+  }
+
+  .order-details-table tbody tr:first-child td {
+    padding-top: 2.2rem
+  }
+
+  .order-details-table tbody tr:first-child td.product-price {
+    padding-top: 1.8rem
+  }
+
+  @media (max-width: 767px) {
+    .order .order-message {
+      font-size: 2rem
+    }
+
+    .order .overview-item {
+      flex-direction: row;
+      width: 100%;
+      align-items: center
+    }
+
+    .order .overview-item:not(:last-child)::after {
+      content: none
+    }
+
+    .order .overview-item span {
+      margin-right: 2rem
+    }
+  }
+
+  @media (max-width: 575px) {
+    .order .order-details {
+      padding: 0 2rem
+    }
+  }
+
+  .order-details-table .product-name span {
+    font-weight: 700;
+    color: #222
+  }
+
+  .order-details-table .product-name i {
+    font-size: 1rem
+  }
+
+  .order-details-table tbody tr:first-child td.product-price {
+    padding-top: 2.8rem
+  }
+
+  .order-details-table .product-price {
+    display: block
+  }
+
+  .order-details-table .summary-subtotal-price,
+  .order-details-table .product-price {
+    text-align: right
+  }
+
+  .order-details-table .summary-subtotal-price {
+    font-weight: 600;
+    color: #666
+  }
+
+  .order-details-table .product-price {
+    font-size: 1.4rem;
+    color: #666;
+    font-weight: 400;
+    padding-top: 1.2rem
+  }
+
+  .order-details-table .product-name {
+    padding: 0.5rem 0 1.8rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.42;
+    color: #000;
+    white-space: inherit
+  }
+
+  .order-details-table .product-name i {
+    font-size: 1rem
+  }
+
+  .order-details-table .product-name span {
+    font-weight: 700;
+    color: #222
+  }
+
+  .summary-subtotal {
+    border-bottom: 1px solid #e1e1e1
+  }
+
+  .summary-subtitle {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    color: #222;
+    margin-bottom: 0;
+    padding: 1rem 0
+  }
+
+  .order-details-table .summary-subtotal-price {
+    font-weight: 600;
+    color: #666
+  }
+  .order-details-table .summary-subtotal-price, .order-details-table .product-price {
+    text-align: right;
+}
+
+  .summary-subtotal-price {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 0;
+    font-family: Poppins, sans-serif
+  }
+
+  .summary-subtotal {
+    border-bottom: 1px solid #e1e1e1
+  }
+
+  .order .address-info {
+    border-bottom: 1px solid #e1e1e1
+  }
+
+  .order .address-info p {
+    color: #666;
+    font-family: Poppins, sans-serif;
+    line-height: 2.15
+  }
+
+  .pb-2 {
+    padding-bottom: 1rem !important
+  }
+
+  .order .address-info p {
+    color: #666;
+    font-family: Poppins, sans-serif;
+    line-height: 3.15
+  }
+
+  .order .btn.btn-back {
+    font-size: 1rem
+  }
+
+  p {
+    font-size: 1.1rem;
+    line-height: 1.86;
+    font-weight: bold;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.order-details-table thead {
+    border-bottom: 1px solid #e1e1e1;
+}
+
+  /* body{margin:0;overflow-x:hidden;font-family:Poppins,sans-serif;font-size:1.4rem;line-height:1.6;color:#666} */
+</style>
+<!--Body Content-->
+<main class="main order">
+  <div class="page-content pt-7 pb-10 mb-10">
+    <div class="step-by pr-4 pl-4">
+      <h3 class="title title-simple title-step"><a href="">1. Shopping Cart</a></h3>
+      <h3 class="title title-simple title-step"><a href="">2. Checkout</a></h3>
+      <h3 class="title title-simple title-step active">3. Order Complete</h3>
+    </div>
+    <div class="container mt-8">
+      <div class="order-message mr-auto ml-auto">
+        <div class="icon-box d-inline-flex align-items-center">
+          <div class="icon-box-icon mb-0">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
+              <g>
+                <path fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="bevel" stroke-miterlimit="10" d="
+                                    M33.3,3.9c-2.7-1.1-5.6-1.8-8.7-1.8c-12.3,0-22.4,10-22.4,22.4c0,12.3,10,22.4,22.4,22.4c12.3,0,22.4-10,22.4-22.4
+                                    c0-0.7,0-1.4-0.1-2.1"></path>
+                <polyline fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="bevel" stroke-miterlimit="10" points="
+                                    48,6.9 24.4,29.8 17.2,22.3 	"></polyline>
+              </g>
+            </svg>
+          </div>
+          <div class="icon-box-content text-left">
+            <h5 class="icon-box-title font-weight-bold lh-1 mb-1">Thank You!</h5>
+            <p class="lh-1 ls-m">Your order has been received</p>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="order-results">
+        <div class="overview-item">
+          <span>Order number:</span>
+          <strong><%=orderData.orderId%></strong>
+        </div>
+        <div class="overview-item">
+          <span>Status:</span>
+          <strong><%=orderData.orderStatus%></strong>
+        </div>
+        <div class="overview-item">
+          <span>Date:</span>
+          <strong><%=orderData.orderedDate%></strong>
+        </div>
+        <div class="overview-item">
+          <span>Email:</span>
+          <strong><%=user.email%></strong>
+        </div>
+        <div class="overview-item">
+          <span>Total:</span>
+          <strong>₹<%=orderData.orderTotal%></strong>
+        </div>
+        <div class="overview-item">
+          <span>Payment method:</span>
+          <strong><%=orderData.payment%></strong>
+        </div>
+      </div>
+
+      <h2 class="title title-simple text-left pt-4 font-weight-bold text-uppercase">Order Details</h2>
+      <div class="order-details">
+        <table class="order-details-table">
+          <thead>
+            <tr class="summary-subtotal">
+              <td>
+                <h3 class="summary-subtitle">Product</h3>
+              </td>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            <% if(orderData && orderData.products && orderData.products.length > 0) { %>
+                <% orderData.products.forEach(product => { %>
+                    <tr>
+                        <td><%= product.product.name %></td>
+                        <td><%= product.quantity %></td>
+                        <td>$<%= product.quantity * product.price  %></td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+            <td>
+              <p class="summary-total-price">No products</p>
+            </td>
+            <% } %>
+            <tr class="summary-subtotal">
+              <td>
+                <h4 class="summary-subtitle">Subtotal:</h4>
+              </td>
+              <td class="summary-subtotal-price">₹<%= orderData.orderTotal %></td>
+            </tr>
+            <tr class="summary-subtotal">
+              <td>
+                <h4 class="summary-subtitle">Shipping:</h4>
+              </td>
+              <td class="summary-subtotal-price">Free shipping</td>
+            </tr>
+            <tr class="summary-subtotal">
+              <td>
+                <h4 class="summary-subtitle">Payment method:</h4>
+              </td>
+              <td class="summary-subtotal-price"><%= orderData.payment %></td>
+            </tr>
+            <tr class="summary-subtotal">
+              <td>
+                <h4 class="summary-subtitle">Total:</h4>
+              </td>
+              <td>
+                <p class="summary-total-price">₹<%= orderData.orderTotal %></p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h2 class="title title-simple text-left pt-10 mb-2">Billing Address</h2>
+      <div class="address-info pb-8 mb-6">
+        <p class="address-detail pb-2">
+          <strong><%= orderData.address.Fname %></strong>, &nbsp;
+          <%= orderData.address.address %>, &nbsp;
+          <%= orderData.address.apartment %>, <%= orderData.address.city %>,
+          <%= orderData.address.pincode %> <br>
+          <%= orderData.address.mobile %><br>
+        </p>
+        <p class="email">mail@riode.com</p>
+      </div>
+
+      <a href="/userProfile" class="btn btn-icon-left btn-dark btn-back btn-rounded btn-md mb-4"><i class="d-icon-arrow-left"></i> My Orders</a>
+    </div>
+  </div>
+</main>
+<!-- End Main -->
+
+
+
+<%- include('../layouts/footer.ejs') -%>
