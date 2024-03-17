@@ -39,20 +39,32 @@
               <% cartProduct.products.forEach(product => { %>
               <tr class="cart__row border-bottom line1 cart-flex border-top">
                 <td class="cart__image-wrapper cart-flex-item">
-                  <a href="#"><img class="cart__image" src="/uploads/<%= product.product.images[0] %>" alt="<%= product.product.name %>"></a>
+                  <a href="/singleProduct?id=<%= product.product._id %>"><img class="cart__image" src="/uploads/<%= product.product.images[0] %>" alt="<%= product.product.name %>"></a>
                 </td>
                 <td class="cart__meta small--text-left cart-flex-item">
                   <div  class="list-view-item__title">
-                    <a  href="#"><%= product.product.name %> </a>
+                    <a  href="/singleProduct?id=<%= product.product._id %>"><%= product.product.name %> </a>
                   </div>
 
                   <div class="cart__meta-text">
                     Color: <%= product.product.color %><br>Size: <%= product.product.size %><br>
+                    <% if(product.product.offerApplied === true) { %>
+                      <p style="color: red;">Offer Applied</p>
+                      <% } else{ %>
+                           
+                        <% } %>
                   </div>
                 </td>
+                <% if(product.product.offerApplied === true) { %>
                 <td class="cart__price-wrapper cart-flex-item">
-                  <span class="money">₹<%= product.product.price %></span>
+                  <span class="money" style="color: red;">₹<%= product.product.offerPrice %></span><br>
+                  <span class="money" style="text-decoration: line-through;">₹<%= product.product.price %></span>
                 </td>
+                <% } else { %>
+                  <td class="cart__price-wrapper cart-flex-item">
+                    <span class="money">₹<%= product.product.price %></span>
+                  </td>
+                  <% } %>
                 <td class="cart__update-wrapper cart-flex-item text-right">
                   <div class="cart__qty text-center">
                     <div class="qtyField">
@@ -63,9 +75,15 @@
                     </div>
                   </div>
                 </td>
+                <% if(product.product.offerApplied === true) { %>
                 <td class="text-right small--hide cart-price">
-                  <div id="SubtotalReload"><span class="money">₹<%= product.quantity * product.product.price %></span></div>
+                  <div id="SubtotalReload"><span class="money">₹<%= product.quantity * product.product.offerPrice %></span></div>
                 </td>
+                <% } else { %>
+                  <td class="text-right small--hide cart-price">
+                    <div id="SubtotalReload"><span class="money">₹<%= product.quantity * product.product.price %></span></div>
+                  </td>
+                  <% } %>
                 <td class="text-center small--hide"><a href="#" onclick="removeItem('<%= product._id %>')" class="btn btn--secondary cart__remove" title="Remove tem"><i class="icon icon anm anm-times-l"></i></a></td>
               </tr>
               <% }); %>
@@ -128,7 +146,8 @@
         <div class="solid-border">
           <div class="row">
             <span class="col-12 col-sm-6 cart__subtotal-title"><strong>Subtotal</strong></span>
-            <span class="col-12 col-sm-6 cart__subtotal-title cart__subtotal text-right"><span class="money" id="subtotalReolad">₹<%= cartProduct.cartTotal %></span></span>
+            <span class="col-12 col-sm-6 cart__subtotal-title cart__subtotal text-right"><span class="money" id="subtotalReolad">
+              ₹<%= cartProduct.cartTotal %></span></span>
           </div>
           <div class="cart__shipping">Shipping &amp; taxes calculated at checkout</div>
           <p class="cart_tearm">
@@ -238,6 +257,19 @@
 
     }
   }
+
+  //displaying the message from the checkout
+  document.addEventListener('DOMContentLoaded', function() {
+ const urlParams = new URLSearchParams(window.location.search);
+ const paymentFailed = urlParams.get('paymentFailed');
+
+ if (paymentFailed === 'true') {
+    toastr.error('Payment Failed. Please try again.', 'Info!');
+ }
+});
+
+
+
 </script>
 
 <script>

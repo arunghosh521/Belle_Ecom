@@ -426,7 +426,7 @@ table {
 				font-size: calc(13px + (16 - 13) * ((100vw - 320px) / (1920 - 320)));
 				background-color: #f9f9f6;
 				text-align: center;
-				min-width: 170px;
+				min-width: 150px !important;
 				padding: 15px !important;
 
 				&:last-child {
@@ -1628,6 +1628,7 @@ table {
 							height: 100%;
 							object-fit: contain;
 						}
+					
 					}
 				}
 			}

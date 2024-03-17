@@ -71,7 +71,7 @@
             <ul class="customer-links list-inline">
               <li>Welcome, &nbsp; <%=user.firstname %> <%= user.lastname %></li>
               <li><a href="/logout">Logout</a></li>
-              <li><a href="wishlist.html">Wishlist</a></li>
+              <li><a href="/wishlist">Wishlist</a></li>
             </ul>
 
             <% } else { %>
@@ -93,7 +93,7 @@
         <div class="row align-items-center">
           <!--Desktop Logo-->
           <div class="logo col-md-2 col-lg-2 d-none d-lg-block">
-            <a href="index.html">
+            <a href="/">
               <img src="/images/logo.svg" alt="Belle Multipurpose Html Template" title="Belle Multipurpose Html Template" />
             </a>
           </div>
@@ -128,7 +128,7 @@
           <!--Mobile Logo-->
           <div class="col-6 col-sm-6 col-md-6 col-lg-2 d-block d-lg-none mobile-logo">
             <div class="logo">
-              <a href="index.html">
+              <a href="/">
                 <img src="/images/logo.svg" alt="Belle Multipurpose Html Template" title="Belle Multipurpose Html Template" />
               </a>
             </div>
@@ -156,14 +156,18 @@
                   <%  if(cartProduct && cartProduct.products.length > 0 ) { %>
                   <% cartProduct.products.forEach(product => { %>
                   <li class="item">
-                    <a class="product-image" href="#">
-                      <img src="/uploads/<%= product.product.images[0] %>" alt="<%= product.product.name %>" title="" />
+                    <a class="product-image" href="/singleProduct?id=<%= product.product._id %>">
+                      <% if(product.product && product.product.images && product.product.images.length > 0) { %>
+                        <img src="/uploads/<%= product.product.images[0] %>" alt="<%= product.product.name %>" title="" />
+                      <% } else { %>
+                        <img src="/path/to/default/image.jpg" alt="Default Product Image" title="" />
+                      <% } %>
                     </a>
                     <div class="product-details">
 
                       <a href="#" class="remove"><i class="anm anm-times-l" aria-hidden="true"></i></a>
-                      <a href="#" class="edit-i remove"><i class="anm anm-edit" aria-hidden="true"></i></a>
-                      <a class="pName" href="cart.html"><%= product.product.name %></a>
+                      <!-- <a href="#" class="edit-i remove"><i class="anm anm-edit" aria-hidden="true"></i></a> -->
+                      <a class="pName" href="/singleProduct?id=<%= product.product._id %>"><%= product.product.name %></a>
                       <div class="variant-cart"><%= product.product.color%>/<%= product.product.size %></div>
                       <div class="wrapQtyBtn">
                         <div class="qtyField">
@@ -173,7 +177,13 @@
                       </div>
                       <div class="priceRow">
                         <div class="product-price">
-                          <span class="money">₹<%= product.product.price %></span>
+                          <% if(product.product.offerApplied === true) { %>
+                          <span class="money" style="text-decoration: line-through;">₹<%= product.product.price %></span>
+                          <span class="money" style="color: red;">₹<%= product.product.offerPrice %></span> &nbsp;
+                          <span class="money" style="color: red;"> offerApplied</span>
+                          <% } else { %>
+                            <span class="money">₹<%= product.product.price %></span>
+                            <% } %>
                         </div>
                       </div>
                     </div>
@@ -194,7 +204,7 @@
                 </div>
                 <% } else { %>
 
-                <span class="money">No product in the cart</span>
+                <span class="text" style="">No product in the cart</span>
 
                 <% } %>
               </div>

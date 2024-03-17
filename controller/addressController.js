@@ -15,6 +15,10 @@ const addAddressControl = asyncHandler(async (req, res) => {
       zone_id,
     } = req.body;
 
+    if(!firstname || !telephone || !address_1 || !address_2 || !city || !postcode || !userID || !country_id || !zone_id) {
+      return res.status(200).json({ success: false, message: "All fields required" });
+    }
+
     const newAddress = new AddressDB({
       Fname: firstname,
       user: userID,
@@ -30,7 +34,7 @@ const addAddressControl = asyncHandler(async (req, res) => {
 
     const insertedAddress = await newAddress.save();
     console.log("addedAddress", insertedAddress);
-    res.status(200).json({ message: "Address added successfully" });
+    res.status(200).json({success: true, message: "Address added successfully" });
   } catch (error) {
     console.log("addAddressError", error);
     res.status(500).json({ error: "Failed to add address" });

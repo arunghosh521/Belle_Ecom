@@ -23,7 +23,7 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/vendors/font-awesome.css">
 
     <!-- Linear Icon css -->
-    <link rel="stylesheet" href="//assets/css/linearicon.css">
+    <link rel="stylesheet" href="/assets/css/linearicon.css">
 
     <!-- Themify icon css -->
     <link rel="stylesheet" type="text/css" href="/assets/css/vendors/themify.css">
@@ -43,6 +43,12 @@
 
     <!-- Bootstrap css -->
     <link rel="stylesheet" type="text/css" href="/assets/css/vendors/bootstrap.css">
+
+     <!-- vector map css -->
+     <link rel="stylesheet" type="text/css" href="/assets/css/vector-map.css">
+
+     <!-- Slick Slider Css -->
+     <link rel="stylesheet" href="/assets/css/vendors/slick.css">
 
     <!-- App css -->
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
@@ -158,23 +164,13 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="order-list.html">
+                                    <a href="/admin/orderList">
                                         <i data-feather="archive"></i>
                                         <span>Orders</span>
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="support-ticket.html">
-                                        <i data-feather="phone"></i>
-                                        <span>Spports Tickets</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="profile-setting.html">
-                                        <i data-feather="settings"></i>
-                                        <span>Settings</span>
-                                    </a>
-                                </li>
+                                
+                             
                                 <li>
                                     <a data-bs-toggle="modal" data-bs-target="#staticBackdrop"
                                         href="javascript:void(0)">
@@ -288,7 +284,7 @@
                                     </ul>
                                 </li>
 
-                                <li class="sidebar-list">
+                                <!-- <li class="sidebar-list">
                                     <a class="linear-icon-link sidebar-link sidebar-title" href="javascript:void(0)">
                                         <i class="ri-focus-3-line"></i>
                                         <span>Localization</span>
@@ -302,7 +298,7 @@
                                             <a href="currency-rates.html">Currency Rates</a>
                                         </li>
                                     </ul>
-                                </li>
+                                </li> -->
 
                                 <li class="sidebar-list">
                                     <a class="linear-icon-link sidebar-link sidebar-title" href="javascript:void(0)">
@@ -311,33 +307,41 @@
                                     </a>
                                     <ul class="sidebar-submenu">
                                         <li>
-                                            <a href="coupon-list.html">Coupon List</a>
+                                            <a href="/admin/couponList">Coupon List</a>
                                         </li>
 
                                         <li>
-                                            <a href="create-coupon.html">Create Coupon</a>
+                                            <a href="/admin/createCoupon">Create Coupon</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="sidebar-list">
+                                    <a class="linear-icon-link sidebar-link sidebar-title" href="javascript:void(0)">
+                                        <i class="ri-price-tag-3-line"></i>
+                                        <span>Offers</span>
+                                    </a>
+                                    <ul class="sidebar-submenu">
+                                        <li>
+                                            <a href="/admin/offerList">Offer List</a>
+                                        </li>
+
+                                        <li>
+                                            <a href="/admin/createOffer">Create Offer</a>
                                         </li>
                                     </ul>
                                 </li>
 
-                                <li class="sidebar-list">
+                                <!-- <li class="sidebar-list">
                                     <a class="sidebar-link sidebar-title link-nav" href="taxes.html">
                                         <i class="ri-price-tag-3-line"></i>
                                         <span>Tax</span>
                                     </a>
-                                </li>
+                                </li> -->
 
                                 <li class="sidebar-list">
                                     <a class="sidebar-link sidebar-title link-nav" href="product-review.html">
                                         <i class="ri-star-line"></i>
                                         <span>Product Review</span>
-                                    </a>
-                                </li>
-
-                                <li class="sidebar-list">
-                                    <a class="sidebar-link sidebar-title link-nav" href="support-ticket.html">
-                                        <i class="ri-phone-line"></i>
-                                        <span>Support Ticket</span>
                                     </a>
                                 </li>
 
@@ -348,20 +352,20 @@
                                     </a>
                                     <ul class="sidebar-submenu">
                                         <li>
-                                            <a href="profile-setting.html">Profile Setting</a>
+                                            <a href="#">Profile Setting</a>
                                         </li>
                                     </ul>
                                 </li>
 
                                 <li class="sidebar-list">
-                                    <a class="sidebar-link sidebar-title link-nav" href="reports.html">
+                                    <a class="sidebar-link sidebar-title link-nav" href="/admin/salesReport">
                                         <i class="ri-file-chart-line"></i>
                                         <span>Reports</span>
                                     </a>
                                 </li>
 
                                 <li class="sidebar-list">
-                                    <a class="sidebar-link sidebar-title link-nav" href="list-page.html">
+                                    <a class="sidebar-link sidebar-title link-nav" href="#">
                                         <i class="ri-list-check"></i>
                                         <span>List Page</span>
                                     </a>

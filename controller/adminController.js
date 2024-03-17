@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const UserDb = require("../models/userModel");
-const Product = require("../models/products");
+const ProductDB = require("../models/products");
+const OrderDB = require("../models/order");
 
 const loadAdminlogin = asyncHandler(async (req, res) => {
   try {
@@ -13,7 +14,21 @@ const loadAdminlogin = asyncHandler(async (req, res) => {
 
 const loadDashboard = asyncHandler(async (req, res) => {
   try {
-    res.render("admin/dashboard");
+    const productCount = await ProductDB.find().count();
+    const orderCount = await OrderDB.find().count();
+    const userCount = await UserDb.find().count();
+    console.log(userCount);
+    function formatUserCount(userCount) {
+      if (userCount >= 1000) {
+          return (userCount / 1000).toFixed(1) + 'k';
+      } else {
+          return userCount.toString();
+      }
+  }
+  const formattedUserCount = formatUserCount(userCount);
+  console.log(formattedUserCount);
+
+    res.render("admin/dashboard", {productCount, orderCount, userCount: formattedUserCount});
   } catch (error) {
     console.log("loadDashboardError", error);
   }

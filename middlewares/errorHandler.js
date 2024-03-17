@@ -8,10 +8,9 @@ const notFound = async (req, res, next) => {
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    // Redirect or render a view for the user
     res.render("user/404", { user, cartProduct });
   } catch (error) {
-    next(error); // Forward the error to the error handling middleware
+    next(error); 
   }
 };
 

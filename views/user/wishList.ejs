@@ -1,0 +1,182 @@
+<%- include('../layouts/header.ejs') -%>
+<!--Body Content-->
+<div id="page-content">
+  <!--Page Title-->
+  <div class="page section-header text-center">
+    <div class="page-title">
+      <div class="wrapper">
+        <h1 class="page-width">Wish List</h1>
+      </div>
+    </div>
+  </div>
+  <!--End Page Title-->
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-sm-12 col-md-12 col-lg-12 main-col">
+        <form action="#">
+          <div class="wishlist-table table-content table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th class="product-name text-center alt-font">Remove</th>
+                  <th class="product-price text-center alt-font">Images</th>
+                  <th class="product-name alt-font">Product</th>
+                  <th class="product-price text-center alt-font">Unit</th>
+                  <th class="stock-status text-center alt-font">Stock Status</th>
+                  <th class="product-subtotal text-center alt-font">Add to Cart</th>
+                </tr>
+              </thead>
+              <% if (wishListData && wishListData.length > 0) { %>
+              <tbody>
+                <% wishListData.forEach(function(wishlist) { %>
+                <% wishlist.products.forEach(function(product) { %>
+                <tr>
+                  <td class="product-remove text-center" valign="middle">
+                    <a href="#" class="remove-item" data-id="ItemId_<%= product._id %>"><i class="icon icon anm anm-times-l"></i></a>
+                  </td>
+                  <td class="product-thumbnail text-center">
+                    <a href="/singleProduct?id=<%= product.product._id %>"><img src="/uploads/<%= product.product.images[1] %>" alt="<%= product.product.name %>" title="<%= product.product.name %>" /></a>
+                  </td>
+                  <td class="product-name">
+                    <h4 class="no-margin"><a href="/singleProduct?id=<%= product.product._id %>"><%= product.product.name %></a></h4>
+                  </td>
+                  <td class="product-price text-center">
+                    <span class="amount">₹<%= product.product.price %></span>
+                  </td>
+                  <% if(product.product.quantity > 0) { %>
+                  <td class="stock text-center">
+                    <span class="in-stock">in stock</span>
+                  </td>
+                  <td class="product-subtotal text-center">
+                    <button type="button" id="addToCartButton" data-id="<%= product.product._id %>" class="btn btn-small">Add To Cart</button>
+                  </td>
+                  <% } else { %>
+                  <td class="stock text-center">
+                    <span class="in-stock">Out Of stock</span>
+                  </td>
+                  <td class="product-subtotal text-center">
+                    <button type="button" class="btn btn-small" disabled>Add to Cart</button>
+                  </td>
+                  <% } %>
+                </tr>
+                <% }); %>
+                <% }); %>
+              </tbody>
+              <% } else { %>
+              <tbody>
+                <tr>
+                  <td colspan="6" class="text-center">No products in wishlist.</td>
+                </tr>
+              </tbody>
+              <% } %>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!--End Body Content-->
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+  $(document).ready(function() {
+    $('.remove-item').on('click', function(event) {
+      event.preventDefault();
+      const itemIdWithPrefix = $(this).data('id');
+
+      const itemId = itemIdWithPrefix.split('_')[1];
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: `/wishlist/removeItem?itemId=${itemId}`,
+            type: 'DELETE',
+            success: function(result) {
+              Swal.fire(
+                'Removed!',
+                'Your item has been removed.',
+                'success'
+              ).then(() => {
+                location.reload();
+              })
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              console.error('Error:', errorThrown);
+              Swal.fire(
+                'Error!',
+                'There was an error deleting the item.',
+                'error'
+              );
+            }
+          });
+        }
+      });
+    });
+  });
+</script>
+
+<script>
+  toastr.options = {
+    "closeButton": false,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": false,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+  };
+
+  $('#addToCartButton').click(function(event) {
+    event.preventDefault();
+    const productId = $(this).data('id');
+   
+
+
+    $.ajax({
+      url: '/wishlist/add-to-cart',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        productId
+      }),
+      success: function(data) {
+        if (data.success === true) {
+          $('.site-cart').load(`/cart?id=${productId} .site-cart`)
+          toastr.success('Product added to Cart successfully', 'Success!');
+        } else {
+          toastr.error('Payment Failed. Please try again.', 'Info!');
+        }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error("Error: ", textStatus, errorThrown);
+      }
+    })
+  })
+</script>
+
+<%- include('../layouts/footer.ejs') -%>

@@ -10,7 +10,7 @@
           <div class="card-body">
             <div class="title-header option-title">
               <h5>Order List</h5>
-              <a href="#" class="btn btn-solid">Download all orders</a>
+              <a href="#" class="btn btn-solid" onclick="downloadOrders()">Download all orders</a>
             </div>
             <div>
               <div class="table-responsive">
@@ -35,17 +35,17 @@
                       <td><%= order.orderedDate %></td>
                       <td><%= order.payment %></td>
                       <td class="order-status">
-                        <select id="orderStatusDropdown" onchange="updateOrderStatus(this)" data-order-id="<%= order._id %>">
-                            <option value="Not Processed" <% if (order.orderStatus === 'Not Processed') { %> selected <% } %>>Not Processing</option>
-                            <option value="Processing" <% if (order.orderStatus === 'Processing') { %> selected <% } %>>Processing</option>
-                            <option value="Dispatched" <% if (order.orderStatus === 'Dispatched') { %> selected <% } %>>Dispatched</option>
-                            <option value="Cancelled" <% if (order.orderStatus === 'Cancelled') { %> selected <% } %>>Cancelled</option>
-                            <option value="Delivered" <% if (order.orderStatus === 'Delivered') { %> selected <% } %>>Delivered</option>
-                            <option value="Returned" <% if (order.orderStatus === 'Returned') { %> selected <% } %>>Returned</option>
+                        <select id="orderStatusDropdown" onchange="updateOrderStatus(this)" data-order-id="<%= order._id %>" <% if(order.orderStatus === 'Cancelled') { %> disabled <% } %>>
+                          <option value="Not Processed" <% if (order.orderStatus === 'Not Processed') { %> selected <% } %>>Not Processing</option>
+                          <option value="Processing" <% if (order.orderStatus === 'Processing') { %> selected <% } %>>Processing</option>
+                          <option value="Dispatched" <% if (order.orderStatus === 'Dispatched') { %> selected <% } %>>Dispatched</option>
+                          <option value="Cancelled" <% if (order.orderStatus === 'Cancelled') { %> selected <% } %>>Cancelled</option>
+                          <option value="Delivered" <% if (order.orderStatus === 'Delivered') { %> selected <% } %>>Delivered</option>
+                          <option value="Returned" <% if (order.orderStatus === 'Returned') { %> selected <% } %>>Returned</option>
                         </select>
-                        <input type="hidden" id="orderId" value="<%= order._id %>">                       
-                    </td>
-                    
+                        <input type="hidden" id="orderId" value="<%= order._id %>">
+                      </td>
+
 
 
                       <td>$<%= order.orderTotal %></td>
@@ -69,6 +69,11 @@
                   </tbody>
 
                 </table>
+              </div><br>
+              <div class="pagination">
+                <button id="prevPage" disabled>Previous</button> &nbsp;
+                <span id="pageInfo"></span>&nbsp;
+                <button id="nextPage">Next</button>
               </div>
             </div>
           </div>
@@ -96,50 +101,181 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    function updateOrderStatus(selectElement) {
-        const orderId = selectElement.getAttribute('data-order-id');
-        const newStatus = selectElement.value;
+  function updateOrderStatus(selectElement) {
+    const orderId = selectElement.getAttribute('data-order-id');
+    const newStatus = selectElement.value;
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to change the status after this.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#46ff91",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, change it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch('/admin/orderList/updateOrderStatus', {
-                    method: "POST",
-                    body: JSON.stringify({ orderId: orderId, newStatus: newStatus }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        Swal.fire("Success!", "Status changed successfully", "success")
-                        .then((value) => {
-                            if (value) {
-                              window.location.href = '/admin/orderList';
-                            }
-                        });
-                    } else {
-                        Swal.fire("Error!", "Order cancelled successfully", "Filed")
-                        .then((value) => {
-                            if (value) {
-                              window.location.href = '/admin/orderList';
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error("Error updating order status:", error);
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to change the status after this.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#46ff91",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch('/admin/orderList/updateOrderStatus', {
+            method: "POST",
+            body: JSON.stringify({
+              orderId: orderId,
+              newStatus: newStatus
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (response.ok) {
+              Swal.fire("Success!", "Status changed successfully", "success")
+                .then((value) => {
+                  if (value) {
+                    window.location.href = '/admin/orderList';
+                  }
+                });
+            } else {
+              Swal.fire("Error!", "Order cancelled successfully", "Filed")
+                .then((value) => {
+                  if (value) {
+                    window.location.href = '/admin/orderList';
+                  }
                 });
             }
-        });
+          })
+          .catch(error => {
+            console.error("Error updating order status:", error);
+          });
+      }
+    });
+  }
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    async function fetchOrderDetails() {
+      try {
+        const response = await fetch('/admin/orderList/getOrderDetails');
+        const orders = await response.json();
+        return orders;
+      } catch (error) {
+        console.error("Error fetching orderDetails", error);
+      }
     }
+
+    function disableSelectIfCancelledOrReturned(orders) {
+      orders.forEach(order => {
+        const orderSelectElement = document.querySelector(`#orderStatusDropdown[data-order-id="${order.orderId}"]`);
+        if (orderSelectElement && (order.orderStatus === 'Cancelled' || order.orderStatus === 'Returned')) {
+          orderSelectElement.disabled = true;
+        }
+      });
+    }
+
+    fetchOrderDetails().then(disableSelectIfCancelledOrReturned);
+  });
+</script>
+
+<script>
+  let currentPageNo = 1;
+  let itemsPerPage = 5;
+
+  function fetchOrders(page) {
+    fetch(`/admin/orderList/pagination?page=${page}&itemsPrePage=${itemsPerPage}`)
+      .then(response => response.json())
+      .then(data => {
+        updateTable(data.orders);
+        updatePagination(data.totalPages, data.currentPage);
+      })
+  }
+
+  function updateTable(orders) {
+    const tableBody = document.querySelector('#table_id tbody');
+    tableBody.innerHTML = '';
+
+    orders.forEach(order => {
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+      <td>#${order.orderId}</td>
+      <td>${order.orderedDate}</td>
+      <td>${order.payment}</td>
+      <td class="order-status">
+        <select id="orderStatusDropdown" onchange="updateOrderStatus(this)" data-order-id="${order._id}">
+          <option value="Not Processed" ${order.orderStatus === 'Not Processed' ? 'selected' : ''}>Not Processing</option>
+          <option value="Processing" ${order.orderStatus === 'Processing' ? 'selected' : ''}>Processing</option>
+          <option value="Dispatched" ${order.orderStatus === 'Dispatched' ? 'selected' : ''}>Dispatched</option>
+          <option value="Cancelled" ${order.orderStatus === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+          <option value="Delivered" ${order.orderStatus === 'Delivered' ? 'selected' : ''}>Delivered</option>
+          <option value="Returned" ${order.orderStatus === 'Returned' ? 'selected' : ''}>Returned</option>
+        </select>
+        <input type="hidden" id="orderId" value="${order._id}">
+      </td>
+      <td>$${order.orderTotal}</td>
+      <td>
+        <ul>
+          <li>
+            <a href="/admin/orderList/orderDetails?id=${order._id}">
+              <i class="ri-eye-line"></i>
+            </a>
+          </li>
+        </ul>
+      </td>
+    `;
+      tableBody.appendChild(newRow);
+    });
+  }
+
+  function updatePagination(totalPages, currentPage) {
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const pageInfo = document.getElementById('pageInfo');
+
+    if (currentPage === 1) {
+      prevPageBtn.disabled = true;
+    } else {
+      prevPageBtn.disabled = false;
+    }
+    if (currentPage === totalPages) {
+      nextPageBtn.disabled = true;
+    } else {
+      nextPageBtn.disabled = false;
+    }
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+  }
+
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPageNo > 1) {
+      currentPageNo--;
+      fetchOrders(currentPageNo)
+    }
+  });
+
+  document.getElementById('nextPage').addEventListener('click', () => {
+    currentPageNo++;
+    fetchOrders(currentPageNo);
+  });
+
+  fetchOrders(currentPageNo);
+</script>
+
+<script>
+  function downloadOrders() {
+    console.log("sdvfdv");
+    fetch('/admin/orderList/download-Orders')
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'orders.pdf';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => console.error('Error downloading orders:', error));
+
+  }
 </script>
 
 

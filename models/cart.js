@@ -11,10 +11,14 @@ var cartSchema = new mongoose.Schema(
         quantity: Number,
         price: Number,
         total: Number,
+       
       },
     ],
+    couponApplied: {
+      type: Boolean,
+      default: false,
+    },
     cartTotal: Number,
-
     orderBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -24,6 +28,5 @@ var cartSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
 
 module.exports = mongoose.model("Cart", cartSchema);

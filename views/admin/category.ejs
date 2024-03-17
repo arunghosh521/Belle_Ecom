@@ -28,11 +28,12 @@
 
                         <div class="table-responsive category-table">
                             <div>
-                                <table class="table all-package theme-table" id="table_id">
+                                <table class="table all-package theme-table"  id="table_id">
                                     <thead>
                                         <tr>
                                             <th>Category Name</th>
                                             <th>Description</th>                                            
+                                            <th>Offer</th>                                            
                                             <th>List/Unlist</th>                                            
                                             <th>Option</th>
                                         </tr>
@@ -43,9 +44,14 @@
                                         <tr>
                                             <td><%= categories[i].category %></td>
                                             <td class="long-text"><%= categories[i].description %></td>
+                                            <td >
+                                                <button style="margin-left: 60px !important;" onclick="offerListing(this)" type="button" class="btn btn-success" data-category-id="<%= categories[i]._id %>" data-is-listed=false>
+                                                    View Offer
+                                                  </button>
+                                            </td>
                                             <td><% if(categories[i].is_listed==true){ %>
                                  
-                                                <button onclick="listUser()" type="button" class="btn btn-success" data-category-id="<%= categories[i]._id %>" data-is-listed=false>
+                                                <button style="margin-left: 60px !important;" onclick="listUser()" type="button" class="btn btn-success" data-category-id="<%= categories[i]._id %>" data-is-listed=false>
                                                   Unlist
                                                 </button>
                                                 <% }else{ %>
@@ -76,6 +82,23 @@
         </div>
     </div>
     <!-- All User Table Ends-->
+     <!-- Modal -->
+  <div id="offerDetailsModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Offer Details</h5>
+
+        </div>
+        <div class="modal-body">
+          <!-- Offer details will be loaded here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -124,6 +147,124 @@
           }
         }
       </script>
+
+<script>
+    function offerListing(button) {
+      console.log(button);
+      const categoryId = button.dataset.categoryId;
+      console.log(categoryId);
+      document.querySelector('#offerDetailsModal').dataset.categoryId = categoryId;
+      $.ajax({
+        url: '/admin/offerListing',
+        type: 'POST',
+        success: function(response) {
+          console.log("ghbjn", response);
+          let offersHtml = `
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Offer Name</th>
+                <th>Discount</th>
+                <th>Description</th>
+                <th>Apply</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+          response.offerDetails.forEach(offer => {
+            if (offer) {
+              offersHtml += `
+              <tr>
+                <td>${offer.offerName}</td>
+                <td>${offer.percentage}% off</td>
+                <td>${offer.offerDescription}</td>
+                <td>
+                  <button class="btn btn-primary apply-offer-btn">Apply</button>
+                </td>
+                <td>
+                  <button class="btn btn-primary remove-offer-btn">Remove</button>
+                </td>
+              </tr>
+            `;
+            }
+          });
+          offersHtml += `
+            </tbody>
+          </table>
+        `;
+
+          document.querySelector('#offerDetailsModal .modal-body').innerHTML = offersHtml;
+          $('#offerDetailsModal').modal('show');
+
+          document.querySelector('#offerDetailsModal .modal-body table').addEventListener('click', function(event) {
+            console.log("sdffd");
+            if (event.target.classList.contains('apply-offer-btn')) {
+              const row = event.target.closest('tr');
+              console.log(row);
+              const offerName = row.querySelector('td:nth-child(1)').textContent;
+              console.log('Applying offer:', offerName);
+              const categoryId = document.querySelector('#offerDetailsModal').dataset.categoryId;
+              console.log(categoryId);
+              $.ajax({
+                url: '/admin/applyOfferToCategory',
+                type: 'POST',
+                data: {
+                  offerName: offerName,
+                  categoryId: categoryId
+                },
+                success: function(response) {
+                  alert(response.message);
+                  console.log(response.message);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                  console.error('Error applying offer:', textStatus, errorThrown);
+                }
+              });
+            }
+          });
+
+          document.querySelector('#offerDetailsModal .modal-body table').addEventListener('click', function(event) {
+            console.log("sdffd");
+            if (event.target.classList.contains('remove-offer-btn')) {
+              const row = event.target.closest('tr');
+              console.log(row);
+              const offerName = row.querySelector('td:nth-child(1)').textContent;
+              console.log('removing offer:', offerName);
+              const categoryId = document.querySelector('#offerDetailsModal').dataset.categoryId;
+              console.log(categoryId);
+              $.ajax({
+                url: '/admin/removeOfferCategory',
+                type: 'POST',
+                data: {
+                  offerName: offerName,
+                  categoryId: categoryId
+                },
+                success: function(response) {
+                  alert(response.message);
+                  console.log(response.message);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                  console.error('Error applying offer:', textStatus, errorThrown);
+                }
+              });
+            }
+          });
+
+
+
+
+
+        }
+      });
+    }
+
+    // Event listener for the modal close button
+    document.querySelector('.btn-secondary').addEventListener('click', function() {
+      $('#offerDetailsModal').modal('hide');
+    });
+  </script>
+
 
 
 <%- include('../adminLayouts/footer.ejs') -%>

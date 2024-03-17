@@ -120,6 +120,7 @@ const addProductsCntrl = asyncHandler(async (req, res) => {
         color: color,
         is_listed: true,
         images: filenames.map((filename) => `${filename}`),
+        sold: 0,
       });
 
       await products.save();

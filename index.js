@@ -18,8 +18,19 @@ const cartRouter = require("./routes/cartRoute");
 const addressRouter = require("./routes/addressRoute");
 const userOrderRoute = require("./routes/userOrderRoute");
 const orderRouter = require("./routes/orderRoute");
+const wishRouter = require("./routes/wishlistRoute");
+const couponRouter = require("./routes/couponRoute");
+const salesRouter = require("./routes/salesRoute");
+const offerRouter = require("./routes/offerRoute");
+const walletRouter = require("./routes/walletRoute");
 
-dbConnect();
+dbConnect().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running  at PORT http://localhost:${PORT}`);
+  });
+}).catch(error => {
+  console.log("Failed to connect to the database", error);
+})
 
 const TwoDaysValidity = 2 * 24 * 60 * 60 * 1000;
 
@@ -50,29 +61,43 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-//categoryRoute
+//* categoryRoute
 app.use("/admin/category", categoryRouter);
 
-//productRoute
+//* productRoute
 app.use("/admin/product", productRouter);
 
-//orderRoute
+//* salesRoute
+app.use("/admin/salesReport", salesRouter);
+
+//* orderRoute
 app.use("/admin/orderList", orderRouter);
 
+//* offerRoute
+app.use("/admin/", offerRouter);
 
-//adminRoute
+//* couponRoute
+app.use("/admin", couponRouter);
+
+//* adminRoute
 app.use("/admin", adminRouter);
 
-//addressRoute
+//* addressRoute
 app.use("/address", addressRouter);
 
-//cartRoute
+//* walletRoute
+app.use("/userProfile", walletRouter);
+
+//* wishlistRoute
+app.use("/wishlist", wishRouter);
+
+//* cartRoute
 app.use("/cart", cartRouter);
 
-//userOrderroute
+//* userOrderroute
 app.use("/orderPlaced", userOrderRoute);
 
-//userRoute
+//* userRoute
 app.use("/", authRouter);
 
 const errorMiddleware = (req, res, next) => {
@@ -83,6 +108,4 @@ app.use(errorMiddleware);
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running  at PORT http://localhost:${PORT}`);
-});
+

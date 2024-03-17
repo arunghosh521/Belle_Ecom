@@ -1,0 +1,144 @@
+<%- include('../adminLayouts/header.ejs') -%>
+
+
+<!-- Create Coupon Table start -->
+<div class="page-body">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="card">
+              <div class="card-body">
+                <div class="title-header option-title">
+                  <h5>Create Offer</h5>
+                </div>
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button">General</button>
+                  </li>
+                </ul>
+
+                <div class="tab-content" id="pills-tabContent">
+                  <div class="tab-pane fade show active" id="pills-home" role="tabpanel">
+                    <form class="theme-form theme-form-2 mega-form" id="offerForm" action="#" method="post">
+                      <div class="card-header-1">
+                        <h5>General</h5>
+                      </div>
+
+                      <div class="row">
+                        <div class="mb-4 row align-items-center">
+                          <label class="form-label-title col-lg-2 col-md-3 mb-0">Offer
+                            Title</label>
+                          <div class="col-md-9 col-lg-10">
+                            <input class="form-control" name="title" type="text">
+                          </div>
+                        </div>
+
+                        <div class="mb-4 row align-items-center">
+                          <label class="col-lg-2 col-md-3 col-form-label form-label-title">Percentage</label>
+                          <div class="col-md-9 col-lg-10">
+                            <input class="form-control" placeholder="" name="percentage" type="number">
+                          </div>
+                        </div>
+
+                        <div class="mb-4 row align-items-center">
+                          <label class="col-lg-2 col-md-3 col-form-label form-label-title">Start
+                            Date</label>
+                          <div class="col-md-9 col-lg-10">
+                            <input class="form-control" name="startDate" type="date">
+                          </div>
+                        </div>
+                        <div class="mb-4 row align-items-center">
+                          <label class="col-lg-2 col-md-3 col-form-label form-label-title">Expiry
+                            Date</label>
+                          <div class="col-md-9 col-lg-10">
+                            <input class="form-control" name="endDate" type="date">
+                          </div>
+                        </div>
+                      
+                        <div class="mb-4 row align-items-center">
+                          <label class="col-lg-2 col-md-3 col-form-label form-label-title">Description</label>
+                          <div class="col-md-9 col-lg-10">
+                            <textarea class="form-control" name="description" rows="2"></textarea>
+                          </div>
+                        </div>
+                        <br><br>
+                        <div class="right-options">
+                          <ul>
+                            <li>
+                              <div class="d-flex justify-content-end">
+                                <button class="btn btn-solid" type="submit">Add Offer</button>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<!-- Create Coupon Table End -->
+
+<%- include('../adminLayouts/footer.ejs') -%>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+<script>
+    toastr.options = {
+    "closeButton": false,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": false,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+  };
+
+  $('#offerForm').submit(function(event) {
+    event.preventDefault();
+
+    var formData = $(this).serialize();
+
+    $.ajax({
+      url: '/admin/createOffer',
+      type: 'POST',
+      data: formData,
+      success: function(response) {
+        if (response.success) {
+            window.location.href = '/admin/offerList?success=true&message=' + encodeURIComponent(response.message);
+        } else {
+            toastr.error(response.message, 'Info!');
+        }
+
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error(textStatus, errorThrown);
+        alert('Error adding Offer. Please try again.');
+      }
+    });
+
+  });
+</script>
+

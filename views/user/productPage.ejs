@@ -24,8 +24,8 @@
                                 <li class="level1 sub-level"><a href="#;" class="site-nav">Clothing</a>
                                   <ul class="sublinks">
                                       <li class="level2"><a href="#;" class="site-nav">Men</a></li>
-                                        <li class="level2"><a href="#;" class="site-nav">Women</a></li>
-                                        <li class="level2"><a href="#;" class="site-nav">View All Clothing</a></li>
+                                        <!-- <li class="level2"><a href="#;" class="site-nav">Women</a></li>
+                                        <li class="level2"><a href="#;" class="site-nav">View All Clothing</a></li> -->
                                     </ul>
                                 </li>
                                
@@ -262,6 +262,15 @@
                                         <!-- Hover image -->
                                         <img class="grid-view-item__image hover blur-up lazyload" data-src="/uploads/<%= products[i].images[1]%>" src="/uploads/<%= products[i].images[1]%>" alt="image" title="product">
                                         <!-- End hover image -->
+                                        <% if(products[i].offer && products[i].offer.length > 0) { %>
+                                          <div class="product-labels rectangular"><span class="lbl on-sale">-<%= products[i].offer[0].percentage %>%</span> </div>
+                                      <% } else { %>
+                                          <div hidden class="product-labels rectangular"><span class="lbl on-sale">-16%</span> 
+                                            <span class="lbl pr-label1">new</span>
+                                          </div>
+
+                                      <% } %>
+                                       
                                         <% if(products[i].quantity === 0) { %>
                                           <span class="sold-out"><span>Sold out</span></span>
                                       <% } %>
@@ -295,10 +304,19 @@
                                     </div>
                                     <!-- End product name -->
                                     <!-- product price -->
-                                    <div class="product-price">
-                                      <span class="price">₹<%= products[i].price %></span>
-                                    </div>
-                                    <!-- End product price -->
+                                    <% if(products[i].offer && products[i].offer.length > 0) { %>
+                                      <div class="product-price">
+                                              <span class="price" style="text-decoration: line-through;">₹<%= products[i].price %></span> &nbsp;
+                                              <span class="price" style="color: red;">₹<%= products[i].offerPrice %></span>
+                                          </div>
+                                      <% } else { %>
+                                          <div class="product-price">
+                                              <span class="price">₹<%= products[i].price %></span>
+                                          </div>
+                                      <% } %>
+                                
+                                  <!-- End product price -->
+                                  
                                     
                                     <div class="product-review">
                                         <i class="font-13 fa fa-star-o"></i>

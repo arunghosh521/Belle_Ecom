@@ -1,0 +1,277 @@
+<%- include('../adminLayouts/header.ejs') -%>
+
+<!-- Coupon list table starts-->
+<div class="page-body">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="title-header option-title">
+              <h5>Coupon List</h5>
+              <div class="right-options">
+                <ul>
+                  <li>
+                    <a class="btn btn-solid" href="/admin/createOffer">Add Offer</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <div class="table-responsive">
+                <table class="table all-package coupon-list-table table-hover theme-table" id="table_id">
+                  <thead>
+                    <tr>
+                      <th>
+                        <span class="form-check user-checkbox m-0 p-0">
+                          Enable/Disable
+                        </span>
+                      </th>
+                      <th>OfferName</th>
+                      <th>Percentage</th>
+                      <th>start Date</th>
+                      <th>Expiry Date</th>
+                      <th>Option</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if(offerData && offerData.length >0) { %>
+                    <% offerData.forEach(offer => {  %>
+                    <tr>
+                      <td>
+                        <span class="form-check user-checkbox m-0 p-0">
+                          <input class="checkbox_animated check-it" type="checkbox" value="<%= offer._id  %>" <%= offer.isListed === true ? 'checked' : '' %>>
+                        </span>
+                      </td>
+                      <td><%= offer.offerName %></td>
+                      <td><%= offer.percentage %> %</td>
+                      <td class="theme-color"><%= new Date(offer.startingDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></td>
+                      <td class="theme-color"><%= new Date(offer.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></td>
+                      <td>
+                        <ul>
+                          <li>
+                            <a href="/admin/editOffer?id=<%= offer._id %>">
+                              <i class="ri-pencil-line"></i>
+                            </a>
+                          </li>
+                          <li>
+                            <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModalToggle" data-offer-id="<%= offer._id %>">
+                              <i class="ri-delete-bin-line"></i>
+                            </a>
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
+                    <% }); %>
+                    <% } else { %>
+                    <tr>
+                      <td colspan="9">No offers</td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- Pagination End -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Container-fluid Ends-->
+
+  <!-- Delete Modal Box Start -->
+  <div class="modal fade theme-modal remove-offer" id="exampleModalToggle" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header d-block text-center">
+          <h5 class="modal-title w-100" id="exampleModalLabel22">Are You Sure ?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="remove-box text-center">
+            <h4>Are you sure you want to delete this offer? </h4>
+        <p>If you're sure, please confirm. Otherwise, you can cancel this action and continue managing your offers.</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-animation btn-md fw-bold" data-bs-dismiss="modal">No</button>
+          <button type="button" class="btn btn-animation btn-md fw-bold" data-bs-target="#exampleModalToggle2" id="confirmDeleteBtn" data-bs-toggle="modal" data-bs-dismiss="modal">Yes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade theme-modal remove-coupon" id="exampleModalToggle2" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-center" id="exampleModalLabel12">Done!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="remove-box text-center">
+            <div class="wrapper">
+              <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+              </svg>
+            </div>
+            <h4 class="text-content">It's Removed.</h4>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Delete Modal Box End -->
+
+
+  <div id="customAlert" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+    <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 30%;">
+       <h2>Confirmation</h2>
+       <p>Are you sure you want to change the status of this offer?</p>
+       <button id="yesButton" style="margin-right: 10px;">Yes</button>
+       <button id="noButton">No</button>
+    </div>
+   </div>
+   
+
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+
+
+
+  <script>
+    toastr.options = {
+      "closeButton": false,
+      "debug": false,
+      "newestOnTop": true,
+      "progressBar": false,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    };
+    //displaying the message from the checkout
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const success = urlParams.get('success');
+      const message = urlParams.get('message');
+
+
+      if (success === 'true') {
+        toastr.success(message, 'Success!');
+      }
+    });
+
+  </script>
+
+<script>
+  $(document).ready(function() {
+      document.querySelectorAll('[data-bs-target="#exampleModalToggle"]').forEach(function(deleteButton) {
+          deleteButton.addEventListener('click', function() {
+              var offerID = this.dataset.offerId;
+              console.log(offerID);
+              document.getElementById('confirmDeleteBtn').dataset.offerId = offerID;
+          });
+      });
+  
+      document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+          var offerID = this.dataset.offerId;
+          console.log('confirmdeleteBtn', offerID);
+  
+          $.ajax({
+              url: '/admin/deleteOffer',
+              type: 'DELETE',
+              data: {
+                  offerId: offerID
+              },
+              success: function(response) {
+                  if (response.success) {
+                      $('#exampleModalToggle2').modal('show');
+                      toastr.success('Offer deleted Successfully.');
+
+                  } else {
+                      toastr.error('Error deleting offer. Please try again.');
+                  }
+              },
+              error: function(jqXHR, textStatus, errorThrown) {
+                  console.error(textStatus, errorThrown);
+                  alert('Error deleting offer. Please try again.');
+              }
+          });
+      });
+  
+   
+      function reloadPage() {
+          location.reload();
+      }
+  
+      $('#exampleModalToggle2').on('hidden.bs.modal', function () {
+          reloadPage();
+      });
+  });
+  </script>
+
+
+<script>
+ $(document).ready(function() {
+    $('.check-it').change(function() {
+        var offerId = $(this).val();
+        var status = $(this).is(':checked') ? 'active' : 'inactive';
+
+        $('#customAlert').show();
+
+        $('#yesButton').off('click').on('click', function() {
+            $.ajax({
+                url: '/admin/statusChange',
+                type: 'POST',
+                data: {
+                    offerId: offerId,
+                    status: status
+                },
+                success: function(response) {
+                  toastr.success(response.message, 'Success!'); 
+                  setTimeout(function() {
+                    window.location.reload();
+                  },1500);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error('Error updating status:', textStatus, errorThrown);
+                    toastr.error('Error updating status. Please try again.', 'Error!');
+                }
+            });
+
+            $('#customAlert').hide();
+        });
+
+        $('#noButton').off('click').on('click', function() {
+            $('#customAlert').hide();
+        });
+    });
+});
+
+
+</script>
+
+  <%- include('../adminLayouts/footer.ejs') -%>

@@ -34,9 +34,8 @@ router.get(
 router
   .route("/userProfile")
   .get(isLogin, isBlocked, userController.loadUserProfile)
-router.post("/editProfile", multerMiddleware.uploads.single("image"),userController.editProfileCntrl);
-router.post('/validateProfileForm', userController.validateProfileForm);
-
+router.patch("/editProfile", multerMiddleware.uploads.single("image"),userController.editProfileCntrl);
+router.get("/verify-email", userController.changedEmailVerify);
 
 
 module.exports = router;

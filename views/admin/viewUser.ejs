@@ -19,7 +19,7 @@
                   <tr>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Status</th>
+                    
                     <th>Block/Unblock</th>
                     <th>Option</th>
                   </tr>
@@ -30,12 +30,16 @@
                   <tr>
                     <td>
                       <div class="user-name">
-                        <span><%= User[i].firstname %></span>
-                        <span>Essex Court</span>
+                        <span><%= User[i].firstname.toUpperCase() %></span>
+                        <span>Created: <script>
+                          var createdAt = new Date('<%= User[i].createdAt %>');
+                          var formattedDate = createdAt.toLocaleDateString();
+                          document.write(formattedDate);
+                      </script></span>
                       </div>
                     </td>
                     <td><%= User[i].email %></td>
-                    <td><%= User[i].email %></td>
+                  
                     <td>
                       <% if(User[i].is_blocked==true){ %>
                       <button onclick="blockUser()" type="button" class="btn btn-success" data-user-id="<%= User[i]._id %>" data-is-blocked=false>
@@ -80,8 +84,7 @@
       var userId = button.dataset.userId;
       var isBlocked = button.dataset.isBlocked;
       let alertSection = document.getElementById('alertSection');
-      console.log("User ID: ", userId);
-      console.log("Is Blocked: ", isBlocked);
+     
 
       $.ajax({
         type: 'POST',
@@ -99,7 +102,6 @@
           }
         },
         error: (err) => {
-          // Handle AJAX error
           console.error('Error in AJAX request:', err);
         }
       });

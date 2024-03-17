@@ -6,6 +6,9 @@ const {isLogin, isLogout, isBlocked} = require('../middlewares/userAuth');
 
 userOrderRoute.get('', isLogin, isBlocked, orderController.loadOrderConfirm);
 userOrderRoute.post('/placeOrder', orderController.placeOrder);
+userOrderRoute.get('/pagination', orderController.orderListPagination);
+//userOrderRoute.get('/getOrderIds', orderController.getOrderIds);
+userOrderRoute.post('/paymentVerify', orderController.razorpayPaymentVerify);
 userOrderRoute.post('/orderList', orderController.loadMyOrders);
 userOrderRoute.post('/orderCancel', orderController.cancelMyOrder);
 userOrderRoute.post('/orderReturn', orderController.returnMyOrder);

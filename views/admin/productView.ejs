@@ -1,156 +1,295 @@
 <%- include('../adminLayouts/header.ejs') -%>
 <style>
-    .long-text {
-     max-width: 200px;
-     text-overflow: ellipsis;
-     overflow: hidden;
-     white-space: nowrap;
-     word-wrap: break-word;
-    }
-    </style>
+  .long-text {
+    max-width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    word-wrap: break-word;
+  }
+</style>
 
 <div class="page-body">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card card-table">
-                    <div class="card-body">
-                        <div class="title-header option-title d-sm-flex d-block">
-                            <h5>Products List</h5>
-                            <div class="right-options">
-                                <ul>
-                                    <li>
-                                        <a href="javascript:void(0)">import</a>
-                                    </li>
-                                    <li>
-                                        <a href="javascript:void(0)">Export</a>
-                                    </li>
-                                    <li>
-                                        <a class="btn btn-solid" href="/admin/product/addProduct">Add Product</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div>
-                            <p style="color: red;"><%= messages.productMsg? messages.productMsg:"" %></p>
-                            <div class="table-responsive">
-                                <table class="table all-package theme-table table-product" id="table_id">
-                                    <thead>
-                                        <tr>
-                                            <th>Product Image</th>
-                                            <th>Product Name</th>
-                                            <th>Category</th>
-                                            <th>Current Qty</th>
-                                            <th>Price</th>
-                                            <th>List/Unlist</th>
-                                            <th>Option</th>
-                                    
-                                    </thead>
-
-                                    <tbody>
-                                        <% products.forEach(product => { %>
-                                        
-                                                <td>
-                                                    <div class="table-image">
-                                                        <img src="/uploads/<%= product.images[0] %>" class="img-fluid" alt="">
-                                                    </div>
-                                                </td>
-                                    
-                                                <td class="long-text"><%= product.name %></td>
-                                                <td>
-                                                    <% if (product.category) { %>
-                                                      <%= product.category.category %>
-                                                    <% } else { %>
-                                                      No Category
-                                                    <% } %>
-                                                  </td>
-                                                <td><%= product.quantity %></td>
-                                                <td class="bi bi-currency-rupee">₹<%= product.price %></td>
-                                                <td>
-                                                    <% if(product.is_listed==true){ %>
-                                                    <button onclick="listUser()" type="button" class="btn btn-success" data-product-id="<%= product._id %>" data-is-listed=false>
-                                                      Unlist
-                                                    </button>
-                                                    <% }else{ %>
-                                                    <button onclick="listUser()" type="button" class="btn btn-danger" class="btn toggle-btn" data-product-id="<%= product._id %>" data-is-listed=true>
-                                                      List
-                                                    </button>
-                              
-                                                    <% } %>
-                                                <td>
-                                                    <ul>
-                                                        <li>
-                                                            <a href="order-detail.html">
-                                                                <i class="ri-eye-line"></i>
-                                                            </a>
-                                                        </li>
-                                    
-                                                        <li>
-                                                            <a href="/admin/product/editProduct/<%= product._id %>">
-                                                                <i class="ri-pencil-line"></i>
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    </tbody>
-                                    
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="title-header option-title d-sm-flex d-block">
+              <h5>Products List</h5>
+              <div class="right-options">
+                <ul>
+                  <li>
+                    <a href="javascript:void(0)">import</a>
+                  </li>
+                  <li>
+                    <a href="javascript:void(0)">Export</a>
+                  </li>
+                  <li>
+                    <a class="btn btn-solid" href="/admin/product/addProduct">Add Product</a>
+                  </li>
+                </ul>
+              </div>
             </div>
-        </div>
-    </div>
-    <!-- Container-fluid Ends-->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <div>
+              <p style="color: red;"><%= messages.productMsg? messages.productMsg:"" %></p>
+              <div class="table-responsive">
+                <table class="table all-package theme-table table-product" id="table_id">
+                  <thead>
+                    <tr>
+                      <th>Product Image</th>
+                      <th>Product Name</th>
+                      <th>Category</th>
+                      <th>Current Qty</th>
+                      <th>Price</th>
+                      <th>Offer</th>
+                      <th>List/Unlist</th>
+                      <th>Option</th>
+                  </thead>
+                  <tbody>
+                    <% products.forEach(product => { %>
+                    <td>
+                      <div class="table-image">
+                        <img src="/uploads/<%= product.images[0] %>" class="img-fluid" alt="">
+                      </div>
+                    </td>
 
-    <script>
-        async function listUser() {
-          var button = event.target;
-    
-          var productId = button.dataset.productId;
-          var isListed = button.dataset.isListed;
-          console.log("User ID: ", productId);
-          console.log("Is Listed: ", isListed);
-    
-          $.ajax({
-            type: 'POST',
-            data: {
-              productId: productId,
-              isListed: isListed
-            },
-            url: '/admin/product/editproduct/toggleList',
-            success: async (res) => {
-              if (res.success) {
-                displayMessage(isListed);
-              } else {
-                // Handle unsuccessful response
-                console.error('Toggle block failed');
-              }
-            },
-            error: (err) => {
-              // Handle AJAX error
-              console.error('Error in AJAX request:', err);
+                    <td class="long-text"><%= product.name %></td>
+                    <td>
+                      <% if (product.category) { %>
+                      <%= product.category.category %>
+                      <% } else { %>
+                      No Category
+                      <% } %>
+                    </td>
+                    <td><%= product.quantity %></td>
+                    <td class="bi bi-currency-rupee">₹<%= product.price %></td>
+                    <td>
+                      <button style="margin-left: 40px;" onclick="offerListing(this)" type="button" class="btn btn-success" data-product-id="<%= product._id %>" data-is-listed=false>
+                        View Offers
+                      </button>
+                    </td>
+                    <td>
+                      <% if(product.is_listed==true){ %>
+                      <button style="margin-left: 40px;" onclick="listUser()" type="button" class="btn btn-success" data-product-id="<%= product._id %>" data-is-listed=false>
+                        Unlist
+                      </button>
+                      <% }else{ %>
+                      <button style="margin-left: 40px;" onclick="listUser()" type="button" class="btn btn-danger" class="btn toggle-btn" data-product-id="<%= product._id %>" data-is-listed=true>
+                        List
+                      </button>
+
+                      <% } %>
+                    <td>
+                      <ul>
+                        <li>
+                          <a href="/admin/product/editProduct/<%= product._id %>">
+                            <i class="ri-pencil-line"></i>
+                          </a>
+                        </li>
+                      </ul>
+                    </td>
+                    </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Container-fluid Ends-->
+
+  <!-- Modal -->
+  <div id="offerDetailsModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Offer Details</h5>
+
+        </div>
+        <div class="modal-body">
+          <!-- Offer details will be loaded here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+  <script>
+    async function listUser() {
+      const button = event.target;
+
+      const productId = button.dataset.productId;
+      const isListed = button.dataset.isListed;
+      console.log("User ID: ", productId);
+      console.log("Is Listed: ", isListed);
+
+      $.ajax({
+        type: 'POST',
+        data: {
+          productId: productId,
+          isListed: isListed
+        },
+        url: '/admin/product/editproduct/toggleList',
+        success: async (res) => {
+          if (res.success) {
+            displayMessage(isListed);
+          } else {
+            console.error('Toggle block failed');
+          }
+        },
+        error: (err) => {
+          console.error('Error in AJAX request:', err);
+        }
+      });
+
+      function displayMessage(isListed) {
+        var alertMessage = isListed === 'true' ?
+          "🎉 Product listed successfully!" :
+          "🚫 Product Unlisted successfully!";
+        Swal.fire({
+          icon: 'success',
+          title: 'Alert meaasge',
+          text: alertMessage,
+          willClose: () => {
+            window.location.reload();
+          }
+        });
+      }
+    }
+  </script>
+
+  <script>
+    function offerListing(button) {
+      console.log(button);
+      const productId = button.dataset.productId;
+      console.log(productId);
+      document.querySelector('#offerDetailsModal').dataset.productId = productId;
+      $.ajax({
+        url: '/admin/offerListing',
+        type: 'POST',
+        success: function(response) {
+          console.log("ghbjn", response);
+          let offersHtml = `
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Offer Name</th>
+                <th>Discount</th>
+                <th>Description</th>
+                <th>Apply</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+          response.offerDetails.forEach(offer => {
+            if (offer) {
+              offersHtml += `
+              <tr>
+                <td>${offer.offerName}</td>
+                <td>${offer.percentage}% off</td>
+                <td>${offer.offerDescription}</td>
+                <td>
+                  <button class="btn btn-primary apply-offer-btn">Apply</button>
+                </td>
+                <td>
+                  <button class="btn btn-primary remove-offer-btn">Remove</button>
+                </td>
+              </tr>
+            `;
             }
           });
-          function displayMessage(isListed){
-            var alertMessage = isListed === 'true'
-            ? "🎉 Product listed successfully!"
-            : "🚫 Product Unlisted successfully!";
-                Swal.fire({
-                    icon:'success',
-                    title: 'Alert meaasge',
-                    text: alertMessage,
-                    willClose: ()=>{
-                        window.location.reload();
-                    }
-                });
-          }
-        }
-      </script>
+          offersHtml += `
+            </tbody>
+          </table>
+        `;
 
-<%- include('../adminLayouts/footer.ejs') -%>
+          document.querySelector('#offerDetailsModal .modal-body').innerHTML = offersHtml;
+          $('#offerDetailsModal').modal('show');
+
+          document.querySelector('#offerDetailsModal .modal-body table').addEventListener('click', function(event) {
+            console.log("sdffd");
+            if (event.target.classList.contains('apply-offer-btn')) {
+              const row = event.target.closest('tr');
+              console.log(row);
+              const offerName = row.querySelector('td:nth-child(1)').textContent;
+              console.log('Applying offer:', offerName);
+              const productId = document.querySelector('#offerDetailsModal').dataset.productId;
+              console.log(productId);
+              $.ajax({
+                url: '/admin/applyOfferToProduct',
+                type: 'POST',
+                data: {
+                  offerName: offerName,
+                  productId: productId
+                },
+                success: function(response) {
+                  alert(response.message);
+                  console.log(response.message);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                  console.error('Error applying offer:', textStatus, errorThrown);
+                }
+              });
+            }
+          });
+
+          document.querySelector('#offerDetailsModal .modal-body table').addEventListener('click', function(event) {
+            console.log("sdffd");
+            if (event.target.classList.contains('remove-offer-btn')) {
+              const row = event.target.closest('tr');
+              console.log(row);
+              const offerName = row.querySelector('td:nth-child(1)').textContent;
+              console.log('Removing offer:', offerName);
+              const productId = document.querySelector('#offerDetailsModal').dataset.productId;
+              console.log(productId);
+              $.ajax({
+                url: '/admin/removeOfferProduct',
+                type: 'POST',
+                data: {
+                  offerName: offerName,
+                  productId: productId
+                },
+                success: function(response) {
+                  alert(response.message);
+                  console.log(response.message);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                  console.error('Error applying offer:', textStatus, errorThrown);
+                }
+              });
+            }
+          });
+
+
+
+
+
+        }
+      });
+    }
+
+    // Event listener for the modal close button
+    document.querySelector('.btn-secondary').addEventListener('click', function() {
+      $('#offerDetailsModal').modal('hide');
+    });
+  </script>
+
+
+
+  <%- include('../adminLayouts/footer.ejs') -%>

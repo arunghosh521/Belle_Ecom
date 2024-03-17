@@ -20,6 +20,9 @@ var orderSchema = new mongoose.Schema(
       type: String,
     },
     payment: {},
+    paymentStatus: {
+      type: String,
+    },
     cancleReason: {
       type: String,
       default: "Not Processed",
@@ -35,6 +38,9 @@ var orderSchema = new mongoose.Schema(
         "Delivered",
         "Returned",
       ],
+    },
+    statusChangedBy: {
+      type: String,
     },
     address: {
       type: Array,

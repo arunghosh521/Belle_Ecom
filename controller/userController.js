@@ -4,10 +4,15 @@ const ProductModel = require("../models/products");
 const categoryDB = require("../models/category");
 const CartDB = require("../models/cart");
 const OrderDB = require("../models/order");
+const WishlistDB = require("../models/wishlist");
+const OfferDB = require("../models/offer");
+const WalletDB = require("../models/Wallet");
+const CouponDB = require("../models/coupon");
 const asyncHandler = require("express-async-handler");
 const crypto = require("crypto");
-const { resizeAndSaveImages } = require("../middlewares/multer");
+const mongoose = require("mongoose");
 
+const { resizeAndSaveImages } = require("../middlewares/multer");
 const {
   saveOtpToDb,
   getStoredOtpFromDatabase,
@@ -20,6 +25,7 @@ const {
 const {
   sentOtpToUserEmail,
   sendResetPasswordMail,
+  sendVerificationMail,
 } = require("./emailController");
 const Product = require("../models/products");
 const Address = require("../models/address");
@@ -47,7 +53,7 @@ const loadHome = async (req, res) => {
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    //console.log("cartPtoductFromHomePage:", cartProduct);
+    console.log("cartPtoductFromHomePage:", cartProduct);
     //console.log("usergetting HomePage ", userData);
     res.render("user/home", { user: userData, cartProduct });
   } catch (error) {
@@ -135,12 +141,11 @@ const validateUser = asyncHandler(async (req, res) => {
       response.otpStatus = "OTP cannot be empty";
     } else if (isNaN(OTP)) {
       response.otpStatus = "OTP must number";
-    }else if(OTP.length !== 6){
+    } else if (OTP.length !== 6) {
       response.otpStatus = "OTP must be exactly  6 numbers";
     } else {
       response.otpStatus = "";
     }
-    
 
     res.send(response);
   } catch (error) {
@@ -277,7 +282,9 @@ const loadForgetPasswordPage = asyncHandler(async (req, res) => {
     }
     const cartProduct = await fetchCartProductData(req.session.userId);
     res.render("user/forget-password", { user: userData._id, cartProduct });
-  } catch (error) {}
+  } catch (error) {
+    console.log("loadForgetPageError", error);
+  }
 });
 
 const forgetPasswordControl = asyncHandler(async (req, res) => {
@@ -306,15 +313,18 @@ const loadProductUserView = asyncHandler(async (req, res) => {
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    
-    const categories = await categoryDB.find({is_listed: true});
+    const categories = await categoryDB.find({ is_listed: true });
     //console.log("category", categories);
-    const categoryIds = categories.map(category => category._id);
-   // console.log("category", categoryIds);
-    const products = await ProductModel.find({category:{$in:categoryIds}, is_listed: true });
-    //console.log("products", categoryIds);
+    const categoryIds = categories.map((category) => category._id);
+    // console.log("category", categoryIds);
+    const products = await ProductModel.find({
+      category: { $in: categoryIds },
+      is_listed: true,
+    }).populate("offer");
+    //console.log("products", products);
+
     res.render("user/ProductPage", {
-      products, 
+      products,
       categories,
       user: userData,
       cartProduct,
@@ -324,16 +334,73 @@ const loadProductUserView = asyncHandler(async (req, res) => {
   }
 });
 
+function calculateDeliveryDates() {
+  const currentDate = new Date();
+  const earliestDeliveryDate = new Date(currentDate);
+  earliestDeliveryDate.setDate(currentDate.getDate() + 1); // Add 1 day for earliest delivery
+
+  const latestDeliveryDate = new Date(currentDate);
+  latestDeliveryDate.setDate(currentDate.getDate() + 7); // Add 7 days for latest delivery
+
+  return {
+    earliestDeliveryDate,
+    latestDeliveryDate,
+  };
+}
+
 const loadSingleProductUserView = asyncHandler(async (req, res) => {
   try {
+    const userId = req.session.userId;
+    const userObjectId = mongoose.Types.ObjectId(userId);
     const userData = await User.findOne({ _id: req.session.userId });
     const id = req.query.id;
+    const { earliestDeliveryDate, latestDeliveryDate } =
+      calculateDeliveryDates();
 
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    const product = await Product.findById(id);
-    res.render("user/singleProduct", { product, user: userData, cartProduct });
+    const product = await Product.findById(id).populate("offer");
+    //console.log("single",product);
+    let couponData = await CouponDB.findOne({
+      "userUsed.user._id": userObjectId,
+    });
+    console.log("code", couponData);
+    if (!couponData || couponData.userUsed.length === 0) {
+      console.log("No coupon found or userUsed array is empty.");
+      couponData = null;
+    } else {
+      console.log("Coupon found:", couponData);
+    }
+    const wishlistProduct = await WishlistDB.findOne({
+      user: req.session.userId,
+      "products.product": product._id,
+    });
+    //console.log("wishlist", wishlistProduct);
+    const currentTime = new Date();
+    const lastSoldTime = new Date(product.lastSold);
+    const timeDifferenceInHours =
+      (currentTime - lastSoldTime) / (1000 * 60 * 60);
+    const formattedEarliestDate = earliestDeliveryDate.toLocaleDateString(
+      "en-US",
+      { weekday: "short", month: "short", day: "numeric" }
+    );
+    const formattedLatestDate = latestDeliveryDate.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+
+    res.render("user/singleProduct", {
+      product,
+      user: userData,
+      cartProduct,
+      timeDifferenceInHours,
+      formattedEarliestDate,
+      formattedLatestDate,
+      couponData,
+      wishlistProduct: !!wishlistProduct,
+    });
   } catch (error) {
     console.log("loadSinglePageError", error);
   }
@@ -345,7 +412,29 @@ const loadUserProfile = asyncHandler(async (req, res) => {
       orderBy: req.session.userId,
     }).populate("products.product");
 
-    const orderData = await OrderDB.find({orderBy: req.session.userId});
+    let walletData = await WalletDB.findOne({ user: req.session.userId });
+    console.log("wallet", walletData);
+
+    if (!walletData) {
+      const newWallet = new WalletDB({
+        user: req.session.userId,
+        walletHistory: [
+          {
+            transactionId: 0,
+            date: Date.now(),
+            amount: 0,
+            description: "Initial balance",
+            transactionType: "deposit",
+          },
+        ],
+      });
+
+      await newWallet.save();
+      walletData = [newWallet];
+      console.log("asdfghjkl", newWallet);
+    }
+
+    const orderData = await OrderDB.find({ orderBy: req.session.userId });
     //console.log("orderData", orderData);
     const addressData = await Address.find({ user: req.session.userId });
     //console.log("addressData", addressData);
@@ -356,6 +445,7 @@ const loadUserProfile = asyncHandler(async (req, res) => {
       cartProduct,
       addressData,
       orderData,
+      walletData,
     });
   } catch (error) {
     console.log("loadUserProfileError", error);
@@ -366,82 +456,141 @@ const editProfileCntrl = asyncHandler(async (req, res) => {
   try {
     const { Fname, Lname, UserID, Email, CurrentPass, newPass, confirmPass } =
       req.body;
-    const userData = await User.findById(UserID);
 
-    if (!(await userData.isPasswordMatched(CurrentPass))) {
-      return res.status(400).json({ message: "Wrong current password" });
+    // Validate First Name
+    if (Fname && (Fname.trim() === "" || Fname.length < 3)) {
+      return res
+        .status(200)
+        .json({
+          success: false,
+          message:
+            "Username cannot be Empty it must contain 3 or more letters.",
+        });
+    } else if (Fname && /[0-9]/.test(Fname)) {
+      return res
+        .status(200)
+        .json({
+          success: false,
+          message: "Username cannot be contain numbers.",
+        });
     }
-    if (newPass) {
-      if (newPass !== confirmPass) {
-        return res
-          .status(400)
-          .json({ message: "New password and confirm password do not match" });
-      }
-      userData.password = newPass;
+
+    // Validate Email
+    if (!Email || Email.trim() === "") {
+      return res
+        .status(200)
+        .json({ success: false, message: "Email address is required." });
+    } else if (!/^\S+@gmail\.com$|^\S+@oprevolt\.com$/.test(Email)) {
+      return res
+        .status(200)
+        .json({ success: false, message: "Invalid email address." });
     }
-    userData.firstname = Fname;
-    userData.lastname = Lname;
-    userData.email = Email;
+
+  
+    const userData = await User.findById(UserID);
 
     if (req.file) {
       userData.image = req.file.filename;
     }
 
+    if (!(await userData.isPasswordMatched(CurrentPass))) {
+      return res
+        .status(200)
+        .json({ success: false, message: "Wrong current password" });
+    }
+
+    if (Email && Email.trim() !== "" && Email !== userData.email) {
+      const existingUser = await User.findOne({ email: Email });
+      if (existingUser) {
+        return res
+          .status(200)
+          .json({ success: false, message: "This email is already in use." });
+      }
+      const token = generateResetToken();
+      userData.email = Email;
+      userData.is_verified = false;
+      userData.passwordResetToken = token;
+      userData.passwordResetExpires = Date.now() + 2 * 24 * 60 * 60 * 1000; // 2 days
+      await userData.save();
+
+      await sendVerificationMail(userData.firstname, Email, token);
+      await userData.save();
+      return res
+        .status(200)
+        .json({
+          success: true,
+          message: "Email verification sent. Please check your inbox.",
+        });
+    }
+
+    if (newPass && newPass !== userData.password) {
+        // Validate Password
+    if (newPass && newPass.trim() === "") {
+      return res
+        .status(200)
+        .json({ success: false, message: "Password cannot be Empty." });
+    } else if (newPass && newPass.length < 6) {
+      return res
+        .status(200)
+        .json({
+          success: false,
+          message: "Password must be at least 6 characters long.",
+        });
+    } else if (
+      !/[a-z]/.test(newPass) ||
+      !/[A-Z]/.test(newPass) ||
+      !/[0-9]/.test(newPass) ||
+      !/[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(newPass)
+    ) {
+      return res
+        .status(200)
+        .json({
+          success: false,
+          message:
+            "Password must include lowercase and uppercase letters, numbers, and special characters.",
+        });
+    }
+
+      if (newPass !== confirmPass) {
+        return res
+          .status(200)
+          .json({
+            success: false,
+            message: "New password and confirm password do not match",
+          });
+      }
+      userData.password = newPass;
+    }
+    userData.firstname = Fname;
+    userData.lastname = Lname;
     await userData.save();
 
     res.json({ success: true, message: "Profile updated successfully" });
   } catch (error) {
     console.log("EditUserError", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "An error occurred while updating profile",
-      });
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while updating profile",
+    });
   }
 });
 
-const validateProfileForm = asyncHandler(async (req, res) => {
+const changedEmailVerify = asyncHandler(async (req, res) => {
   try {
-    const { Fname, Lname, UserID, Email, CurrentPass, newPass, confirmPass } =
-      req.form;
-    let response = {};
-
-    if (firstname && (firstname.trim() === "" || firstname.length < 3)) {
-      response.fnameStatus =
-        "Username cannot be Empty it must contain 3 or more letters";
-    } else if (firstname && /[0-9]/.test(firstname)) {
-      response.fnameStatus = "Username cannot be contain numbers";
-    } else {
-      response.fnameStatus = "";
+    const token = req.query.token;
+    if (!token) {
+      return res.status(400).send("Token is missing");
     }
-
-    if (!email || email.trim() === "") {
-      console.log("executed");
-      response.emailStatus = "Email address is required";
-    } else if (!/^\S+@gmail\.com$|^\S+@oprevolt\.com$/.test(email)) {
-      response.emailStatus = "Invalid email address";
-    } else {
-      response.emailStatus = "";
+    const user = await User.findOne({ passwordResetToken: token });
+    if (!user) {
+      return res.render("user/404");
     }
+    user.is_verified = true;
+    user.passwordResetToken = "";
 
-    if (password && password.trim() === "") {
-      response.passwordStatus = "Password cannot be Empty";
-    } else if (password && password.length < 6) {
-      response.passwordStatus = "Password must be at least 6 characters long";
-    } else if (
-      !/[a-z]/.test(password) ||
-      !/[A-Z]/.test(password) ||
-      !/[0-9]/.test(password) ||
-      !/[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(password)
-    ) {
-      response.passwordStatus =
-        "Password must include lowercase and uppercase letters, numbers, and special characters";
-    } else {
-      response.passwordStatus = "";
-    }
-
-    res.send(response);
+    await user.save();
+    req.flash("fmessage", "Email verified successfully");
+    res.redirect("/login");
   } catch (error) {}
 });
 
@@ -463,5 +612,5 @@ module.exports = {
   forgetPasswordCntrl,
   loadForgetPasswordPage,
   forgetPasswordControl,
-  validateProfileForm,
+  changedEmailVerify,
 };
