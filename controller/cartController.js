@@ -5,6 +5,7 @@ const ProductDB = require("../models/products");
 const AddressDB = require("../models/address");
 const CouponDB = require("../models/coupon");
 const WalletDB = require("../models/Wallet");
+const WishlistDB = require("../models/wishlist");
 const mongoose = require("mongoose");
 
 const loadUserCart = asyncHandler(async (req, res) => {
@@ -28,10 +29,23 @@ const insertCartItem = asyncHandler(async (req, res) => {
     console.log("bodyDataCArt", req.body);
     const product = await ProductDB.findById(productId).populate("offer");
     console.log("Product", product);
+    
     if (!product) {
       return res.json({ success: false, message: "Product not Found" });
     }
+    if (quantity > product.quantity) {
+      return res.json({ success: false, message: "Product Quantity Exceeded" });
+    }
     console.log("userID", req.session.userId);
+
+    const removedWishlistProduct = await WishlistDB.findOneAndUpdate(
+      { user: req.session.userId },
+      { $pull: { products: { product: productId } } },
+      { new: true }
+     );
+     
+     console.log(removedWishlistProduct, "sdfghj");
+
     const cart = await CartDB.findOne({ orderBy: req.session.userId });
     console.log("cart:", cart);
     if (!cart) {
@@ -78,10 +92,17 @@ const insertCartItem = asyncHandler(async (req, res) => {
     }
 
     if (existingProduct) {
-      existingProduct.quantity += parseInt(quantity);
-      cart.cartTotal = cart.products.reduce((total, product) => {
-        return total + product.quantity * product.price;
-      }, 0);
+      if (existingProduct.quantity + parseInt(quantity) > product.quantity) {
+        return res.json({
+          success: false,
+          message: "Product Quantity Exceeded",
+        });
+      } else {
+        existingProduct.quantity += parseInt(quantity);
+        cart.cartTotal = cart.products.reduce((total, product) => {
+          return total + product.quantity * product.price;
+        }, 0);
+      }
     } else {
       cart.products.push({
         product: productId,
@@ -91,7 +112,7 @@ const insertCartItem = asyncHandler(async (req, res) => {
       });
       cart.cartTotal += priceToUse * quantity;
     }
-  
+
     await cart.save();
 
     res.json({ success: true });
@@ -188,7 +209,7 @@ const loadCheckout = asyncHandler(async (req, res) => {
     //console.log("coupon", couponList);
     const addressData = await AddressDB.find({ user: req.session.userId });
     //console.log(addressData);
-    const walletData = await WalletDB.findOne({user: req.session.userId});
+    const walletData = await WalletDB.findOne({ user: req.session.userId });
     console.log("walletData", walletData);
     res.render("user/checkout", {
       user: userData,
@@ -208,7 +229,7 @@ const applyCoupon = asyncHandler(async (req, res) => {
     const userId = req.session.userId;
     const userObjectId = mongoose.Types.ObjectId(userId);
     console.log(userId);
-    if (!couponCode || couponCode.length < 6 || couponCode.length > 6) {
+    if (!couponCode || couponCode.length < 5 || couponCode.length > 5) {
       return res.status(200).json({
         success: false,
         message: "coupon code must contain 6 charachters",

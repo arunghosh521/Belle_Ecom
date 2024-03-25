@@ -6,12 +6,13 @@
 
 
 <style>
-
- .wallet-balance {
-    color: #007bff; /* Blue color */
+  .wallet-balance {
+    color: #007bff;
+    /* Blue color */
     font-weight: bold;
-    font-size: 1.2em; /* Make the balance slightly larger */
- }
+    font-size: 1.2em;
+    /* Make the balance slightly larger */
+  }
 
 
   .img-avatar {
@@ -245,16 +246,21 @@
   }
 
   .input-button-container {
- display: flex;
- align-items: center; 
- gap: 20px;
-}
-.input-button-container button {
- width: 150px;
- height: 40px; 
- padding: 5px 10px;
-}
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
 
+  .input-button-container button {
+    width: 150px;
+    height: 40px;
+    padding: 5px 10px;
+  }
+
+  .modal-body p {
+    font-size: 11px;
+
+  }
 </style>
 
 
@@ -436,6 +442,7 @@
                               <div class="card-footer text-end border-0 pb-0 d-flex justify-content-end">
                                 <button class="btn btn-primary me-3" id="returnBtn">Return</button>
                                 <button class="btn btn-primary me-3" id="cancelBtn">Cancel Order</button>
+                                <button class="btn btn-primary me-3" id="retryBtn">Retry Payment</button>
 
                               </div>
                             </div>
@@ -459,51 +466,53 @@
 
               </div><br>
               <div class="input-button-container">
-                <input type="Number" id="enteredMoney" placeholder="Enter amount">
+                <input type="Number" id="enteredMoney" min="1" placeholder="Enter amount">
                 <button class="btn btn-outline-primary-2" id="addMoney" onclick="openRazorpayCheckout()">Add Money</button>
-               </div><br> 
-
-               <div class="table-responsive">
+              </div><br>
+              <div style="display: inline-flex;">
+                <h4>Reffer a friend and get ₹199 in your wallet</h4> <a href="#" id="refferalLink" style="margin-left: 20px;">Click here</a>
+              </div>
+              <div class="table-responsive">
                 <table class="order-table" id="wallet_table_id">
-                   <thead>
-                     <tr>
-                       <th class="pl-2">Transaction ID</th>
-                       <th>Date</th>
-                       <th>Type</th>
-                       <th>Amount</th>
-                       <th>Description</th>
-                     </tr>
-                   </thead>
-                   <tbody id="wallet_table_body">
-                     <% if (walletData && walletData.walletHistory && walletData.walletHistory.length > 0) { %>
-                     <% walletData.walletHistory.forEach(transaction => { %>
-                     <% if (transaction.description !== "Initial balance") { %> 
-                     <tr>
-                       <td class="transaction-id"><a href="#">#<%= transaction.transactionId %></a></td>
-                       <td class="transaction-date"><time><%= new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></time></td>
-                       <td class="transaction-type"><span><%= transaction.transactionType %></span></td>
-                       <td class="transaction-amount">
-                         <span class="highlight-price" style="font-size: 15px;">₹<%= transaction.amount %></span>
-                       </td>
-                       <td class="transaction-status"><span><%= transaction.description %></span></td>
-                     </tr>
-                     <% } %>
-                     <% }); %>
-                     <% } else { %>
-                     <tr>
-                       <td class="transaction-id" colspan="5">No transactions</td>
-                     </tr>
-                     <% } %>
-                   </tbody>
+                  <thead>
+                    <tr>
+                      <th class="pl-2">Transaction ID</th>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody id="wallet_table_body">
+                    <% if (walletData && walletData.walletHistory && walletData.walletHistory.length > 0) { %>
+                    <% walletData.walletHistory.forEach(transaction => { %>
+                    <% if (transaction.description !== "Initial balance") { %>
+                    <tr>
+                      <td class="transaction-id"><a href="#">#<%= transaction.transactionId %></a></td>
+                      <td class="transaction-date"><time><%= new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></time></td>
+                      <td class="transaction-type"><span><%= transaction.transactionType %></span></td>
+                      <td class="transaction-amount">
+                        <span class="highlight-price" style="font-size: 15px;">₹<%= transaction.amount %></span>
+                      </td>
+                      <td class="transaction-status"><span><%= transaction.description %></span></td>
+                    </tr>
+                    <% } %>
+                    <% }); %>
+                    <% } else { %>
+                    <tr>
+                      <td class="transaction-id" colspan="5">No transactions</td>
+                    </tr>
+                    <% } %>
+                  </tbody>
                 </table>
-                <div class="pagination">
-                   <button id="prevPage" disabled>Previous</button> &nbsp;
-                   <span id="pageInfo"></span>&nbsp;
-                   <button id="nextPage">Next</button>
+                <div class="paginationOfWallet">
+                  <button id="prevPageOfWallet" disabled>Previous</button> &nbsp;
+                  <span id="pageInfoOfWallet"></span>&nbsp;
+                  <button id="nextPageOfWallet">Next</button>
                 </div>
-               </div>
-               </div>
-               
+              </div>
+            </div>
+
 
             <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
               <button id="openBtn" class="btn btn-outline-primary-2">
@@ -528,7 +537,7 @@
                           <span>EDIT</span>
                         </button>
                         <a href="/address/delete?id=<%= addressData[j]._id %>">
-                          <button id="deleteBtn" data-id="<%= addressData[j]._id %>" class="editBtn btn btn-outline-primary-2">
+                          <button id="deleteBtn" data-address-id="<%= addressData[j]._id %>" class="editBtn btn btn-outline-primary-2">
                             <span>Delete</span>
                           </button></a>
                       </p>
@@ -561,10 +570,12 @@
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-firstname">Full Name <span class="required-f">*</span></label>
                               <input name="firstname" value="" id="input-firstname" type="text">
+                              <p id="editFnameAlert" style="color: red;"></p>
                             </div>
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-telephone">Mobile <span class="required-f">*</span></label>
                               <input name="telephone" value="" id="input-telephone" type="tel">
+                              <p id="editMobileAlert" style="color: red;"></p>
                             </div>
 
                           </div>
@@ -575,10 +586,13 @@
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-address-1">Address <span class="required-f">*</span></label>
                               <input name="address_1" value="" id="input-address-1" type="text">
+                              <p id="editAddressAlert" style="color: red;"></p>
                             </div>
                             <div class="form-group col-md-6 col-lg-6 col-xl-6">
                               <label for="input-address-2">Apartment <span class="required-f">*</span></label>
                               <input name="address_2" value="" id="input-address-2" type="text">
+                              <p id="editApartmentAlert" style="color: red;"></p>
+
                             </div>
                           </div>
                           <div class="row">
@@ -586,10 +600,12 @@
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-city">City <span class="required-f">*</span></label>
                               <input name="city" value="" id="input-city" type="text">
+                              <p id="editCityAlert" style="color: red;"></p>
                             </div>
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-postcode">Post Code <span class="required-f">*</span></label>
                               <input name="postcode" value="" id="input-postcode" type="text">
+                              <p id="editCodeAlert" style="color: red;"></p>
                               <input type="hidden" value="" id="input-ID" name="addressId">
                               <input type="hidden" value="<%= user._id %>" name="userID">
                             </div>
@@ -599,19 +615,22 @@
                               <label for="input-country">Country <span class="required-f">*</span></label>
                               <select name="country_id" id="input-country">
                                 <option value=""> --- Please Select --- </option>
-                                <option value="244">India</option>
+                                <option>India</option>
+                                <p id="editCountryAlert" style="color: red;"></p>
                               </select>
                             </div>
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-zone">Region / State <span class="required-f">*</span></label>
                               <select name="zone_id" id="input-zone">
                                 <option value=""> --- Please Select --- </option>
-                                <option value="3513">Kerala</option>
+                                <option>Kerala</option>
+                                <p id="editStateAlert" style="color: red;"></p>
                               </select>
                             </div>
                           </div>
                           <div class="order-button-payment">
                             <button class="btn" value="Submit" type="submit">Submit</button>
+                            <p id="editValidationAlert" style="color: red;"></p>
                           </div>
                         </fieldset>
                       </form>
@@ -640,10 +659,14 @@
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-firstname">Full Name <span class="required-f">*</span></label>
                               <input name="firstname" value="" id="input-firstname" type="text">
+                              <p id="FnameAlert" style="color: red;"></p>
+
                             </div>
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-telephone">Mobile <span class="required-f">*</span></label>
-                              <input name="telephone" value="" id="input-telephone" type="tel">
+                              <input name="telephone" value="" id="input-telephone" type="number">
+                              <p id="MobileAlert" style="color: red;"></p>
+
                             </div>
 
                           </div>
@@ -654,10 +677,13 @@
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-address-1">Address <span class="required-f">*</span></label>
                               <input name="address_1" value="" id="inputAddress1" type="text">
+                              <p id="AddressAlert" style="color: red;"></p>
                             </div>
                             <div class="form-group col-md-6 col-lg-6 col-xl-6">
                               <label for="input-address-2">Apartment <span class="required-f">*</span></label>
                               <input name="address_2" value="" id="inputAddress2" type="text">
+                              <p id="ApartmentAlert" style="color: red;"></p>
+
                             </div>
                           </div>
                           <div class="row">
@@ -665,10 +691,12 @@
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-city">City <span class="required-f">*</span></label>
                               <input name="city" value="" id="input-city" type="text">
+                              <p id="CityAlert" style="color: red;"></p>
                             </div>
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-postcode">Post Code <span class="required-f">*</span></label>
-                              <input name="postcode" value="" id="input-postcode" type="text">
+                              <input name="postcode" value="" id="input-postcode" type="number">
+                              <p id="CodeAlert" style="color: red;"></p>
                               <input type="hidden" value="<%= user._id %>" name="userID">
                             </div>
                           </div>
@@ -677,19 +705,23 @@
                               <label for="input-country">Country <span class="required-f">*</span></label>
                               <select name="country_id" id="input-country">
                                 <option value=""> --- Please Select --- </option>
-                                <option value="244">India</option>
+                                <option>India</option>
+                                <p id="CountryAlert" style="color: red;"></p>
                               </select>
                             </div>
                             <div class="form-group col-md-6 col-lg-6 col-xl-6 required">
                               <label for="input-zone">Region / State <span class="required-f">*</span></label>
                               <select name="zone_id" id="input-zone">
                                 <option value=""> --- Please Select --- </option>
-                                <option value="3513">Kerala</option>
+                                <option>Kerala</option>
+                                <p id="StateAlert" style="color: red;"></p>
                               </select>
                             </div>
                           </div>
                           <div class="order-button-payment">
                             <button class="btn" value="Submit" type="submit">Submit</button>
+                            <p id="validationAlert" style="color: red;"></p>
+
                           </div>
                         </fieldset>
                       </form>
@@ -776,11 +808,11 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-
-
-
+<!-- modal opening and closing -->
 <script>
   $('#openBtn').click(function() {
     $("#addressModal").modal();
@@ -791,6 +823,7 @@
   });
 </script>
 
+<!-- add address -->
 <script>
   $(document).ready(function() {
     $('#addressForm').submit(function(event) {
@@ -802,22 +835,65 @@
         method: 'POST',
         data: formData,
         success: function(response) {
-          if(response.success) {
-            Swal.fire("success!", response.message , "success")
-              .then((value) => {
-                if (value) {
-                  $('#addressForm')[0].reset();
-                  window.location.reload();
+          console.log(response);
+          if (response.success === true) {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Your address has been added successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.reload();
                 }
-              });
-          } else{
-            Swal.fire("Info!", response.message , "Info")
-              .then((value) => {
-                if (value) {
-                  $('#addressForm')[0].reset();
-              
-                }
-              });
+            });
+          } else {
+            if (response.successFailed === false) {
+              $('#validationAlert').text(response.message);
+            } else {
+              $('#validationAlert').text('');
+            }
+            if (response.successFirstname === false) {
+              $('#FnameAlert').text(response.message);
+            } else {
+              $('#FnameAlert').text('');
+            }
+            if (response.successMobile === false) {
+              $('#MobileAlert').text(response.message);
+            } else {
+              $('#MobileAlert').text('');
+            }
+            if (response.successAddress1 === false) {
+              $('#AddressAlert').text(response.message);
+            } else {
+              $('#AddressAlert').text('');
+            }
+            if (response.successAddress2 === false) {
+              $('#ApartmentAlert').text(response.message);
+            } else {
+              $('#ApartmentAlert').text('');
+            }
+            if (response.successCity === false) {
+              $('#CityAlert').text(response.message);
+            } else {
+              $('#CityAlert').text('');
+            }
+            if (response.successPostcode === false) {
+              $('#CodeAlert').text(response.message);
+            } else {
+              $('#CodeAlert').text('');
+            }
+            if (response.successCountry === false) {
+              $('#CountryAlert').text(response.message);
+            } else {
+              $('#CountryAlert').text('');
+            }
+            if (response.successState === false) {
+              $('#StateAlert').text(response.message);
+            } else {
+              $('#StateAlert').text('');
+            }
+
           }
         },
         error: function(xhr, status, error) {
@@ -829,32 +905,47 @@
   });
 </script>
 
+
+<!-- delete address -->
 <script>
   $(document).ready(function() {
 
     $(document).on('click', '#deleteBtn', function(event) {
       event.preventDefault();
-      const addressId = $(this).data('id');
+      const addressId = $(this).data('address-id');
 
-      $.ajax({
-        url: '/address/delete?id=' + addressId,
-        method: 'DELETE',
-        success: function(response) {
-          Swal.fire("success!", "Address deleted successfully", "success")
-            .then((value) => {
-              if (value) {
-                window.location.href = '/userProfile';
-              }
-            })
-        },
-        error: function(xhr, status, error) {
-          Swal.fire("Error!", "Failed to delete address.", "error");
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: '/address/delete?id=' + addressId,
+            method: 'DELETE',
+            success: function(response) {
+              Swal.fire("Success!", "Address deleted successfully", "success")
+                .then((value) => {
+                  if (value) {
+                    window.location.href = '/userProfile';
+                  }
+                })
+            },
+            error: function(xhr, status, error) {
+              Swal.fire("Error!", "Failed to delete address.", "error");
+            }
+          });
         }
       });
     });
   });
 </script>
 
+<!-- edit address -->
 <script>
   $(document).ready(function() {
 
@@ -869,6 +960,7 @@
           id: addressId
         },
         success: function(response) {
+
           $('#input-firstname').val(response.address.Fname);
           $('#input-telephone').val(response.address.mobile);
           $('#input-address-1').val(response.address.address);
@@ -899,12 +991,66 @@
       method: 'PUT',
       data: formData,
       success: function(response) {
-        Swal.fire("success!", "Adddress updated successfully", "success")
-          .then((value) => {
-            if (value) {
-              window.location.reload();
-            }
-          });
+        if (response.success === true) {
+          Swal.fire({
+                title: 'Success!',
+                text: 'Your address has been updated successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.reload();
+                }
+            });
+        } else {
+
+          if (response.successFailed === false) {
+            $('#editValidationAlert').text(response.message);
+          } else {
+            $('#editValidationAlert').text('');
+          }
+          if (response.successFirstname === false) {
+            $('#editFnameAlert').text(response.message);
+          } else {
+            $('#editFnameAlert').text('');
+          }
+          if (response.successMobile === false) {
+            $('#editMobileAlert').text(response.message);
+          } else {
+            $('#editMobileAlert').text('');
+          }
+          if (response.successAddress1 === false) {
+            $('#editAddressAlert').text(response.message);
+          } else {
+            $('#editAddressAlert').text('');
+          }
+          if (response.successAddress2 === false) {
+            $('#editApartmentAlert').text(response.message);
+          } else {
+            $('#editApartmentAlert').text('');
+          }
+          if (response.successCity === false) {
+            $('#editCityAlert').text(response.message);
+          } else {
+            $('#editCityAlert').text('');
+          }
+          if (response.successPostcode === false) {
+            $('#editCodeAlert').text(response.message);
+          } else {
+            $('#editCodeAlert').text('');
+          }
+          if (response.successCountry === false) {
+            $('#editCountryAlert').text(response.message);
+          } else {
+            $('#editCountryAlert').text('');
+          }
+          if (response.successState === false) {
+            $('#editStateAlert').text(response.message);
+          } else {
+            $('#editStateAlert').text('');
+          }
+
+        }
       },
       error: function(xhr, status, error) {
         Swal.fire("Error!", "Fialed to update address", "error");
@@ -913,6 +1059,7 @@
   });
 </script>
 
+<!-- upload image -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     var photoUpload = document.getElementById('photoUpload');
@@ -932,63 +1079,50 @@
 </script>
 
 
+<!-- edit profile -->
 <script>
   const form = document.getElementById('profileForm');
- 
-  form.addEventListener('submit', (event) => {
-     event.preventDefault();
-     const userId = document.getElementById('userID').value;
-     const formData = new FormData(form);
- 
-     fetch('/editProfile', {
-         method: 'PATCH',
-         body: formData
-       })
-       .then(response => {
-         if (!response.ok) {
-           return response.json().then(err => {
-             throw new Error(err.message || 'An error occurred');
-           });
-         }
-         return response.json();
-       })
-       .then(data => {
-         console.log('Data from backend:', data);
-         if (data.success) {
-           fetch(`/userProfile?id=${userId}`)
-             .then(response => response.text())
-             .then(html => {
-               
-               const parser = new DOMParser();
-               const doc = parser.parseFromString(html, 'text/html');
-              
-               const updatedDiv = doc.querySelector('#tab-account');
-               if (updatedDiv) {
-                
-                 document.getElementById('tab-account').innerHTML = updatedDiv.innerHTML;
-               }
-             })
-             .then(() => {
-               toastr.success(data.message, "Success!");
-             });
-         } else {
-           toastr.error(data.message, "Info!");
-         }
-       })
-       .catch(error => {
-         console.error("Fetch error:", error);
-         toastr.error("An error occurred while updating profile", "Error!");
-       });
-  });
- </script>
- 
 
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const userId = document.getElementById('userID').value;
+    const formData = new FormData(form);
+
+    fetch('/editProfile', {
+        method: 'PATCH',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => {
+            throw new Error(err.message || 'An error occurred');
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          fetch(`/userProfile?id=${userId}`)
+            .then(response => response.text())
+            .then(() => {
+              toastr.success(data.message, "Success!");
+              window.location.reload()
+            });
+        } else {
+          toastr.error(data.message, "Info!");
+        }
+      })
+      .catch(error => {
+        toastr.error("An error occurred while updating profile", "Error!");
+      });
+  });
+</script>
+
+<!-- orderList -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Select all "View" buttons
     const viewButtons = document.querySelectorAll('.view-order-btn');
 
-    // Attach click event listener to each button
     viewButtons.forEach(button => {
       button.addEventListener('click', function(event) {
         event.preventDefault();
@@ -1020,18 +1154,33 @@
             const returnButton = document.getElementById('returnBtn');
             returnButton.setAttribute('data-return', response.orderData._id);
             returnButton.setAttribute('data-product-id', response.orderData.products)
+            const retryButton = document.getElementById('retryBtn');
+            retryButton.setAttribute('data-retry-id', response.orderData._id);
+            retryButton.setAttribute('data-retry-status', response.orderData.paymentStatus)
+            const paymentStatus = retryButton.getAttribute('data-retry-status');
+
+            console.log("retry", retryButton);
+
+
+
+
             if (orderStatus && orderStatus === 'Delivered') {
               returnButton.hidden = false;
               cancelButton.hidden = true;
             } else {
               returnButton.hidden = true;
-
-
             }
+
             if (orderStatus && orderStatus === 'Cancelled' || orderStatus === 'Returned') {
               cancelButton.hidden = true;
             }
 
+
+            if (paymentStatus && paymentStatus === 'Failed') {
+              retryButton.hidden = false;
+            } else {
+              retryButton.hidden = true;
+            }
 
             const orderData = response.orderData;
 
@@ -1106,6 +1255,107 @@
       });
     });
 
+    // Retry payment
+    $(document).on('click', '#retryBtn', function() {
+      const retryButton = $(this);
+      const orderId = retryButton.data('retry-id');
+      console.log(orderId);
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You want to be Retry the Payment!",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#000000",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes Retry!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: '/orderPlaced/retryPayment',
+            method: 'POST',
+            data: {
+              orderId: orderId
+            },
+            success: function(response) {
+              if (response) {
+                razorPayPayment(response.order);
+              }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              // Handle errors here
+              console.error(textStatus, errorThrown);
+            }
+          });
+        }
+      });
+    });
+
+    //RETRY RAZORPAY
+    function razorPayPayment(order) {
+      var options = {
+        "key": "rzp_test_PIjycoYDuhOYTG",
+        "amount": order.amount,
+        "currency": "INR",
+        "name": "Belle",
+        "description": "Test Transaction",
+        "image": "http://127.0.0.1:3000/public/images/favicon.png",
+        "order_id": order.id,
+        // "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
+        "handler": function(response) {
+          console.log("razor", response);
+          verifyRetryPayment(response, order)
+        },
+        "prefill": {
+          "name": "Gaurav Kumar",
+          "email": "gaurav.kumar@example.com",
+          "contact": "9000090000"
+        },
+        "notes": {
+          "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+          "color": "#99cc33"
+        }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.on('payment.failed', function(response) {
+        window.location.href = '/Cart?paymentFailed=true';
+      });
+
+      rzp1.open();
+
+    }
+
+    //verify retry payment
+    function verifyRetryPayment(response, order) {
+      var settings = {
+        "url": "/orderPlaced/paymentRetryVerify",
+        "method": "POST",
+        "timeout": 0,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "data": JSON.stringify({
+          orderId: order.id,
+          paymentId: response.razorpay_payment_id,
+          signature: response.razorpay_signature,
+          newOrderId: order.receipt,
+        }),
+      };
+      $.ajax(settings).done(function(data) {
+        console.log('bifhiejv', data);
+        if (data.success) {
+          toastr.success(data.message, "Success!");
+          window.location.reload();
+        } else {
+          alert("Payment verification failed. please try again.")
+        }
+      }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.error(("Error verifying Payment", textStatus, errorThrown));
+        alert("An error occurred while verifying your payment. Please try again.")
+      })
+    }
+
 
     //cancel order
     $(document).on('click', '#cancelBtn', function() {
@@ -1147,7 +1397,7 @@
   });
 </script>
 
-
+<!-- pagination for order list -->
 <script>
   let currentPageNo = 1;
   let itemsPerPage = 8;
@@ -1236,19 +1486,21 @@
   // }
 
   function searchOrders() {
-    const searchInput =  document.getElementById('searchOrderId');
+    const searchInput = document.getElementById('searchOrderId');
     const searchValue = searchInput.value.trim().toLowerCase();
 
     const filteredOrders = currentPageOrders.filter(order => order.orderId.toLowerCase().includes(searchValue));
- updateTable(filteredOrders);
+    updateTable(filteredOrders);
 
   }
 
   document.getElementById('searchOrderId').addEventListener('input', searchOrders);
 </script>
 
+
+<!-- add money to wallet -->
 <script>
- toastr.options = {
+  toastr.options = {
     "closeButton": false,
     "debug": false,
     "newestOnTop": true,
@@ -1265,21 +1517,24 @@
     "showMethod": "fadeIn",
     "hideMethod": "fadeOut"
   };
+
   function openRazorpayCheckout() {
     const enteredAmount = document.getElementById('enteredMoney').value
     const amount = parseInt(enteredAmount) * 100;
     console.log(amount);
-    if (!amount) {
-      toastr.error("Enter Valid Amount", "Info!");
+    if (!amount || amount < 0) {
+      toastr.error("Enter a valid amount", "Info!");
       return;
     }
     $.ajax({
       url: '/userProfile/wallet',
       type: 'POST',
-      data: {amount},
+      data: {
+        amount
+      },
       success: (response) => {
         console.log(response);
-        if(response) {
+        if (response) {
           razorPayPayment(response.order);
         }
       }
@@ -1341,7 +1596,7 @@
       console.log('bifhiejv', data);
       if (data.success) {
         alert(data.message)
-        //window.location.href = `/orderPlaced?orderId=${encodeURIComponent(data.orderId)}`;
+        window.location.reload();
       } else {
         alert("Payment verification failed. please try again.")
       }
@@ -1350,8 +1605,112 @@
       alert("An error occurred while verifying your payment. Please try again.")
     })
   }
-
 </script>
+
+
+<!-- referal-offer -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const referralLink = document.getElementById('refferalLink');
+
+    referralLink.addEventListener('click', function(event) {
+      event.preventDefault();
+      axios.get('/userProfile/refferal-offer')
+        .then(function(response) {
+          console.log(response);
+          if (response.success) {
+            const link = response.data.link;
+            navigator.clipboard.writeText(link)
+              .then(() => {
+                alert(response.data.message);
+              })
+          } else {
+            const link = response.data.link;
+            navigator.clipboard.writeText(link)
+              .then(() => {
+                alert(response.data.message);
+              })
+          }
+        })
+        .catch(function(error) {
+          console.error('Error:', error);
+        });
+    });
+  });
+</script>
+
+
+<!-- pagination for wallet -->
+<script>
+  let currentPageNoOfWallet = 1;
+  let itemsPerPageOfWallet = 8;
+
+  function fetchTransactions(page) {
+    fetch(`/userProfile/wallet/pagination?page=${page}&itemsPerPage=${itemsPerPageOfWallet}`)
+      .then(response => response.json())
+      .then(data => {
+        console.log("1234567890", data.transactions);
+        updateTableOfWallet(data.transactions);
+        updatePaginationOfWallet(data.totalPages, data.currentPage);
+      })
+  }
+
+  function updateTableOfWallet(transactions) {
+    console.log(transactions, "sdfghjk");
+    const tableBody = document.querySelector('#wallet_table_body');
+    tableBody.innerHTML = '';
+
+    transactions.forEach(transaction => {
+      console.log(transaction.transactionId, "asdfghjk");
+      if (transaction.description !== "Initial balance") {
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+         <td class="transaction-id"><a href="#">#${transaction.transactionId}</a></td>
+         <td class="transaction-date"><time>${new Date(transaction.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time></td>
+         <td class="transaction-type"><span>${transaction.transactionType}</span></td>
+         <td class="transaction-amount"><span class="highlight-price" style="font-size: 15px;">₹${transaction.amount}</span></td>
+         <td class="transaction-status"><span>${transaction.description}</span></td>
+         `;
+        tableBody.appendChild(newRow);
+      }
+    });
+  }
+
+  function updatePaginationOfWallet(totalPages, currentPage) {
+    const prevPageBtnOfWallet = document.getElementById('prevPageOfWallet');
+    const nextPageBtnOfWallet = document.getElementById('nextPageOfWallet');
+    const pageInfoOfWallet = document.getElementById('pageInfoOfWallet');
+
+    if (currentPage === 1) {
+      prevPageBtnOfWallet.disabled = true;
+    } else {
+      prevPageBtnOfWallet.disabled = false;
+    }
+    if (currentPage === totalPages) {
+      nextPageBtnOfWallet.disabled = true;
+    } else {
+      nextPageBtnOfWallet.disabled = false;
+    }
+    pageInfoOfWallet.textContent = `Page ${currentPage} of ${totalPages}`;
+  }
+
+  document.getElementById('prevPageOfWallet').addEventListener('click', () => {
+    if (currentPageNo > 1) {
+      currentPageNo--;
+      fetchTransactions(currentPageNo);
+    }
+  });
+
+  document.getElementById('nextPageOfWallet').addEventListener('click', () => {
+    currentPageNo++;
+    fetchTransactions(currentPageNo);
+  });
+
+  fetchTransactions(currentPageNoOfWallet);
+</script>
+
+
+
 
 
 <%- include('../layouts/footer.ejs') -%>

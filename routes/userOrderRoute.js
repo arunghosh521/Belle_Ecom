@@ -12,6 +12,8 @@ userOrderRoute.post('/paymentVerify', orderController.razorpayPaymentVerify);
 userOrderRoute.post('/orderList', orderController.loadMyOrders);
 userOrderRoute.post('/orderCancel', orderController.cancelMyOrder);
 userOrderRoute.post('/orderReturn', orderController.returnMyOrder);
+userOrderRoute.post('/retryPayment', orderController.retryPaymentOrder);
+userOrderRoute.post('/paymentRetryVerify', orderController.retryPaymentVerify);
 
 
 

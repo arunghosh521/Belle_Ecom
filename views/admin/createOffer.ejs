@@ -32,6 +32,7 @@
                             Title</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="title" type="text">
+                            <p id="offerNameAlert" style="color: red;"></p>
                           </div>
                         </div>
 
@@ -39,6 +40,7 @@
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Percentage</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" placeholder="" name="percentage" type="number">
+                            <p id="offerPercentageAlert" style="color: red;"></p>
                           </div>
                         </div>
 
@@ -47,6 +49,7 @@
                             Date</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="startDate" type="date">
+                            <p id="offerStartDateAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <div class="mb-4 row align-items-center">
@@ -54,13 +57,15 @@
                             Date</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="endDate" type="date">
+                            <p id="offerEndDateAlert" style="color: red;"></p>
                           </div>
                         </div>
-                      
+
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Description</label>
                           <div class="col-md-9 col-lg-10">
                             <textarea class="form-control" name="description" rows="2"></textarea>
+                            <p id="offerDescriptionAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <br><br>
@@ -70,6 +75,7 @@
                               <div class="d-flex justify-content-end">
                                 <button class="btn btn-solid" type="submit">Add Offer</button>
                               </div>
+                              <p id="offerValidationAlert" style="color: red;"></p>
                             </li>
                           </ul>
                         </div>
@@ -98,7 +104,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <script>
-    toastr.options = {
+  toastr.options = {
     "closeButton": false,
     "debug": false,
     "newestOnTop": true,
@@ -127,9 +133,37 @@
       data: formData,
       success: function(response) {
         if (response.success) {
-            window.location.href = '/admin/offerList?success=true&message=' + encodeURIComponent(response.message);
+          window.location.href = '/admin/offerList?success=true&message=' + encodeURIComponent(response.message);
         } else {
+          console.error(response.message);
+          if (response.successValidation === false) {
+            $('#offerValidationAlert').text(response.message);
+          } else {
+            $('#offerValidationAlert').text('');
+          }
+          if (response.successTitle === false) {
+            $('#offerNameAlert').text(response.message);
+          } else {
+            $('#offerNameAlert').text('');
+          }
+          if (response.successPercentage === false) {
+            $('#offerPercentageAlert').text(response.message);
+          } else {
+            $('#offerPercentageAlert').text('');
+          }
+          if (response.successDescription === false) {
+            $('#offerDescriptionAlert').text(response.message);
+          } else {
+            $('#offerDescriptionAlert').text('');
+          }
+          if (response.successDate === false) {
+            $('#offerEndDateAlert').text(response.message);
+          } else {
+            $('#offerEndDateAlert').text('');
+          }
+          if (response.success === false) {
             toastr.error(response.message, 'Info!');
+          }
         }
 
       },
@@ -141,4 +175,3 @@
 
   });
 </script>
-

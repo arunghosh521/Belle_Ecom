@@ -139,7 +139,7 @@ const placeOrder = asyncHandler(async (req, res) => {
         expectedDelivery: deliveryDate,
         orderedDate: orderDate,
         orderTotal: findCart.cartTotal,
-        paymentStatus: "pending",
+        paymentStatus: "Failed",
       });
       await newOrder.save();
       console.log("newOrder", newOrder);
@@ -253,6 +253,9 @@ const razorpayPaymentVerify = asyncHandler(async (req, res) => {
     }
   } catch (error) {
     console.log("PaymentVerifying Error", error);
+    res
+        .status(500)
+        .json({ success: false, message: "Payment verification failed" });
   }
 });
 
@@ -310,7 +313,7 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: userId });
-    console.log("walletFromReturn", wallet);
+    //console.log("walletFromReturn", wallet);
     const updatePromises = order.products.map(async (product) => {
       return ProductDB.findByIdAndUpdate(
         product._id,
@@ -372,8 +375,9 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
   try {
     const { orderId } = req.body;
     //console.log("bodyDataCancel", orderId);
+    const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
-
+    const wallet = await WalletDb.findOne({ user: req.session.userId });
     const updatePromises = order.products.map(async (product) => {
       return ProductDB.findByIdAndUpdate(
         product._id,
@@ -396,6 +400,33 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
       { new: true }
     );
 
+    if (!wallet) {
+      const newWallet = new wallet({
+        user: req.session.userId,
+        walletHistory: [
+          {
+            transactionId: 0,
+            date: Date.now(),
+            amount: 0,
+            description: "Initial balance",
+            transactionType: "refund",
+          },
+        ],
+      });
+
+      await newWallet.save();
+      wallet = newWallet;
+      console.log("asdfghjkl", newWallet);
+    }
+    const transaction = {
+      transactionId: transactionId,
+      date: new Date(),
+      amount: order.orderTotal,
+      description: "Refund from Belle",
+      transactionType: "refund",
+    };
+    await wallet.addTransaction(transaction);
+
     //console.log("orderDataFromCancel", updatedOrder);
     res.json({ success: true, orderData: updatedCancelOrder });
   } catch (error) {
@@ -403,6 +434,59 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
     res.json({ success: false, error: "Filed to cancel the order" });
   }
 });
+
+const retryPaymentOrder =asyncHandler(async(req,res) => {
+  try {
+    const {orderId} = req.body;
+    console.log("qwertyuiop", orderId);
+    const failedOrder = await orderDB.findOne({_id: orderId});
+    console.log("1234", failedOrder);
+    const order = await razorpayInstance.orders.create({
+      amount: failedOrder.orderTotal * 100,
+      currency: "INR",
+      receipt: failedOrder.orderId,
+    });
+    console.log("1234567890", order);
+    res.json({ success: true, order, orderId: failedOrder.orderId });
+  } catch (error) {
+    
+  }
+});
+
+const retryPaymentVerify = asyncHandler(async(req,res) => {
+  try {
+    const { orderId, paymentId, signature, newOrderId } = req.body;
+    console.log("bofopiuytr",  orderId, paymentId, signature, newOrderId);
+
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+
+    const generatedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(orderId + "|" + paymentId)
+      .digest("hex");
+    //console.log("generatedSignature", generatedSignature);
+
+    if (generatedSignature === signature) {
+      await orderDB.updateOne(
+        { orderId: newOrderId },
+        { $set: { paymentStatus: "completed" } }
+      );
+      res.json({
+        success: true,
+        orderId: newOrderId,
+        message: "Payment verified successfully",
+      });
+    } else {
+      res
+        .status(400)
+        .json({ success: false, message: "Payment verification failed" });
+    }
+  } catch (error) {
+    res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+  }
+})
 
 module.exports = {
   loadOrderConfirm,
@@ -412,4 +496,6 @@ module.exports = {
   returnMyOrder,
   razorpayPaymentVerify,
   orderListPagination,
+  retryPaymentOrder,
+  retryPaymentVerify
 };

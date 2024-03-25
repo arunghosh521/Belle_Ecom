@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Report</title>
+    <style>
+       body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .address-details {
+            list-style-type: none;
+            padding: 0;
+        }
+        .address-details li {
+            margin-bottom: 5px;
+        }
+        .product-name {
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sales Report</h1>
+    <table style="font-size: 12px;">
+        <thead>
+          <tr>
+            <th>Order Id</th>
+            <th>Customer Name</th>
+            <th>Address</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Order Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(orderData && orderData.length > 0) { %>
+              <% orderData.forEach(function(order) { %>
+                <tr>
+                  <td>#<%= order.orderId %></td>
+                 <td><h5><%= order.orderBy.firstname %></h5></td>
+                  <td><ul class="address-details">
+                      <li><%= order.address[0].Fname %></li>
+                      <li><%= order.address[0].mobile %></li>
+                      <li><%= order.address[0].address %>, <%= order.address[0].apartment %>, <%= order.address[0].city %></li>
+                      <li><%= order.address[0].state %>, <%= order.address[0].pincode %></li>
+                      <li><%= order.address[0].country %></li>
+                  </ul></td>
+                                                                        
+                  <td class="product-name">
+                      <% order.products.forEach(function(product, index) { %>
+                         <%= product.product.name %><% if (index < order.products.length - 1) { %>,<br><% } %>
+                      <% }); %>
+                  </td>
+                     <td style="text-align: center;">
+                      <% order.products.forEach(function(product, index) { %>
+                         <%= product.quantity %><% if (index < order.products.length - 1) { %><br><% } %>
+                      <% }); %>
+                  </td>
+                  <td><%= order.orderTotal %></td>
+                  <td> <li>
+                    <p>
+                        <i class="fa fa-circle me-2 font-success"></i><%= order.orderStatus %><span
+                            class="pull-right">1 hr</span>
+                    </p>
+                </li></td>
+                  <td><%= order.orderedDate %></td>
+                </tr>
+              <% }); %>
+              <tr>
+                <td style="font-size: 20px;">Total:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style="font-size: 16px;"> <strong>₹<%= orderTotalAmt %></strong></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <% } else { %>
+              <tr>
+                <td colspan="8">No Data</td>
+              </tr>
+            <% } %>
+        </tbody>
+      </table>
+</body>
+</html>

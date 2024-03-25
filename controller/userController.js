@@ -115,7 +115,7 @@ const validateUser = asyncHandler(async (req, res) => {
     if (!email || email.trim() === "") {
       //console.log("executed");
       response.emailStatus = "Email address is required";
-    } else if (!/^\S+@gmail\.com$|^\S+@lendfash\.com$/.test(email)) {
+    } else if (!/^\S+@gmail\.com$|^\S+@glaslack\.com$/.test(email)) {
       response.emailStatus = "Invalid email address";
     } else {
       response.emailStatus = "";
@@ -309,30 +309,132 @@ const forgetPasswordControl = asyncHandler(async (req, res) => {
 
 const loadProductUserView = asyncHandler(async (req, res) => {
   try {
+    var page = 1;
+    const limit = 4;
+    const sort = req.query.sort;
+    const size = req.query.size;
+    const minPrice = req.query.priceFrom;
+    const maxPrice = req.query.priceLimit;
+    const category = req.query.catId;
+    //console.log("11111111111111111111111111");
     const userData = await User.findOne({ _id: req.session.userId });
+    if (req.query.page) {
+      page = req.query.page;
+    }
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
     const categories = await categoryDB.find({ is_listed: true });
-    //console.log("category", categories);
-    const categoryIds = categories.map((category) => category._id);
-    // console.log("category", categoryIds);
-    const products = await ProductModel.find({
-      category: { $in: categoryIds },
+
+    let query = {
       is_listed: true,
-    }).populate("offer");
+    };
+
+    if (category) {
+      query.category = category;
+    }
+    if (size) {
+      query.size = size;
+    }
+
+    if (minPrice && maxPrice) {
+      query.price = { $gte: minPrice, $lte: maxPrice };
+    }
+    let sortQuery = {};
+    if (sort) {
+      switch (sort) {
+        case "title-ascending":
+          sortQuery = { title: 1 };
+          break;
+        case "price-low-to-high":
+          sortQuery = { price: 1 };
+          break;
+        case "price-high-to-low":
+          sortQuery = { price: -1 };
+          break;
+        case "date-new-to-old":
+          sortQuery = { createdAt: -1 };
+          break;
+        case "date-old-to-new":
+          sortQuery = { createdAt: 1 };
+          break;
+        default:
+          sortQuery = { createdAt: -1 };
+      }
+    } else {
+      sortQuery = { createdAt: -1 };
+    }
+    //console.log(sortQuery, "1234567890");
+    const products = await ProductModel.find(query)
+      .sort(sortQuery)
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .populate("offer")
+      .exec();
     //console.log("products", products);
+
+    const count = await ProductModel.find(query).countDocuments();
+    // console.log("count", count);
+    const totalPages = Math.ceil(count / limit);
+    const sizeForViewing = await ProductModel.aggregate([
+      {
+        $group: {
+          _id: "$size",
+        },
+      },
+    ]);
+    //console.log(sizeForViewing, "2222222222222222222222");
+    const paginationLinks = generatePaginationLinks(
+      page,
+      totalPages,
+      category,
+      sort,
+      size
+    );
+    //console.log(paginationLinks, "link");
 
     res.render("user/ProductPage", {
       products,
       categories,
+      totalPages: totalPages,
+      currentPage: page,
       user: userData,
       cartProduct,
+      sizeForViewing,
+      paginationLinks: paginationLinks,
+      category: category,
+      currentSortOption: sort,
+      currentSizeFilter: size,
     });
   } catch (error) {
     console.log("productPageError", error);
   }
 });
+
+function generatePaginationLinks(
+  currentPage,
+  totalPages,
+  category,
+  sort,
+  size
+) {
+  let links = [];
+  for (let i = currentPage; i <= totalPages; i++) {
+    let link = `/productView?page=${i}`;
+    if (category) {
+      link += `&catId=${category}`;
+    }
+    if (sort) {
+      link += `&sort=${sort}`;
+    }
+    if (size) {
+      link += `&size=${size}`;
+    }
+    links.push(link);
+  }
+  //console.log(links, "link");
+  return links;
+}
 
 function calculateDeliveryDates() {
   const currentDate = new Date();
@@ -376,7 +478,7 @@ const loadSingleProductUserView = asyncHandler(async (req, res) => {
       user: req.session.userId,
       "products.product": product._id,
     });
-    //console.log("wishlist", wishlistProduct);
+    console.log("wishlist", wishlistProduct);
     const currentTime = new Date();
     const lastSoldTime = new Date(product.lastSold);
     const timeDifferenceInHours =
@@ -414,7 +516,11 @@ const loadUserProfile = asyncHandler(async (req, res) => {
 
     let walletData = await WalletDB.findOne({ user: req.session.userId });
     console.log("wallet", walletData);
-
+    if (walletData && walletData.walletHistory) {
+      walletData.walletHistory.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+    }
     if (!walletData) {
       const newWallet = new WalletDB({
         user: req.session.userId,
@@ -431,12 +537,13 @@ const loadUserProfile = asyncHandler(async (req, res) => {
 
       await newWallet.save();
       walletData = [newWallet];
-      console.log("asdfghjkl", newWallet);
+     // console.log("asdfghjkl", newWallet);
     }
 
     const orderData = await OrderDB.find({ orderBy: req.session.userId });
     //console.log("orderData", orderData);
-    const addressData = await Address.find({ user: req.session.userId });
+    const addressData = await Address.find({ user: req.session.userId })
+    .sort({ createdAt: -1 });
     //console.log("addressData", addressData);
     const userData = await User.findOne({ _id: req.session.userId });
     //console.log("userEditData", userData);
@@ -459,34 +566,46 @@ const editProfileCntrl = asyncHandler(async (req, res) => {
 
     // Validate First Name
     if (Fname && (Fname.trim() === "" || Fname.length < 3)) {
-      return res
-        .status(200)
-        .json({
-          success: false,
-          message:
-            "Username cannot be Empty it must contain 3 or more letters.",
-        });
+      return res.status(200).json({
+        success: false,
+        message: "Username cannot be Empty it must contain 3 or more letters.",
+      });
     } else if (Fname && /[0-9]/.test(Fname)) {
-      return res
-        .status(200)
-        .json({
-          success: false,
-          message: "Username cannot be contain numbers.",
-        });
+      return res.status(200).json({
+        success: false,
+        message: "Username cannot be contain numbers.",
+      });
     }
 
+    if (Lname && Lname.trim() === "") {
+      return res.status(200).json({
+        success: false,
+        message: "LastName cannot be Empty",
+      });
+    }
     // Validate Email
     if (!Email || Email.trim() === "") {
       return res
         .status(200)
         .json({ success: false, message: "Email address is required." });
-    } else if (!/^\S+@gmail\.com$|^\S+@oprevolt\.com$/.test(Email)) {
+    } else if (!/^\S+@gmail\.com$|^\S+@glaslack\.com$/.test(Email)) {
       return res
         .status(200)
         .json({ success: false, message: "Invalid email address." });
     }
 
-  
+    if (!Fname || !Email || !Lname) {
+      return res.status(200).json({
+        success: false,
+        message: "All fields required",
+      });
+    } else if (!CurrentPass) {
+      return res.status(200).json({
+        success: false,
+        message: "Enter Password",
+      });
+    }
+
     const userData = await User.findById(UserID);
 
     if (req.file) {
@@ -515,49 +634,41 @@ const editProfileCntrl = asyncHandler(async (req, res) => {
 
       await sendVerificationMail(userData.firstname, Email, token);
       await userData.save();
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "Email verification sent. Please check your inbox.",
-        });
+      return res.status(200).json({
+        success: true,
+        message: "Email verification sent. Please check your inbox.",
+      });
     }
 
     if (newPass && newPass !== userData.password) {
-        // Validate Password
-    if (newPass && newPass.trim() === "") {
-      return res
-        .status(200)
-        .json({ success: false, message: "Password cannot be Empty." });
-    } else if (newPass && newPass.length < 6) {
-      return res
-        .status(200)
-        .json({
+      // Validate Password
+      if (newPass && newPass.trim() === "") {
+        return res
+          .status(200)
+          .json({ success: false, message: "Password cannot be Empty." });
+      } else if (newPass && newPass.length < 6) {
+        return res.status(200).json({
           success: false,
           message: "Password must be at least 6 characters long.",
         });
-    } else if (
-      !/[a-z]/.test(newPass) ||
-      !/[A-Z]/.test(newPass) ||
-      !/[0-9]/.test(newPass) ||
-      !/[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(newPass)
-    ) {
-      return res
-        .status(200)
-        .json({
+      } else if (
+        !/[a-z]/.test(newPass) ||
+        !/[A-Z]/.test(newPass) ||
+        !/[0-9]/.test(newPass) ||
+        !/[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(newPass)
+      ) {
+        return res.status(200).json({
           success: false,
           message:
             "Password must include lowercase and uppercase letters, numbers, and special characters.",
         });
-    }
+      }
 
       if (newPass !== confirmPass) {
-        return res
-          .status(200)
-          .json({
-            success: false,
-            message: "New password and confirm password do not match",
-          });
+        return res.status(200).json({
+          success: false,
+          message: "New password and confirm password do not match",
+        });
       }
       userData.password = newPass;
     }

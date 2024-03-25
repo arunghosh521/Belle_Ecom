@@ -18,16 +18,17 @@ const createOfferControl = asyncHandler(async (req, res) => {
     const alphanumericRegex = /^[a-zA-Z0-9]{6}$/;
     const numericRegex = /^\d+$/;
     const titleRegex = /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
+    const descriptionWords = description.split(/\s+/);
 
     if (!title || !percentage || !startDate || !endDate || !description) {
       return res
         .status(200)
-        .json({ success: false, message: "All fields are required." });
+        .json({ successValidation: false, message: "All fields are required." });
     }
 
     if (!titleRegex.test(title)) {
       return res.status(200).json({
-        status: false,
+        successTitle: false,
         message:
           "Title must contain only letters and be at least 4 characters long.",
       });
@@ -35,26 +36,25 @@ const createOfferControl = asyncHandler(async (req, res) => {
 
     if (!numericRegex.test(percentage)) {
       return res.status(200).json({
-        success: false,
+        successPercentage: false,
         message:
           "Coupon code must be exactly 6 characters long and can only contain alphabets and numbers.",
       });
     }
-
-    const descriptionWords = description.split(/\s+/);
-    if (descriptionWords.length < 5 || descriptionWords.length > 15) {
-      return res.status(200).json({
-        success: false,
-        message: "Description must contain between 5 and 15 words.",
-      });
-    }
-
+    
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
     if (new Date(startDate) < currentDate) {
       return res.status(200).json({
-        success: false,
+        successDate: false,
         message: "The expiry date must not be earlier than today.",
+      });
+    }
+    
+    if (descriptionWords.length < 5 || descriptionWords.length > 15) {
+      return res.status(200).json({
+        successDescription: false,
+        message: "Description must contain between 5 and 15 words.",
       });
     }
 
@@ -77,7 +77,7 @@ const createOfferControl = asyncHandler(async (req, res) => {
     const savedOffer = await newOffer.save();
     //console.log("savedcoupon", savedOffer);
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "Offer added successfully.",
       data: savedOffer,
@@ -93,7 +93,7 @@ const createOfferControl = asyncHandler(async (req, res) => {
 
 const loadOfferList = asyncHandler(async (req, res) => {
   try {
-    const offerData = await OfferDB.find();
+    const offerData = await OfferDB.find().sort({createdAt: -1});
     //console.log(offerData);
     res.render("admin/offerList", { offerData });
   } catch (error) {
@@ -155,7 +155,7 @@ const editOfferControl = asyncHandler(async (req, res) => {
   try {
      const { title, percentage, startDate, endDate, description } = req.body;
      console.log("couponBodyData", startDate, endDate);
-     const numericRegex = /^\d+$/; // Adjust this regex if you want to allow alphabets as well
+     const numericRegex = /^\d+$/; 
      const titleRegex = /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
  
      if (!title || !percentage || !startDate || !endDate || !description) {
@@ -243,10 +243,10 @@ const offerDetailsControl = asyncHandler(async (req, res) => {
   try {
     const currentData = new Date();
     const offerDetails = await OfferDB.find({
-      expiryDate: { $gte: currentData },
+      expiryDate: { $gte: currentData }, isListed: true
     });
 
-    //console.log("sdvsdv", offerDetails);
+    console.log("sdvsdv", offerDetails);
     res.status(200).json({ success: true, offerDetails });
   } catch (error) {
     console.log("offerDetailsError", error);
@@ -297,7 +297,6 @@ const offerApplyingToProduct = asyncHandler(async (req, res) => {
 const offerRemovingProduct = asyncHandler(async(req,res) => {
   try {
     const { offerName, productId } = req.body;
-
     const productData = await ProductDB.findById(productId);
     const productPrice = productData.price;
 
@@ -305,7 +304,8 @@ const offerRemovingProduct = asyncHandler(async(req,res) => {
     const offerAlreadyApplied = productData.offer.some(
       (offerId) => offerId.toString() === offerId._id.toString()
     );
-    if(offerAlreadyApplied && !offer){
+    
+    if(offerAlreadyApplied && offer){
       productData.offerPrice = 0;
     productData.offerApplied = false;
     productData.offer = [];

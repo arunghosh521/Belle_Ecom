@@ -1,9 +1,12 @@
 <%- include('../layouts/header.ejs') -%>
-<style>
-  .heart-in-wishlist {
-    color: red;
-  }
-</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!-- <style>
+ .heart-icon {
+    color: red; 
+}
+
+</style> -->
 
 <!--MainContent-->
 <div id="MainContent" class="main-content" role="main">
@@ -121,9 +124,9 @@
                             <% } %>
                       <div class="qtyField">
                         <% if(product.quantity > 0) { %>
-                        <a class="qtyBtn minus" href="javascript:void(0);"><i class="fa anm anm-minus-r" aria-hidden="true"></i></a>
-                        <input type="text" id="Quantity" name="quantity" value="1" class="product-form__input qty">
-                        <a class="qtyBtn plus" href="javascript:void(0);"><i class="fa anm anm-plus-r" aria-hidden="true"></i></a>
+                        <a class="qtyBtn minus" href="javascript:void(0);" onclick="updateQuantity('<%= product._id %>', -1)"><i class="fa anm anm-minus-r" aria-hidden="true"></i></a>
+                        <input type="text" id="Quantity" name="quantity" value="1" max="<%= product.quantity %>" class="product-form__input qty">
+                        <a class="qtyBtn plus" href="javascript:void(0);" onclick="updateQuantity('<%= product._id %>', 1)"><i class="fa anm anm-plus-r" aria-hidden="true"></i></a>
                         <% } else { %>
                         <a class="qtyBtn minus" href="javascript:void(0);"><i class="fa anm anm-minus-r" aria-hidden="true" hidden></i></a>
                         <input type="text" id="Quantity" name="quantity" value="1" class="product-form__input qty" hidden>
@@ -158,6 +161,7 @@
               <div class="display-table shareRow">
                 <div class="display-table-cell medium-up--one-third">
                   <div class="wishlist-btn">
+
                     <a class="wishlist add-to-wishlist" href="#" id="addWishlist" title="Add to Wishlist"><i class="icon anm anm-heart-l heart-icon" aria-hidden="true"></i> <span>Add to Wishlist</span></a>
                   </div>
                 </div>
@@ -1228,8 +1232,7 @@
           success: function(data) {
             if (data.success === true) {
               toastr.success(data.message, "Added");
-              $('.heart-icon').css('color', 'red !important');
-
+                $('#wishlistDiv').html(data.wishlistHtml);
             } else {
               toastr.success(data.message, "Info");
             }
@@ -1256,19 +1259,19 @@
         const productId = "<%= product._id %>"
         const heartIcon = $('.heart-icon');
         console.log(heartIcon);
-        isProductInWishlist(productId).done(function(isInWishlist) {
-          console.log("Is product in wishlist:", isInWishlist);
-          if (isInWishlist) {
-            heartIcon.css('color', 'red !important');
+        isProductInWishlist(productId).done(function(response) {
+          if (response.isInWishlist) {
+            heartIcon.removeClass('fa-heart-o').addClass('fa-heart-red');
+          }else {
+            heartIcon.removeClass('fa-heart-red').addClass('fa-heart-o');
           }
         }).fail(function(jqXHR, textStatus, errorThrown) {
           console.error("Error checking product in wishlist:", textStatus, errorThrown);
         })
       })
     </script>
-
+    
     <script>
-      // Listen for changes in the input field
       document.getElementById('Quantity').addEventListener('input', function() {
         const quantityInput = this;
         const currentValue = parseInt(quantityInput.value, 10); // Ensure integer conversion
@@ -1287,7 +1290,6 @@
           try {
             const quantity = document.getElementById('Quantity').value;
             const couponCode = document.getElementById('coupon').value;
-            console.log("quantity", quantity);
 
             const response = await addToCart(productId, quantity, couponCode);
 
@@ -1308,13 +1310,11 @@
               });
 
               const CartCountSpan = document.getElementById('CartCount');
-              console.log("quantitySpan", CartCountSpan);
 
               $('.site-cart').load(`/singleProduct?id=${productId} .site-cart`)
 
 
               if (response.cart) {
-                console.log("cartData", response.cart);
                 CartCountSpan.textContent = response.cart.products.length;
 
               } else {
@@ -1322,9 +1322,9 @@
               }
             } else {
               Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: response.error
+                icon: 'Info',
+                title: 'Warning',
+                text: response.message
               });
             }
           } catch (error) {
@@ -1342,7 +1342,6 @@
 
       async function addToCart(productId, quantity, couponCode) {
         try {
-          console.log(quantity);
           const response = await fetch('/cart', {
             method: 'POST',
             headers: {
@@ -1355,18 +1354,51 @@
             })
           });
           const data = await response.json();
-          console.log("dataFrom Backend", data);
+         
+          Swal.fire({
+              icon: 'error',
+              title: 'Warning',
+              text: data.message
+            });
 
-          return data;
+         return data;
         } catch (error) {
           console.log("Error adding item to cart:", error);
           return null; // Indicate error by returning null
         }
       }
+
+//       async function updateQuantity(productId, increment) {
+
+// try {
+
+//   const quantityInput = document.getElementById(`Quantity_${productId}`);
+//   const currentQuantity = parseInt(quantityInput.value);
+//   console.log(("quantityValue", currentQuantity));
+  
+//   if (currentQuantity + increment < 1) {
+//     toastr.info("Quantity cannot be less than 1", "info!");
+//     return;
+//   }
+
+//   const response = await fetch('/cart/update', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify({
+//       productId: productId,
+//       quantity: increment
+//     })
+//   });
+
+
+
+
     </script>
 
-    <script src="assets/js/vendor/photoswipe.min.js"></script>
-    <script src="assets/js/vendor/photoswipe-ui-default.min.js"></script>
+    <script src="/js/vendor/photoswipe.min.js"></script>
+    <script src="/js/vendor/photoswipe-ui-default.min.js"></script>
     <script>
       $(function() {
         var $pswp = $('.pswp')[0],

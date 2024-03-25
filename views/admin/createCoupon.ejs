@@ -32,22 +32,24 @@
                             Title</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="title" type="text">
+                            <p id="couponTitleAlert" style="color: red;"></p>
                           </div>
                         </div>
 
-                        <div class="mb-4 row align-items-center">
+                        <!-- <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Coupon
                             Code</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" placeholder="ex: ABC123" name="code" type="text">
                           </div>
-                        </div>
+                        </div> -->
 
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Expiry
                             Date</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="endDate" type="date">
+                            <p id="couponDateAlert" style="color: red;"></p>
                           </div>
                         </div>
 
@@ -55,24 +57,28 @@
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Availability</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="availability" min="1" type="number">
+                            <p id="couponAvailabilityAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Discount Amount</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="discountAmount" min="1" type="number">
+                            <p id="couponDiscountAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Minimum Amount</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="minimumAmount" min="1" type="number">
+                            <p id="couponMinAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Description</label>
                           <div class="col-md-9 col-lg-10">
                             <textarea class="form-control" name="description" rows="2"></textarea>
+                            <p id="couponDescriptionAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <br><br>
@@ -82,6 +88,7 @@
                               <div class="d-flex justify-content-end">
                                 <button class="btn btn-solid" type="submit">Add Coupon</button>
                               </div>
+                              <p id="couponValidationAlert" style="color: red;"></p>
                             </li>
                           </ul>
                         </div>
@@ -129,9 +136,6 @@
   $('#couponForm').submit(function(event) {
     event.preventDefault();
 
-    var couponCode = $('input[name="code"]').val().toUpperCase();
-    $('input[name="code"]').val(couponCode);
-
     var formData = $(this).serialize();
 
     $.ajax({
@@ -139,12 +143,44 @@
       type: 'POST',
       data: formData,
       success: function(response) {
-        console.log("fghndfg");
+        console.log("fghndfg", response);
         if (response.success === true) {
             window.location.href = '/admin/couponList?success=true&message=' + encodeURIComponent(response.message);
         } else {
-            toastr.error(response.message, 'Info!');
           console.error(response.message);
+          if (response.successValidation === false) {
+              $('#couponValidationAlert').text(response.message);
+            } else {
+              $('#couponValidationAlert').text('');
+            }
+          if (response.statusTitle === false) {
+              $('#couponTitleAlert').text(response.message);
+            } else {
+              $('#couponTitleAlert').text('');
+            }
+          if (response.successDate === false) {
+              $('#couponDateAlert').text(response.message);
+            } else {
+              $('#couponDateAlert').text('');
+            }
+          if (response.successDiscount === false) {
+              $('#couponDiscountAlert').text(response.message);
+            } else {
+              $('#couponDiscountAlert').text('');
+            }
+          if (response.successMinAmt === false) {
+              $('#couponMinAlert').text(response.message);
+            } else {
+              $('#couponMinAlert').text('');
+            }
+          if (response.successDescription === false) {
+              $('#couponDescriptionAlert').text(response.message);
+            } else {
+              $('#couponDescriptionAlert').text('');
+            }
+          if (response.successExist === false) {
+              toastr.error(response.message, 'Info!');
+            }
         }
 
       },

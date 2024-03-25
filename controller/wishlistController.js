@@ -3,6 +3,7 @@ const WishlistDB = require("../models/wishlist");
 const UserDB = require("../models/userModel");
 const CartDB = require("../models/cart");
 const ProductDB = require('../models/products')
+const mongoose = require('mongoose');
 
 const loadWishlist = asyncHandler(async (req, res) => {
   try {
@@ -10,10 +11,36 @@ const loadWishlist = asyncHandler(async (req, res) => {
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    const wishListData = await WishlistDB.find({
-      user: req.session.userId,
-    }).populate("products.product");
-    //console.log("wishlistDAta", wishListData);
+
+    const wishListDetails = await WishlistDB.aggregate([
+      { $match: { user: mongoose.Types.ObjectId(req.session.userId) } },
+      { $unwind: "$products" },
+      { $match: { "products.createdAt": { $exists: true } } }, 
+      { $sort: { "products.createdAt": -1 } },
+      {
+         $lookup: {
+           from: "products",
+           localField: "products.product",
+           foreignField: "_id",
+           as: "products.product" 
+         }
+      },
+      {
+         $group: {
+           _id: "$_id",
+           user: { $first: "$user" },
+           products: { $push: "$products" }
+         }
+      }
+     ])
+     
+     const wishListData = wishListDetails.flatMap(wishlist => {
+       return wishlist.products.map(product => {
+         return product.product.map(product => {
+           return product
+          })
+        });
+      });    
     res.render("user/wishList", { user: userData, cartProduct, wishListData });
   } catch (error) {
     console.log("loadWishListError", error);
@@ -30,7 +57,7 @@ const addToWishList = asyncHandler(async (req, res) => {
     if (!wishList) {
      const newWishlist = new WishlistDB({
         user: req.session.userId,
-        products: [{ product: productId }],
+        products: [{ product: productId, createdAt: new Date()}],
       });
       await newWishlist.save();
       res
@@ -75,12 +102,11 @@ const checkProductInWishlist = asyncHandler(async (req, res) => {
 const removeItemFromWishlist = asyncHandler(async (req, res) => {
   try {
     const itemId = req.query.itemId;
-    //console.log("itemId", itemId);
     const item = await WishlistDB.findOneAndUpdate(
-      { "products._id": itemId },
-      { $pull: { products: { _id: itemId } } },
+      { user: req.session.userId, "products.product": itemId },
+      { $pull: { products: { product: itemId } } },
       { new: true }
-    );
+     );
     if (!item) {
       return res.status(404).json({message: 'Wishlist not found'})
     }
@@ -103,7 +129,7 @@ const addToCartFromWishlist = asyncHandler(async (req, res) => {
      }
  
      //console.log("User ID", req.session.userId);
-     let cart = await CartDB.findOne({ orderBy: req.session.userId });
+     const cart = await CartDB.findOne({ orderBy: req.session.userId });
      //console.log("Cart:", cart);
  
      if (!cart) {
@@ -138,6 +164,14 @@ const addToCartFromWishlist = asyncHandler(async (req, res) => {
      }
  
      await cart.save();
+     const removedWishlistProduct = await WishlistDB.findOneAndUpdate(
+      { user: req.session.userId },
+      { $pull: { products: { product: productId } } },
+      { new: true }
+     );
+     
+     console.log(removedWishlistProduct, "sdfghj");
+     
      res.json({ success: true });
   } catch (error) {
      console.log("InsertCartError", error);

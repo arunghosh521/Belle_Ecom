@@ -28,48 +28,59 @@
                 </tr>
               </thead>
               <% if (wishListData && wishListData.length > 0) { %>
-              <tbody>
-                <% wishListData.forEach(function(wishlist) { %>
-                <% wishlist.products.forEach(function(product) { %>
-                <tr>
-                  <td class="product-remove text-center" valign="middle">
-                    <a href="#" class="remove-item" data-id="ItemId_<%= product._id %>"><i class="icon icon anm anm-times-l"></i></a>
-                  </td>
-                  <td class="product-thumbnail text-center">
-                    <a href="/singleProduct?id=<%= product.product._id %>"><img src="/uploads/<%= product.product.images[1] %>" alt="<%= product.product.name %>" title="<%= product.product.name %>" /></a>
-                  </td>
-                  <td class="product-name">
-                    <h4 class="no-margin"><a href="/singleProduct?id=<%= product.product._id %>"><%= product.product.name %></a></h4>
-                  </td>
-                  <td class="product-price text-center">
-                    <span class="amount">₹<%= product.product.price %></span>
-                  </td>
-                  <% if(product.product.quantity > 0) { %>
-                  <td class="stock text-center">
-                    <span class="in-stock">in stock</span>
-                  </td>
-                  <td class="product-subtotal text-center">
-                    <button type="button" id="addToCartButton" data-id="<%= product.product._id %>" class="btn btn-small">Add To Cart</button>
-                  </td>
-                  <% } else { %>
-                  <td class="stock text-center">
-                    <span class="in-stock">Out Of stock</span>
-                  </td>
-                  <td class="product-subtotal text-center">
-                    <button type="button" class="btn btn-small" disabled>Add to Cart</button>
-                  </td>
-                  <% } %>
-                </tr>
-                <% }); %>
-                <% }); %>
-              </tbody>
-              <% } else { %>
-              <tbody>
-                <tr>
-                  <td colspan="6" class="text-center">No products in wishlist.</td>
-                </tr>
-              </tbody>
-              <% } %>
+                <tbody>
+                   <% wishListData.forEach(products => { %>
+                     <% if (products && products.length > 0) { %>
+                       <% products.forEach(product => { %>
+                         <tr>
+                           <td class="product-remove text-center" valign="middle">
+                             <a href="#" class="remove-item" data-id="ItemId_<%= product._id %>"><i class="icon icon anm anm-times-l"></i></a>
+                           </td>
+                           <td class="product-thumbnail text-center">
+                             <% if (product.images && product.images.length > 0) { %>
+                               <a href="/singleProduct?id=<%= product._id %>"><img src="/uploads/<%= product.images[0] %>" alt="<%= product.name %>" title="<%= product.name %>" /></a>
+                             <% } else { %>
+                               <a href="/singleProduct?id=<%= product._id %>"><img src="/path/to/default/image.jpg" alt="<%= product.name %>" title="<%= product.name %>" /></a>
+                             <% } %>
+                           </td>
+                           <td class="product-name">
+                             <h4 class="no-margin"><a href="/singleProduct?id=<%= product._id %>"><%= product.name %></a></h4>
+                           </td>
+                           <td class="product-price text-center">
+                             <span class="amount">₹<%= product.price %></span>
+                           </td>
+                           <% if(product.quantity > 0) { %>
+                             <td class="stock text-center">
+                               <span class="in-stock">in stock</span>
+                             </td>
+                             <td class="product-subtotal text-center">
+                               <button type="button" id="addToCartButton" data-id="<%= product._id %>" class="btn btn-small">Add To Cart</button>
+                             </td>
+                           <% } else { %>
+                             <td class="stock text-center">
+                               <span class="in-stock">Out Of stock</span>
+                             </td>
+                             <td class="product-subtotal text-center">
+                               <button type="button" class="btn btn-small" disabled>Add to Cart</button>
+                             </td>
+                           <% } %>
+                         </tr>
+                       <% }); %>
+                     <% } else { %>
+                       <tr>
+                         <td colspan="6" class="text-center">No products in this wishlist.</td>
+                       </tr>
+                     <% } %>
+                   <% }); %>
+                </tbody>
+               <% } else { %>
+                <tbody>
+                   <tr>
+                     <td colspan="6" class="text-center">No wishlists found.</td>
+                   </tr>
+                </tbody>
+               <% } %>
+               
             </table>
           </div>
         </form>
@@ -166,7 +177,9 @@
       }),
       success: function(data) {
         if (data.success === true) {
-          $('.site-cart').load(`/cart?id=${productId} .site-cart`)
+          $('.site-cart').load(`/cart?id=${productId} .site-cart`, function() {
+            window.location.href = '/cart';
+          });
           toastr.success('Product added to Cart successfully', 'Success!');
         } else {
           toastr.error('Payment Failed. Please try again.', 'Info!');

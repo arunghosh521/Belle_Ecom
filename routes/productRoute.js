@@ -15,6 +15,7 @@ productRoute
     productController.addProductsCntrl
   );
 productRoute.get("/listProduct", isLogin, productController.loadProductsView);
+productRoute.get("/pagination", isLogin, productController.paginationForProductView);
 productRoute.post("/editProduct/toggleList", productController.toggleListUser);
 productRoute.get("/editProduct/:id", isLogin, productController.loadEditProducts);
 productRoute.post(

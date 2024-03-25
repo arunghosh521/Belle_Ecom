@@ -1,347 +1,348 @@
 <%- include('../layouts/header.ejs') -%>
- <!--Body Content-->
- <div id="page-content">
+<!--Body Content-->
+<div id="page-content">
   <!--Collection Banner-->
   <div class="collection-header">
-  <div class="collection-hero">
-        <div class="collection-hero__image"><img class="blur-up lazyload" data-src="/images/cat-women1.jpg" src="/images/cat-women1.jpg" alt="Women" title="Women" /></div>
-        <div class="collection-hero__title-wrapper"><h1 class="collection-hero__title page-width">Shop Products</h1></div>
+    <div class="collection-hero">
+      <div class="collection-hero__image"><img class="blur-up lazyload" data-src="/images/cat-women1.jpg" src="/images/cat-women1.jpg" alt="Women" title="Women" /></div>
+      <div class="collection-hero__title-wrapper">
+        <h1 class="collection-hero__title page-width">Shop Products</h1>
       </div>
-</div>
-    <!--End Collection Banner-->
-    
-    <div class="container">
-      <div class="row">
-          <!--Sidebar-->
-          <div class="col-12 col-sm-12 col-md-3 col-lg-3 sidebar filterbar">
-              <div class="closeFilter d-block d-md-none d-lg-none"><i class="icon icon anm anm-times-l"></i></div>
-              <div class="sidebar_tags">
-                  <!--Categories-->
-                  <div class="sidebar_widget categories filter-widget">
-                        <div class="widget-title"><h2>Categories</h2></div>
-                        <div class="widget-content">
-                            <ul class="sidebar_categories">
-                                <li class="level1 sub-level"><a href="#;" class="site-nav">Clothing</a>
-                                  <ul class="sublinks">
-                                      <li class="level2"><a href="#;" class="site-nav">Men</a></li>
-                                        <!-- <li class="level2"><a href="#;" class="site-nav">Women</a></li>
-                                        <li class="level2"><a href="#;" class="site-nav">View All Clothing</a></li> -->
-                                    </ul>
-                                </li>
-                               
-                            </ul>
-                        </div>
-                    </div>
-                    <!--Categories-->
-                    <!--Price Filter-->
-                    <div class="sidebar_widget filterBox filter-widget">
-                        <div class="widget-title">
-                          <h2>Price</h2>
-                        </div>
-                        <form action="#" method="post" class="price-filter">
-                            <div id="slider-range" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">
-                              <div class="ui-slider-range ui-widget-header ui-corner-all"></div>
-                              <span class="ui-slider-handle indian-currency ui-corner-all" tabindex="0"></span>
-                              <span class="ui-slider-handle indian-currency ui-corner-all" tabindex="0"></span>
-                              
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <p class="no-margin"><input id="amount" type="text"></p>
-                                </div>
-                                <div class="col-6 text-right margin-25px-top">
-                                    <button class="btn btn-secondary btn--small">filter</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <!--End Price Filter-->
-                    <!--Size Swatches-->
-                    <div class="sidebar_widget filterBox filter-widget size-swacthes">
-                        <div class="widget-title"><h2>Size</h2></div>
-                        <div class="filter-color swacth-list">
-                          <ul>
-                                <li><span class="swacth-btn checked">X</span></li>
-                                <li><span class="swacth-btn">XL</span></li>
-                                <li><span class="swacth-btn">XLL</span></li>
-                                <li><span class="swacth-btn">M</span></li>
-                                <li><span class="swacth-btn">L</span></li>
-                                <li><span class="swacth-btn">S</span></li>
-                                <li><span class="swacth-btn">XXXL</span></li>
-                                <li><span class="swacth-btn">XXL</span></li>
-                                <li><span class="swacth-btn">XS</span></span></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <!--End Size Swatches-->
-                    <!--Color Swatches-->
-                    <div class="sidebar_widget filterBox filter-widget">
-                        <div class="widget-title"><h2>Color</h2></div>
-                        <div class="filter-color swacth-list clearfix">
-                            <span class="swacth-btn black"></span>
-                            <span class="swacth-btn white checked"></span>
-                            <span class="swacth-btn red"></span>
-                            <span class="swacth-btn blue"></span>
-                            <span class="swacth-btn pink"></span>
-                            <span class="swacth-btn gray"></span>
-                            <span class="swacth-btn green"></span>
-                            <span class="swacth-btn orange"></span>
-                            <span class="swacth-btn yellow"></span>
-                            <span class="swacth-btn blueviolet"></span>
-                            <span class="swacth-btn brown"></span>
-                            <span class="swacth-btn darkGoldenRod"></span> 
-                            <span class="swacth-btn darkGreen"></span> 
-                            <span class="swacth-btn darkRed"></span> 
-                            <span class="swacth-btn dimGrey"></span>
-                            <span class="swacth-btn khaki"></span> 
-                        </div>
-                    </div>
-                    <!--End Color Swatches-->
-                    <!--Brand-->
-                    <div class="sidebar_widget filterBox filter-widget">
-                        <div class="widget-title"><h2>Brands</h2></div>
-                        <ul>
-                            <li>
-                              <input type="checkbox" value="allen-vela" id="check1">
-                              <label for="check1"><span><span></span></span>Allen solly</label>
-                            </li>
-                            
-                        </ul>
-                    </div>
-                    <!--End Brand-->
-                    <!--Popular Products-->
-        <div class="sidebar_widget">
-                      <div class="widget-title"><h2>Popular Products</h2></div>
-          <div class="widget-content">
-                            <div class="list list-sidebar-products">
-                              <div class="grid">
-                                <div class="grid__item">
-                                  <div class="mini-list-item">
-                                    <div class="mini-view_image">
-                                        <a class="grid-view-item__link" href="#">
-                                            <img class="grid-view-item__image" src="/images/product-images/mini-product-img.jpg" alt="" />
-                                        </a>
-                                    </div>
-                                    <div class="details"> <a class="grid-view-item__title" href="#">Cena Skirt</a>
-                                      <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$173.60</span></span></div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="grid__item">
-                                  <div class="mini-list-item">
-                                    <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img1.jpg" alt="" /></a> </div>
-                                    <div class="details"> <a class="grid-view-item__title" href="#">Block Button Up</a>
-                                      <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$378.00</span></span></div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="grid__item">
-                                  <div class="mini-list-item">
-                                    <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img2.jpg" alt="" /></a> </div>
-                                    <div class="details"> <a class="grid-view-item__title" href="#">Balda Button Pant</a>
-                                      <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$278.60</span></span></div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="grid__item">
-                                  <div class="mini-list-item">
-                                    <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img3.jpg" alt="" /></a> </div>
-                                    <div class="details"> <a class="grid-view-item__title" href="#">Border Dress in Black/Silver</a>
-                                      <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$228.00</span></span></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                        </div>
-        </div>
-                    <!--End Popular Products-->
-                    <!--Banner-->
-                    <div class="sidebar_widget static-banner">
-                      <img src="/images/side-banner-2.jpg" alt="" />
-                    </div>
-                    <!--Banner-->
-                    <!--Information-->
-                    <div class="sidebar_widget">
-                        <div class="widget-title"><h2>Information</h2></div>
-                        <div class="widget-content"><p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p></div>
-                    </div>
-                    <!--end Information-->
-                    <!--Product Tags-->
-                    <div class="sidebar_widget">
-                      <div class="widget-title">
-                        <h2>Product Tags</h2>
-                      </div>
-                      <div class="widget-content">
-                        <ul class="product-tags">
-                          <li><a href="#" title="Show products matching tag $100 - $400">$100 - $400</a></li>
-                          <li><a href="#" title="Show products matching tag $400 - $600">$400 - $600</a></li>
-                          <li><a href="#" title="Show products matching tag $600 - $800">$600 - $800</a></li>
-                          <li><a href="#" title="Show products matching tag Above $800">Above $800</a></li>
-                          <li><a href="#" title="Show products matching tag Allen Vela">Allen Vela</a></li>
-                          <li><a href="#" title="Show products matching tag Black">Black</a></li>
-                          <li><a href="#" title="Show products matching tag Blue">Blue</a></li>
-                          <li><a href="#" title="Show products matching tag Cantitate">Cantitate</a></li>
-                          <li><a href="#" title="Show products matching tag Famiza">Famiza</a></li>
-                          <li><a href="#" title="Show products matching tag Gray">Gray</a></li>
-                          <li><a href="#" title="Show products matching tag Green">Green</a></li>
-                          <li><a href="#" title="Show products matching tag Hot">Hot</a></li>
-                          <li><a href="#" title="Show products matching tag jean shop">jean shop</a></li>
-                          <li><a href="#" title="Show products matching tag jesse kamm">jesse kamm</a></li>
-                          <li><a href="#" title="Show products matching tag L">L</a></li>
-                          <li><a href="#" title="Show products matching tag Lardini">Lardini</a></li>
-                          <li><a href="#" title="Show products matching tag lareida">lareida</a></li>
-                          <li><a href="#" title="Show products matching tag Lirisla">Lirisla</a></li>
-                          <li><a href="#" title="Show products matching tag M">M</a></li>
-                          <li><a href="#" title="Show products matching tag mini-dress">mini-dress</a></li>
-                          <li><a href="#" title="Show products matching tag Monark">Monark</a></li>
-                          <li><a href="#" title="Show products matching tag Navy">Navy</a></li>
-                          <li><a href="#" title="Show products matching tag new">new</a></li>
-                          <li><a href="#" title="Show products matching tag new arrivals">new arrivals</a></li>
-                          <li><a href="#" title="Show products matching tag Orange">Orange</a></li>
-                          <li><a href="#" title="Show products matching tag oxford">oxford</a></li>
-                          <li><a href="#" title="Show products matching tag Oxymat">Oxymat</a></li>
-                        </ul>
-                        <span class="btn btn--small btnview">View all</span> </div>
-                    </div>
-                    <!--end Product Tags-->
-                </div>
+    </div>
+  </div>
+  <!--End Collection Banner-->
+
+  <div class="container">
+    <div class="row">
+      <!--Sidebar-->
+      <div class="col-12 col-sm-12 col-md-3 col-lg-3 sidebar filterbar">
+        <div class="closeFilter d-block d-md-none d-lg-none"><i class="icon icon anm anm-times-l"></i></div>
+        <div class="sidebar_tags">
+          <!--Categories-->
+          <div class="sidebar_widget categories filter-widget">
+            <div class="widget-title">
+              <h2>Categories</h2>
             </div>
-            <!--End Sidebar-->
-            <!--Main Content-->
-            <div class="col-12 col-sm-12 col-md-9 col-lg-9 main-col">
-              <div class="productList">
-                  <!--Toolbar-->
-                    <button type="button" class="btn btn-filter d-block d-md-none d-lg-none"> Product Filters</button>
-                  <div class="toolbar">
-                      <div class="filters-toolbar-wrapper">
-                          <div class="row">
-                              <div class="col-4 col-md-4 col-lg-4 filters-toolbar__item collection-view-as d-flex justify-content-start align-items-center">
-                                  <!-- <a href="shop-left-sidebar.html" title="Grid View" class="change-view change-view--active">
+            <div class="widget-content">
+              <ul class="sidebar_categories">
+                <li class="level1 sub-level"><a href="#;" class="site-nav">Clothing</a>
+                  <ul class="sublinks">
+                    <% if(categories && categories.length > 0) { %>
+                    <% categories.forEach(category => { %>
+                    <li class="level2"><a href="/productView?page=<%= currentPage %>&catId=<%= category._id %>" class="site-nav"><%= category.category %></a></li>
+                    <% }); %>
+                    <% } else { %>
+                    <li class="level2"><a href="#;" class="site-nav">NoCategories</a></li>
+                    <% } %>
+                    <!-- <li class="level2"><a href="#;" class="site-nav">Women</a></li>
+                                        <li class="level2"><a href="#;" class="site-nav">View All Clothing</a></li> -->
+                  </ul>
+                </li>
+
+              </ul>
+            </div>
+          </div>
+          <!--Categories-->
+          <!--Price Filter-->
+          <div class="sidebar_widget filterBox filter-widget">
+            <div class="widget-title">
+              <h2>Price</h2>
+            </div>
+            <% if(products && products.length > 0) { %>
+            <form id="price-filter-form" action="/productView?page=<%= currentPage %>" method="get" class="price-filter" data-max-price="5000">
+              <div id="slider-range" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">
+                <div class="ui-slider-range ui-widget-header ui-corner-all"></div>
+                <!-- <span class="ui-slider-handle indian-currency ui-corner-all" tabindex="0"></span> -->
+                <!-- <span class="ui-slider-handle indian-currency ui-corner-all" tabindex="0"></span> -->
+
+              </div>
+              <div class="row">
+                <div class="col-6">
+                  <p class="no-margin"><input id="amount" type="text" max="5000"></p>
+                </div>
+                <div class="col-6 text-right margin-25px-top">
+                  <button class="btn btn-secondary btn--small">filter</button>
+                </div>
+              </div>
+            </form>
+
+            <% } %>
+          </div>
+
+          <!--End Price Filter-->
+          <!--Size Swatches-->
+          <div class="sidebar_widget filterBox filter-widget size-swacthes">
+            <div class="widget-title">
+              <h2>Size</h2>
+            </div>
+            <% if(products && products.length > 0) { %>
+            <div class="filter-color swacth-list">
+              <ul>
+                <% sizeForViewing.forEach(size => { %>
+                <li>
+                  <span class="swacth-btn <%= size._id === currentSizeFilter ? 'checked' : '' %>" data-size="<%= size._id %>"><%= size._id %></span>
+                  <a href="/productView?page=<%= currentPage %>&size=<%= size._id %>" class="size-link"></a>
+                </li>
+                <% }); %>
+              </ul>
+            </div>
+            <% } %>
+          </div>
+          <!--End Size Swatches-->
+
+
+          <!--Popular Products-->
+          <div class="sidebar_widget">
+            <div class="widget-title">
+              <h2>Popular Products</h2>
+            </div>
+            <div class="widget-content">
+              <div class="list list-sidebar-products">
+                <div class="grid">
+                  <div class="grid__item">
+                    <div class="mini-list-item">
+                      <div class="mini-view_image">
+                        <a class="grid-view-item__link" href="#">
+                          <img class="grid-view-item__image" src="/images/product-images/mini-product-img.jpg" alt="" />
+                        </a>
+                      </div>
+                      <div class="details"> <a class="grid-view-item__title" href="#">Cena Skirt</a>
+                        <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$173.60</span></span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid__item">
+                    <div class="mini-list-item">
+                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img1.jpg" alt="" /></a> </div>
+                      <div class="details"> <a class="grid-view-item__title" href="#">Block Button Up</a>
+                        <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$378.00</span></span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid__item">
+                    <div class="mini-list-item">
+                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img2.jpg" alt="" /></a> </div>
+                      <div class="details"> <a class="grid-view-item__title" href="#">Balda Button Pant</a>
+                        <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$278.60</span></span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid__item">
+                    <div class="mini-list-item">
+                      <div class="mini-view_image"> <a class="grid-view-item__link" href="#"><img class="grid-view-item__image" src="/images/product-images/mini-product-img3.jpg" alt="" /></a> </div>
+                      <div class="details"> <a class="grid-view-item__title" href="#">Border Dress in Black/Silver</a>
+                        <div class="grid-view-item__meta"><span class="product-price__price"><span class="money">$228.00</span></span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--End Popular Products-->
+          <!--Banner-->
+          <div class="sidebar_widget static-banner">
+            <img src="/images/side-banner-2.jpg" alt="" />
+          </div>
+          <!--Banner-->
+          <!--Information-->
+          <div class="sidebar_widget">
+            <div class="widget-title">
+              <h2>Information</h2>
+            </div>
+            <div class="widget-content">
+              <p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>
+            </div>
+          </div>
+          <!--end Information-->
+          <!--Product Tags-->
+          <div class="sidebar_widget">
+            <div class="widget-title">
+              <h2>Product Tags</h2>
+            </div>
+            <div class="widget-content">
+              <ul class="product-tags">
+                <li><a href="#" title="Show products matching tag $100 - $400">$100 - $400</a></li>
+                <li><a href="#" title="Show products matching tag $400 - $600">$400 - $600</a></li>
+                <li><a href="#" title="Show products matching tag $600 - $800">$600 - $800</a></li>
+                <li><a href="#" title="Show products matching tag Above $800">Above $800</a></li>
+                <li><a href="#" title="Show products matching tag Allen Vela">Allen Vela</a></li>
+                <li><a href="#" title="Show products matching tag Black">Black</a></li>
+                <li><a href="#" title="Show products matching tag Blue">Blue</a></li>
+                <li><a href="#" title="Show products matching tag Cantitate">Cantitate</a></li>
+                <li><a href="#" title="Show products matching tag Famiza">Famiza</a></li>
+                <li><a href="#" title="Show products matching tag Gray">Gray</a></li>
+                <li><a href="#" title="Show products matching tag Green">Green</a></li>
+                <li><a href="#" title="Show products matching tag Hot">Hot</a></li>
+                <li><a href="#" title="Show products matching tag jean shop">jean shop</a></li>
+                <li><a href="#" title="Show products matching tag jesse kamm">jesse kamm</a></li>
+                <li><a href="#" title="Show products matching tag L">L</a></li>
+                <li><a href="#" title="Show products matching tag Lardini">Lardini</a></li>
+                <li><a href="#" title="Show products matching tag lareida">lareida</a></li>
+                <li><a href="#" title="Show products matching tag Lirisla">Lirisla</a></li>
+                <li><a href="#" title="Show products matching tag M">M</a></li>
+                <li><a href="#" title="Show products matching tag mini-dress">mini-dress</a></li>
+                <li><a href="#" title="Show products matching tag Monark">Monark</a></li>
+                <li><a href="#" title="Show products matching tag Navy">Navy</a></li>
+                <li><a href="#" title="Show products matching tag new">new</a></li>
+                <li><a href="#" title="Show products matching tag new arrivals">new arrivals</a></li>
+                <li><a href="#" title="Show products matching tag Orange">Orange</a></li>
+                <li><a href="#" title="Show products matching tag oxford">oxford</a></li>
+                <li><a href="#" title="Show products matching tag Oxymat">Oxymat</a></li>
+              </ul>
+              <span class="btn btn--small btnview">View all</span>
+            </div>
+          </div>
+          <!--end Product Tags-->
+        </div>
+      </div>
+      <!--End Sidebar-->
+      <!--Main Content-->
+      <div class="col-12 col-sm-12 col-md-9 col-lg-9 main-col">
+        <div class="productList">
+          <!--Toolbar-->
+          <button type="button" class="btn btn-filter d-block d-md-none d-lg-none"> Product Filters</button>
+          <div class="toolbar">
+            <div class="filters-toolbar-wrapper">
+              <div class="row">
+                <div class="col-4 col-md-4 col-lg-4 filters-toolbar__item collection-view-as d-flex justify-content-start align-items-center">
+                  <!-- <a href="shop-left-sidebar.html" title="Grid View" class="change-view change-view--active">
                                       <img src="/images/grid.jpg" alt="Grid" />
                                     </a>
                                     <a href="shop-listview.html" title="List View" class="change-view">
                                       <img src="/images/list.jpg" alt="List" />
                                     </a> -->
-                                </div>
-                                
-                                <div class="col-4 col-md-4 col-lg-4 text-center filters-toolbar__item filters-toolbar__item--count d-flex justify-content-center align-items-center">
-                                  <!-- <span class="filters-toolbar__product-count">Showing: 22</span> -->
-                                </div>
-                                <div class="col-4 col-md-4 col-lg-4 text-right">
-                                  <div class="filters-toolbar__item">
-                                      <label for="SortBy" class="hidden">Sort</label>
-                                      <select name="SortBy" id="SortBy" class="filters-toolbar__input filters-toolbar__input--sort" data-sortBy="<%= products._id %>" onchange="handleSortChange(this)">
-                                        <option value="title-ascending" <% if(products === "title-ascending") { %> selected <% } %>>Sort</option>
-                                        <option value="title-ascending"> <% if(products === "title-ascending") { %> selected <% } %>Alphabetically, A-Z</option>
-                                        <option value="title-descending"> <% if(products === "title-descending") { %> selected <% } %>Alphabetically, Z-A</option>
-                                        <option value="price-low-to-high"> <% if(products === "price-low-to-high") { %> selected <% } %>Price, low to high</option>
-                                        <option value="price-high-to-low"> <% if(products === "price-high-to-low") { %> selected <% } %>Price, high to low</option>
-                                        <option value="date-new-to-old"> <% if(products === "date-new-to-old") { %> selected <% } %>Date, new to old</option>
-                                        <option value="date-old-to-new"> <% if(products === "date-old-to-new") { %> selected <% } %>Date, old to new</option>
-                                       </select>  
-                                      <input class="collection-header__default-sort" type="hidden" value="manual">
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <!--End Toolbar-->
-                    <div class="grid-products grid--view-items">
-                        <div class="row">
-                          <% for(i = 0; i<products.length; i++) { %>
-                            <div class="col-6 col-sm-6 col-md-4 col-lg-3 item grid-view-item--sold-out">
-                                <!-- start product image -->
-                                <div class="product-image">
-                                    <!-- start product image -->
-                                    <a href="/singleProduct?id=<%= products[i]._id %>" class="grid-view-item__link">
-                                      <!-- image -->
-                                      <img class="grid-view-item__image primary blur-up lazyload" data-src="/uploads/<%= products[i].images[0]%>" src="/uploads/<%= products[i].images[0]%>" alt="image" title="product">
-                                      <!-- End image -->
-                                        <!-- Hover image -->
-                                        <img class="grid-view-item__image hover blur-up lazyload" data-src="/uploads/<%= products[i].images[1]%>" src="/uploads/<%= products[i].images[1]%>" alt="image" title="product">
-                                        <!-- End hover image -->
-                                        <% if(products[i].offer && products[i].offer.length > 0) { %>
-                                          <div class="product-labels rectangular"><span class="lbl on-sale">-<%= products[i].offer[0].percentage %>%</span> </div>
-                                      <% } else { %>
-                                          <div hidden class="product-labels rectangular"><span class="lbl on-sale">-16%</span> 
-                                            <span class="lbl pr-label1">new</span>
-                                          </div>
-
-                                      <% } %>
-                                       
-                                        <% if(products[i].quantity === 0) { %>
-                                          <span class="sold-out"><span>Sold out</span></span>
-                                      <% } %>
-                                    </a>
-                                    <!-- end product image -->
-
-                                    <!-- Start product button -->
-                                    <form class="variants add" action="#" onclick="window.location.href='cart.html'"method="post">
-                                        <button class="btn btn-addto-cart" id="addToCartBtn" type="button">Add to cart</button>
-                                    </form>
-                                    <div class="button-set">
-                                        <a href="javascript:void(0)" title="Quick View" class="quick-view-popup quick-view" data-toggle="modal" data-target="#content_quickview">
-                                                    <i class="icon anm anm-search-plus-r"></i>
-                                                </a>
-                                        <div class="wishlist-btn">
-                                            <a class="wishlist add-to-wishlist" href="#" title="Add to Wishlist">
-                                                <i class="icon anm anm-heart-l"></i>
-                                            </a>
-                                        </div>
-                                      
-                                    </div>
-                                    <!-- end product button -->
-                                </div>
-                                <!-- end product image -->
-
-                                <!--start product details -->
-                                <div class="product-details text-center">
-                                    <!-- product name -->
-                                    <div class="product-name">
-                                      <a href="/singleProduct?id=<%= products[i]._id %>"><%= products[i].name %></a>
-                                    </div>
-                                    <!-- End product name -->
-                                    <!-- product price -->
-                                    <% if(products[i].offer && products[i].offer.length > 0) { %>
-                                      <div class="product-price">
-                                              <span class="price" style="text-decoration: line-through;">₹<%= products[i].price %></span> &nbsp;
-                                              <span class="price" style="color: red;">₹<%= products[i].offerPrice %></span>
-                                          </div>
-                                      <% } else { %>
-                                          <div class="product-price">
-                                              <span class="price">₹<%= products[i].price %></span>
-                                          </div>
-                                      <% } %>
-                                
-                                  <!-- End product price -->
-                                  
-                                    
-                                    <div class="product-review">
-                                        <i class="font-13 fa fa-star-o"></i>
-                                        <i class="font-13 fa fa-star-o"></i>
-                                        <i class="font-13 fa fa-star-o"></i>
-                                        <i class="font-13 fa fa-star-o"></i>
-                                        <i class="font-13 fa fa-star-o"></i>
-                                    </div>
-                                </div>
-                                <!-- End product details -->
-                            </div>
-                            <% } %>
-                        </div>
-                    </div>
                 </div>
-                <div class="infinitpaginOuter">
-                    <div class="infinitpagin">	
-                        <a href="#" class="btn loadMore">Load More</a>
-                    </div>
+
+                <div class="col-4 col-md-4 col-lg-4 text-center filters-toolbar__item filters-toolbar__item--count d-flex justify-content-center align-items-center">
+                  <!-- <span class="filters-toolbar__product-count">Showing: 22</span> -->
                 </div>
+                <div class="col-4 col-md-4 col-lg-4 text-right">
+                  <div class="filters-toolbar__item">
+                    <label for="SortBy" class="hidden">Sort</label>
+                    <select name="SortBy" id="SortBy" class="filters-toolbar__input filters-toolbar__input--sort" data-sortBy="<%= currentSortOption %>" onchange="handleSortChange(this)">
+                      <option value="title-ascending" <% if(products === "title-ascending") { %> selected <% } %>>Sort</option>
+                      <option value="price-low-to-high"> <% if(products === "price-low-to-high") { %> selected <% } %>Price, low to high</option>
+                      <option value="price-high-to-low"> <% if(products === "price-high-to-low") { %> selected <% } %>Price, high to low</option>
+                      <option value="date-new-to-old"> <% if(products === "date-new-to-old") { %> selected <% } %>Date, new to old</option>
+                      <option value="date-old-to-new"> <% if(products === "date-old-to-new") { %> selected <% } %>Date, old to new</option>
+                    </select>
+                    <input class="collection-header__default-sort" type="hidden" value="manual">
+                  </div>
+                </div>
+
+              </div>
             </div>
-            <!--End Main Content-->
+          </div>
+          <!--End Toolbar-->
+          <div class="grid-products grid--view-items">
+            <div class="row">
+              <% for(i = 0; i<products.length; i++) { %>
+              <div class="col-6 col-sm-6 col-md-4 col-lg-3 item grid-view-item--sold-out">
+                <!-- start product image -->
+                <div class="product-image">
+                  <!-- start product image -->
+                  <a href="/singleProduct?id=<%= products[i]._id %>" class="grid-view-item__link">
+                    <!-- image -->
+                    <img class="grid-view-item__image primary blur-up lazyload" data-src="/uploads/<%= products[i].images[0]%>" src="/uploads/<%= products[i].images[0]%>" alt="image" title="product">
+                    <!-- End image -->
+                    <!-- Hover image -->
+                    <img class="grid-view-item__image hover blur-up lazyload" data-src="/uploads/<%= products[i].images[1]%>" src="/uploads/<%= products[i].images[1]%>" alt="image" title="product">
+                    <!-- End hover image -->
+                    <% if(products[i].offer && products[i].offer.length > 0) { %>
+                    <div class="product-labels rectangular"><span class="lbl on-sale">-<%= products[i].offer[0].percentage %>%</span> </div>
+                    <% } else { %>
+                    <div hidden class="product-labels rectangular"><span class="lbl on-sale">-16%</span>
+                      <span class="lbl pr-label1">new</span>
+                    </div>
+
+                    <% } %>
+
+                    <% if(products[i].quantity === 0) { %>
+                    <span class="sold-out"><span>Sold out</span></span>
+                    <% } %>
+                  </a>
+                  <!-- end product image -->
+
+                  <!-- Start product button -->
+                  <form class="variants add" action="#" onclick="window.location.href='cart.html'" method="post">
+                    <button class="btn btn-addto-cart" id="addToCartBtn" type="button">Add to cart</button>
+                  </form>
+                  <div class="button-set">
+                    <a href="javascript:void(0)" title="Quick View" class="quick-view-popup quick-view" data-toggle="modal" data-target="#content_quickview">
+                      <i class="icon anm anm-search-plus-r"></i>
+                    </a>
+                    <div class="wishlist-btn">
+                      <a class="wishlist add-to-wishlist" href="#" title="Add to Wishlist">
+                        <i class="icon anm anm-heart-l"></i>
+                      </a>
+                    </div>
+
+                  </div>
+                  <!-- end product button -->
+                </div>
+                <!-- end product image -->
+
+                <!--start product details -->
+                <div class="product-details text-center">
+                  <!-- product name -->
+                  <div class="product-name">
+                    <a href="/singleProduct?id=<%= products[i]._id %>"><%= products[i].name %></a>
+                  </div>
+                  <!-- End product name -->
+                  <!-- product price -->
+                  <% if(products[i].offer && products[i].offer.length > 0) { %>
+                  <div class="product-price">
+                    <span class="price" style="text-decoration: line-through;">₹<%= products[i].price %></span> &nbsp;
+                    <span class="price" style="color: red;">₹<%= products[i].offerPrice %></span>
+                  </div>
+                  <% } else { %>
+                  <div class="product-price">
+                    <span class="price">₹<%= products[i].price %></span>
+                  </div>
+                  <% } %>
+
+                  <!-- End product price -->
+
+
+                  <div class="product-review">
+                    <i class="font-13 fa fa-star-o"></i>
+                    <i class="font-13 fa fa-star-o"></i>
+                    <i class="font-13 fa fa-star-o"></i>
+                    <i class="font-13 fa fa-star-o"></i>
+                    <i class="font-13 fa fa-star-o"></i>
+                  </div>
+                </div>
+                <!-- End product details -->
+              </div>
+              <% } %>
+            </div>
+          </div>
         </div>
+        <div class="pagination">
+          <ul>
+            <% if (currentPage > 1) { %>
+            <li class="prev"><a href="/productView?page=<%= Number(currentPage) - 1 %>&catId=<%= category %>"><i class="fa fa-caret-left" aria-hidden="true"></i></a></li>
+            <% } %>
+            <% paginationLinks.forEach(link => { %>
+            <% const pageNumber = link.match(/page=(\d+)/)[1]; %>
+            <li class="<%= pageNumber === currentPage.toString() ? 'active' : '' %>">
+              <a href="<%= link %>"><%= pageNumber %></a>
+            </li>
+            <% }); %>
+
+            <% if (currentPage < totalPages) { %>
+            <li class="next"><a href="/productView?page=<%= Number(currentPage) + 1 %>&catId=<%= category %>"><i class="fa fa-caret-right" aria-hidden="true"></i></a></li>
+            <% } %>
+          </ul>
+
+        </div>
+
+      </div>
+      <!--End Main Content-->
     </div>
-    
+  </div>
+
 </div>
 <!--End Body Content-->
 
@@ -349,95 +350,145 @@
 <!--Quick View popup-->
 <div class="modal fade quick-view-popup" id="content_quickview">
   <div class="modal-dialog">
-      <div class="modal-content">
-          <div class="modal-body">
-              <div id="ProductSection-product-template" class="product-template__container prstyle1">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div id="ProductSection-product-template" class="product-template__container prstyle1">
           <div class="product-single">
-          <!-- Start model close -->
-          <a href="javascript:void()" data-dismiss="modal" class="model-close-btn pull-right" title="close"><span class="icon icon anm anm-times-l"></span></a>
-          <!-- End model close -->
-          <div class="row">
+            <!-- Start model close -->
+            <a href="javascript:void()" data-dismiss="modal" class="model-close-btn pull-right" title="close"><span class="icon icon anm anm-times-l"></span></a>
+            <!-- End model close -->
+            <div class="row">
               <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                  <div class="product-details-img">
-                      <div class="pl-20">
-                          <img src="/images/product-detail-page/camelia-reversible-big1.jpg" alt="" />
-                      </div>
+                <div class="product-details-img">
+                  <div class="pl-20">
+                    <img src="/images/product-detail-page/camelia-reversible-big1.jpg" alt="" />
                   </div>
+                </div>
               </div>
               <div class="col-lg-6 col-md-6 col-sm-12 col-12">
-                      <div class="product-single__meta">
-                          <h2 class="product-single__title">Product Quick View Popup</h2>
-                          <div class="prInfoRow">
-                              <div class="product-stock"> <span class="instock ">In Stock</span> <span class="outstock hide">Unavailable</span> </div>
-                              <div class="product-sku">SKU: <span class="variant-sku">19115-rdxs</span></div>
-                          </div>
-                          <p class="product-single__price product-single__price-product-template">
-                              <span class="visually-hidden">Regular price</span>
-                              <s id="ComparePrice-product-template"><span class="money">$600.00</span></s>
-                              <span class="product-price__price product-price__price-product-template product-price__sale product-price__sale--single">
-                                  <span id="ProductPrice-product-template"><span class="money">$500.00</span></span>
-                              </span>
-                          </p>
-                          <div class="product-single__description rte">
-                              Belle Multipurpose Bootstrap 4 Html Template that will give you and your customers a smooth shopping experience which can be used for various kinds of stores such as fashion,...
-                          </div>
-                          
-                      <form method="post" action="http://annimexweb.com/cart/add" id="product_form_10508262282" accept-charset="UTF-8" class="product-form product-form-product-template hidedropdown" enctype="multipart/form-data">
-                          <div class="swatch clearfix swatch-0 option1" data-option-index="0">
-                              <div class="product-form__item">
-                                <label class="header">Color: <span class="slVariant">Red</span></label>
-                               
-                              </div>
-                          </div>
-                          <div class="swatch clearfix swatch-1 option2" data-option-index="1">
-                              <div class="product-form__item">
-                                <label class="header">Size: <span class="slVariant">XS</span></label>
-                                <div data-value="XS" class="swatch-element xs available">
-                                  <input class="swatchInput" id="swatch-1-xs" type="radio" name="option-1" value="XS">
-                                  <label class="swatchLbl medium rectangle" for="swatch-1-xs" title="XS">XS</label>
-                                </div>
-                                
-                              </div>
-                          </div>
-                          <!-- Product Action -->
-                          <div class="product-action clearfix">
-                              <div class="product-form__item--submit">
-                                  <button type="button" name="add" class="btn product-form__cart-submit">
-                                      <span>Add to cart</span>
-                                  </button>
-                              </div>
-                          </div>
-                          <!-- End Product Action -->
-                      </form>
-                      <div class="display-table shareRow">
-                              <div class="display-table-cell">
-                                  <div class="wishlist-btn">
-                                      <a class="wishlist add-to-wishlist" href="#" title="Add to Wishlist"><i class="icon anm anm-heart-l" aria-hidden="true"></i> <span>Add to Wishlist</span></a>
-                                  </div>
-                              </div>
-                          </div>
+                <div class="product-single__meta">
+                  <h2 class="product-single__title">Product Quick View Popup</h2>
+                  <div class="prInfoRow">
+                    <div class="product-stock"> <span class="instock ">In Stock</span> <span class="outstock hide">Unavailable</span> </div>
+                    <div class="product-sku">SKU: <span class="variant-sku">19115-rdxs</span></div>
                   </div>
+                  <p class="product-single__price product-single__price-product-template">
+                    <span class="visually-hidden">Regular price</span>
+                    <s id="ComparePrice-product-template"><span class="money">$600.00</span></s>
+                    <span class="product-price__price product-price__price-product-template product-price__sale product-price__sale--single">
+                      <span id="ProductPrice-product-template"><span class="money">$500.00</span></span>
+                    </span>
+                  </p>
+                  <div class="product-single__description rte">
+                    Belle Multipurpose Bootstrap 4 Html Template that will give you and your customers a smooth shopping experience which can be used for various kinds of stores such as fashion,...
+                  </div>
+
+                  <form method="post" action="http://annimexweb.com/cart/add" id="product_form_10508262282" accept-charset="UTF-8" class="product-form product-form-product-template hidedropdown" enctype="multipart/form-data">
+                    <div class="swatch clearfix swatch-0 option1" data-option-index="0">
+                      <div class="product-form__item">
+                        <label class="header">Color: <span class="slVariant">Red</span></label>
+
+                      </div>
+                    </div>
+                    <div class="swatch clearfix swatch-1 option2" data-option-index="1">
+                      <div class="product-form__item">
+                        <label class="header">Size: <span class="slVariant">XS</span></label>
+                        <div data-value="XS" class="swatch-element xs available">
+                          <input class="swatchInput" id="swatch-1-xs" type="radio" name="option-1" value="XS">
+                          <label class="swatchLbl medium rectangle" for="swatch-1-xs" title="XS">XS</label>
+                        </div>
+
+                      </div>
+                    </div>
+                    <!-- Product Action -->
+                    <div class="product-action clearfix">
+                      <div class="product-form__item--submit">
+                        <button type="button" name="add" class="btn product-form__cart-submit">
+                          <span>Add to cart</span>
+                        </button>
+                      </div>
+                    </div>
+                    <!-- End Product Action -->
+                  </form>
+                  <div class="display-table shareRow">
+                    <div class="display-table-cell">
+                      <div class="wishlist-btn">
+                        <a class="wishlist add-to-wishlist" href="#" title="Add to Wishlist"><i class="icon anm anm-heart-l" aria-hidden="true"></i> <span>Add to Wishlist</span></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--End-product-single-->
           </div>
+        </div>
       </div>
-          <!--End-product-single-->
-          </div>
-      </div>
-          </div>
-      </div>
+    </div>
   </div>
 </div>
 <!--End Quick View popup-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
 
 <script>
- function handleSortChange(selectElement) {
-  const productId = selectElement.getAttribute('data-sortBy');
-  const newStatus = selectElement.value;
+  $(function() {
+    const maxPrice = parseInt($(".price-filter").data("max-price"), 10);
+    $("#slider-range").slider({
+      range: true,
+      min: 0,
+      max: maxPrice,
+      values: [0, maxPrice],
+      slide: function(event, ui) {
+        console.log("Slider values:", ui.values[0], ui.values[1]);
+        $("#amount").val("₹" + ui.values[0] + " - ₹" + ui.values[1]);
+      }
+    });
+    $("#amount").val("₹" + $("#slider-range").slider("values", 0) +
+      " - ₹" + $("#slider-range").slider("values", 1));
 
-  fetch('/productView/')
 
- }
 
+    $("#price-filter-form").on("submit", function(e) {
+      e.preventDefault();
+      const priceFrom = $("#slider-range").slider("values", 0);
+      const priceLimit = $("#slider-range").slider("values", 1);
+      const actionUrl = `/productView?page=<%= currentPage %>&priceFrom=${priceFrom}&priceLimit=${priceLimit}`;
+      window.location.href = actionUrl;
+    });
+
+  });
 </script>
 
-  <%- include('../layouts/footer.ejs') -%>
+<script>
+  $(function() {
+    $(".swacth-btn").on("click", function() {
+      const selectedSize = $(this).data("size");
+      console.log(selectedSize);
+      const Url = `/productView?page=<%= currentPage %>&size=${selectedSize}`
+      window.location.href = Url;
+
+    });
+  });
+
+  function handleSortChange(selectElement) {
+    const sortOption = selectElement.value;
+    //  const currentPage = document.querySelector('.current-page').value;
+    //  console.log(currentPage, "asdfghjkl");
+    const currentCatId = new URLSearchParams(window.location.search).get('catId');
+    console.log(currentCatId);
+
+    let url = `/productView?page=<%= currentPage %>&sort=${sortOption}`;
+    if (currentCatId) {
+      url += `&catId=${currentCatId}`;
+    }
+
+    window.location.href = url;
+  }
+</script>
+
+
+
+
+<%- include('../layouts/footer.ejs') -%>

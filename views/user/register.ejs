@@ -334,6 +334,9 @@
     submitOtpBtn.disabled = true;
     resendButton.disable = false;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
     submitButton.addEventListener('click', function(e) {
       e.preventDefault();
       loader.style.display = 'block';
@@ -380,7 +383,7 @@
     submitOtpBtn.addEventListener('click', function() {
       //resendButton.disable = true;
       let enteredOtp = otpInput.value;
-      fetch('/submitOtp', {
+      fetch(`/submitOtp?token=${encodeURIComponent(token)}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

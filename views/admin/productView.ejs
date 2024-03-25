@@ -1,4 +1,6 @@
 <%- include('../adminLayouts/header.ejs') -%>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 <style>
   .long-text {
     max-width: 200px;
@@ -6,6 +8,50 @@
     overflow: hidden;
     white-space: nowrap;
     word-wrap: break-word;
+  }
+
+  .custome-pagination {
+    margin-top: 20px;
+    /* Adjust margin as needed */
+  }
+
+  .pagination {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .page-item {
+    margin: 0 5px;
+    /* Adjust margin as needed */
+    display: inline-block;
+    /* Display items in a single line */
+  }
+
+  .page-link {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+
+  .page-link:hover {
+    background-color: #f4f4f4;
+  }
+
+  .page-item.active .page-link {
+    background-color: #076380;
+    color: #fff;
+    border-color: #076380;
+  }
+
+  .page-item.disabled .page-link {
+    opacity: 0.5;
+    pointer-events: none;
   }
 </style>
 
@@ -93,7 +139,13 @@
                     <% }); %>
                   </tbody>
                 </table>
+              </div><br>
+              <div style="display: flex;">
+                <nav class="custome-pagination" id="paginationList">
+                  <ul class="pagination justify-content-center">
 
+                  </ul>
+                </nav>
               </div>
             </div>
           </div>
@@ -275,11 +327,6 @@
               });
             }
           });
-
-
-
-
-
         }
       });
     }
@@ -288,6 +335,168 @@
     document.querySelector('.btn-secondary').addEventListener('click', function() {
       $('#offerDetailsModal').modal('hide');
     });
+  </script>
+
+  <script>
+    let currentPageNo = 1;
+    let itemsPerPage = 4;
+
+    function fetchProducts(page) {
+      fetch(`/admin/product/pagination?page=${page}&limit=${itemsPerPage}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log("products", data.products);
+          updateTable(data.products);
+          updatePagination(data.totalPages, data.currentPage);
+        })
+        .catch(error => console.error('Error fetching products:', error));
+    }
+
+    function updateTable(products) {
+    const tableBody = document.querySelector('#table_id tbody');
+    tableBody.innerHTML = '';
+
+    products.forEach(product => {
+        const newRow = document.createElement('tr');
+
+        // Create and append the image cell
+        const imageCell = document.createElement('td');
+        const imageDiv = document.createElement('div');
+        imageDiv.className = 'table-image';
+        const image = document.createElement('img');
+        image.src = `/uploads/${product.images[0]}`;
+        image.className = 'img-fluid';
+        image.alt = '';
+        imageDiv.appendChild(image);
+        imageCell.appendChild(imageDiv);
+        newRow.appendChild(imageCell);
+
+        // Create and append the name cell
+        const nameCell = document.createElement('td');
+        nameCell.className = 'long-text';
+        nameCell.textContent = product.name;
+        newRow.appendChild(nameCell);
+
+        // Create and append the category cell
+        const categoryCell = document.createElement('td');
+        categoryCell.textContent = product.category ? product.category.category : 'No Category';
+        newRow.appendChild(categoryCell);
+
+        // Create and append the quantity cell
+        const quantityCell = document.createElement('td');
+        quantityCell.textContent = product.quantity;
+        newRow.appendChild(quantityCell);
+
+        // Create and append the price cell
+        const priceCell = document.createElement('td');
+        priceCell.className = 'bi bi-currency-rupee';
+        priceCell.textContent = `₹${product.price}`;
+        newRow.appendChild(priceCell);
+
+        // Create and append the "View Offers" button
+        const viewOffersCell = document.createElement('td');
+        const viewOffersButton = document.createElement('button');
+        viewOffersButton.style.marginLeft = '40px';
+        viewOffersButton.onclick = function() { offerListing(this); };
+        viewOffersButton.type = 'button';
+        viewOffersButton.className = 'btn btn-success';
+        viewOffersButton.dataset.productId = product._id;
+        viewOffersButton.dataset.isListed = false;
+        viewOffersButton.textContent = 'View Offers';
+        viewOffersCell.appendChild(viewOffersButton);
+        newRow.appendChild(viewOffersCell);
+
+        // Create and append the "List"/"Unlist" button
+        const listCell = document.createElement('td');
+        const listButton = document.createElement('button');
+        listButton.style.marginLeft = '40px';
+        listButton.onclick = function() { listUser(this); };
+        listButton.type = 'button';
+        listButton.dataset.productId = product._id;
+        listButton.dataset.isListed = !product.is_listed; // Assuming you want to toggle the listed status
+        listButton.className = product.is_listed ? 'btn btn-success' : 'btn btn-danger toggle-btn';
+        listButton.textContent = product.is_listed ? 'Unlist' : 'List';
+        listCell.appendChild(listButton);
+        newRow.appendChild(listCell);
+
+        // Create and append the edit link cell
+        const editCell = document.createElement('td');
+        const editLink = document.createElement('a');
+        editLink.href = `/admin/product/editProduct/${product._id}`;
+        const editIcon = document.createElement('i');
+        editIcon.className = 'ri-pencil-line';
+        editLink.appendChild(editIcon);
+        editCell.appendChild(editLink);
+        newRow.appendChild(editCell);
+
+        // Append the new row to the table body
+        tableBody.appendChild(newRow);
+    });
+}
+
+    function updatePagination(totalPages, currentPage) {
+      const paginationList = document.getElementById('paginationList');
+      paginationList.innerHTML = '';
+
+      // Add "Previous" button
+      const prevLi = document.createElement('li');
+      prevLi.className = 'page-item';
+      if (currentPage === 1) {
+        prevLi.classList.add('disabled');
+      }
+      const prevA = document.createElement('a');
+      prevA.className = 'page-link';
+      prevA.href = 'javascript:void(0)';
+      prevA.innerHTML = '<i class="fa-solid fa-angles-left"></i>';
+      prevA.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPageNo--;
+          fetchProducts(currentPageNo);
+        }
+      });
+      prevLi.appendChild(prevA);
+      paginationList.appendChild(prevLi);
+
+      // Add page numbers
+      for (let i = 1; i <= totalPages; i++) {
+        const li = document.createElement('li');
+        li.className = 'page-item';
+        if (i === currentPage) {
+          li.classList.add('active');
+        }
+        const a = document.createElement('a');
+        a.className = 'page-link';
+        a.href = 'javascript:void(0)';
+        a.textContent = i;
+        a.addEventListener('click', () => {
+          currentPageNo = i;
+          fetchProducts(currentPageNo);
+        });
+        li.appendChild(a);
+        paginationList.appendChild(li);
+      }
+
+      // Add "Next" button
+      const nextLi = document.createElement('li');
+      nextLi.className = 'page-item';
+      if (currentPage === totalPages) {
+        nextLi.classList.add('disabled');
+      }
+      const nextA = document.createElement('a');
+      nextA.className = 'page-link';
+      nextA.href = 'javascript:void(0)';
+      nextA.innerHTML = '<i class="fa-solid fa-angles-right"></i>';
+      nextA.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPageNo++;
+          fetchProducts(currentPageNo);
+        }
+      });
+      nextLi.appendChild(nextA);
+      paginationList.appendChild(nextLi);
+    }
+
+    fetchProducts(currentPageNo);
   </script>
 
 

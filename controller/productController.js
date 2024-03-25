@@ -6,6 +6,9 @@ const CategoryDB = require("../models/category");
 const AdminDB = require("../models/userModel");
 const {resizeAndSaveImages} = require('../middlewares/multer');
 const { log } = require("sharp/lib/libvips");
+
+
+
 const loadProducts = asyncHandler(async (req, res) => {
   try {
     const findAdmin = await AdminDB.find();
@@ -27,13 +30,33 @@ const loadAddProducts = asyncHandler(async (req, res) => {
 
 const loadProductsView = asyncHandler(async (req, res) => {
   try {
-    const products = await Product.find().populate("category");
-    // console.log('products',products);
+    const products = await Product.find().sort({createdAt: -1}).populate("category");
+    //console.log('products',products);
     res.render("admin/productView", { products });
   } catch (error) {
     console.log("productPageError", error);
   }
 });
+
+const paginationForProductView = asyncHandler(async(req,res) => {
+  const page = parseInt(req.query.page) || 1;
+ const limit = parseInt(req.query.limit) || 6; 
+ const skip = (page - 1) * limit;
+
+ try {
+    const products = await Product.find().sort({createdAt: -1}).skip(skip).limit(limit).populate("category");
+    const totalProducts = await Product.countDocuments();
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    res.json({
+      products,
+      totalPages,
+      currentPage: page
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching products' });
+  }
+})
 
 const validateProduct = asyncHandler(async (req, res) => {
   try {
@@ -138,7 +161,7 @@ const loadEditProducts = asyncHandler(async (req, res) => {
     const _id = req.params.id;
     //console.log("ID:", _id);
     const products = await Product.findById(_id).populate('category');
-    console.log("product Data", products);
+   // console.log("product Data", products);
 
     const category = await CategoryDB.find({ is_listed: true });
    
@@ -153,14 +176,11 @@ const loadEditProducts = asyncHandler(async (req, res) => {
 const toggleListUser = asyncHandler(async (req, res) => {
   try {
     const { productId, isListed } = req.body;
-
     const products = await Product.findByIdAndUpdate(
       productId,
       { is_listed: isListed },
       { new: true }
     );
-
-
     res.json({ success: true });
   } catch (error) {
     console.error("ToggleBlockUserError", error);
@@ -180,7 +200,6 @@ const updateEditProducts = asyncHandler(async (req, res) => {
       size,
       color,
     } = req.body;
-console.log("bodydataFromeditProduct", req.body);
     const filenames = await resizeAndSaveImages(req.files)
     const findCategory = await CategoryDB.findById(categoryID);
 
@@ -194,7 +213,7 @@ console.log("bodydataFromeditProduct", req.body);
       color: color,
       is_listed: true,
       images: filenames.map((filename) => `${filename}`),
-    });
+    },{new: true});
 
     console.log("ProductUpdated", updateProduct);
     req.flash("productMsg", "Product updated successfully");
@@ -245,4 +264,5 @@ module.exports = {
   toggleListUser,
   updateEditProducts,
   deleteImageControl,
+  paginationForProductView,
 };

@@ -32,6 +32,7 @@
                             Title</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="title" type="text" value="<%= coupon.couponName %>">
+                            <p id="couponTitleAlert" style="color: red;"></p>
                             <input class="form-control" name="couponID" type="hidden" value="<%= coupon._id %>" >
                           </div>
                         </div>
@@ -40,7 +41,7 @@
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Coupon
                             Code</label>
                           <div class="col-md-9 col-lg-10">
-                            <input class="form-control" name="code" placeholder="ex: ABC123" type="text" value="<%= coupon.couponCode %>">
+                            <input class="form-control" name="code" placeholder="ex: ABC123" type="text" value="<%= coupon.couponCode %>" disabled>
                           </div>
                         </div>
 
@@ -49,6 +50,7 @@
                             Date</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="endDate" type="date" value="<%= coupon.expiryDate.toISOString().split('T')[0] %>">
+                            <p id="couponDateAlert" style="color: red;"></p>
                           </div>
                         </div>
 
@@ -56,24 +58,28 @@
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Availability</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="availability" min="1" type="number" value="<%= coupon.Availability %>">
+                            <p id="couponAvailabilityAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Discount Amount</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="discountAmount" min="1" type="number" value="<%= coupon.discountAmount %>">
+                            <p id="couponDiscountAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Minimum Amount</label>
                           <div class="col-md-9 col-lg-10">
                             <input class="form-control" name="minimumAmount" min="1" type="number" value="<%= coupon.minAmount %>">
+                            <p id="couponMinAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Description</label>
                           <div class="col-md-9 col-lg-10">
                             <textarea class="form-control" name="description" rows="2"><%= coupon.couponDescription %></textarea>
+                            <p id="couponDescriptionAlert" style="color: red;"></p>
                           </div>
                         </div>
                         <br><br>
@@ -83,6 +89,7 @@
                               <div class="d-flex justify-content-end">
                                 <button class="btn btn-solid" type="submit">Edit Coupon</button>
                               </div>
+                              <p id="couponValidationAlert" style="color: red;"></p>
                             </li>
                           </ul>
                         </div>
@@ -144,8 +151,40 @@
         if (response.success === true) {
             window.location.href = '/admin/couponList?success=true&message=' + encodeURIComponent(response.message);
         } else {
-            toastr.info(response.message, 'Info!');
           console.error(response.message);
+          if (response.successValidation === false) {
+              $('#couponValidationAlert').text(response.message);
+            } else {
+              $('#couponValidationAlert').text('');
+            }
+          if (response.statusTitle === false) {
+              $('#couponTitleAlert').text(response.message);
+            } else {
+              $('#couponTitleAlert').text('');
+            }
+          if (response.successDate === false) {
+              $('#couponDateAlert').text(response.message);
+            } else {
+              $('#couponDateAlert').text('');
+            }
+          if (response.successDiscount === false) {
+              $('#couponDiscountAlert').text(response.message);
+            } else {
+              $('#couponDiscountAlert').text('');
+            }
+          if (response.successMinAmt === false) {
+              $('#couponMinAlert').text(response.message);
+            } else {
+              $('#couponMinAlert').text('');
+            }
+          if (response.successDescription === false) {
+              $('#couponDescriptionAlert').text(response.message);
+            } else {
+              $('#couponDescriptionAlert').text('');
+            }
+          if (response.successExist === false) {
+              toastr.error(response.message, 'Info!');
+            }
         }
 
       },

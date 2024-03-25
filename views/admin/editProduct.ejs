@@ -156,10 +156,10 @@
     </div>
   </div>
   <!-- Edit Product Add End -->
-  
+
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-  
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
@@ -323,31 +323,33 @@
     });
   </script>
 
-
-
-
-
-
-
   <script>
-    function previewImages(event) {
+    function previewImages(event, imageId) {
       const previewDiv = document.getElementById('image-preview');
-      previewDiv.innerHTML = '';
-
+      console.log(previewDiv,"previewDiv");
       const files = event.target.files;
+      console.log(files, "1234567890");
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        console.log(file,'zxcvbnm');
         const reader = new FileReader();
         reader.onload = function(e) {
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          img.className = 'img-thumbnail';
-          img.style.maxWidth = '100px';
-          previewDiv.appendChild(img);
+          const existingImage = document.querySelector(`#image-${imageId}`);
+          if (existingImage) {
+            existingImage.src = e.target.result;
+          } else {
+            const img = document.createElement('img');
+            img.id = `image-${imageId}`;
+            img.src = e.target.result;
+            img.className = 'img-thumbnail';
+            img.style.maxWidth = '100px';
+            previewDiv.appendChild(img);
+          }
         }
         reader.readAsDataURL(file);
       }
     }
+
 
     function previewAddProductImage(event) {
       const previewDiv = document.getElementById('add-product-image-preview');
@@ -358,6 +360,7 @@
         const file = files[i];
         const reader = new FileReader();
         reader.onload = function(e) {
+          previewDiv.innerHTML = '';
           const img = document.createElement('img');
           img.src = e.target.result;
           img.className = 'img-thumbnail';
@@ -373,6 +376,7 @@
     document.querySelectorAll('.close-image').forEach(btn => {
       btn.addEventListener('click', function() {
         const imageUrl = this.getAttribute('data-image');
+        const previewDiv = this.closest('.image-preview-container');
 
         Swal.fire({
           title: 'Are you sure?',
@@ -428,7 +432,3 @@
 
 
   <%- include('../adminLayouts/footer.ejs') -%>
-
-
-
-  
