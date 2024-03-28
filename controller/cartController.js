@@ -25,101 +25,102 @@ const loadUserCart = asyncHandler(async (req, res) => {
 
 const insertCartItem = asyncHandler(async (req, res) => {
   try {
-    const { quantity, productId, couponCode } = req.body;
-    console.log("bodyDataCArt", req.body);
-    const product = await ProductDB.findById(productId).populate("offer");
-    console.log("Product", product);
-    
-    if (!product) {
-      return res.json({ success: false, message: "Product not Found" });
-    }
-    if (quantity > product.quantity) {
-      return res.json({ success: false, message: "Product Quantity Exceeded" });
-    }
-    console.log("userID", req.session.userId);
-
-    const removedWishlistProduct = await WishlistDB.findOneAndUpdate(
-      { user: req.session.userId },
-      { $pull: { products: { product: productId } } },
-      { new: true }
-     );
+     const { quantity, productId, couponCode } = req.body;
+     console.log("bodyDataCArt", req.body);
+     const product = await ProductDB.findById(productId).populate("offer");
+     console.log("Product", product);
      
-     console.log(removedWishlistProduct, "sdfghj");
-
-    const cart = await CartDB.findOne({ orderBy: req.session.userId });
-    console.log("cart:", cart);
-    if (!cart) {
-      cart = new CartDB({
-        products: [],
-        cartTotal: 0,
-        orderBy: req.session.userId,
-      });
-      console.log("newCart", cart);
-      await cart.save();
-    }
-    const existingProduct = cart.products.find(
-      (item) => item.product.toString() === productId
-    );
-    console.log("existingCart", existingProduct);
-
-    const priceToUse =
-      product.offer && product.offerApplied === true
-        ? product.offerPrice
-        : product.price;
-    console.log("price used", priceToUse);
-
-    if (couponCode) {
-      const coupon = await CouponDB.findOne({
-        couponCode: couponCode,
-        status: true,
-      });
-      if (coupon && cart.cartTotal >= coupon.minAmount) {
-        cart.cartTotal -= coupon.discountAmount;
-        cart.couponApplied = true;
-      } else {
-        const userId = req.session.userId;
-        const userObjectId = mongoose.Types.ObjectId(userId);
-        const updatedCoupon = await CouponDB.updateOne(
-          {
-            couponCode: couponCode,
-          },
-          { $pull: { userUsed: { user_id: userObjectId } } }
-        );
-        cart.couponApplied = false;
-
-        console.log("updatedCoupon", updatedCoupon);
-      }
-    }
-
-    if (existingProduct) {
-      if (existingProduct.quantity + parseInt(quantity) > product.quantity) {
-        return res.json({
-          success: false,
-          message: "Product Quantity Exceeded",
-        });
-      } else {
-        existingProduct.quantity += parseInt(quantity);
-        cart.cartTotal = cart.products.reduce((total, product) => {
-          return total + product.quantity * product.price;
-        }, 0);
-      }
-    } else {
-      cart.products.push({
-        product: productId,
-        quantity: quantity,
-        price: priceToUse,
-        total: priceToUse * quantity,
-      });
-      cart.cartTotal += priceToUse * quantity;
-    }
-
-    await cart.save();
-
-    res.json({ success: true });
+     if (!product) {
+       return res.json({ success: false, message: "Product not Found" });
+     }
+     if (quantity > product.quantity) {
+       return res.json({ success: false, message: "Product Quantity Exceeded" });
+     }
+     console.log("userID", req.session.userId);
+ 
+     const removedWishlistProduct = await WishlistDB.findOneAndUpdate(
+       { user: req.session.userId },
+       { $pull: { products: { product: productId } } },
+       { new: true }
+      );
+      
+      console.log(removedWishlistProduct, "sdfghj");
+ 
+     let cart = await CartDB.findOne({ orderBy: req.session.userId });
+     console.log("cart:", cart);
+     if (!cart) {
+       cart = new CartDB({
+         products: [],
+         cartTotal: 0,
+         orderBy: req.session.userId,
+       });
+       console.log("newCart", cart);
+       await cart.save();
+     }
+     const existingProduct = cart.products.find(
+       (item) => item.product.toString() === productId
+     );
+     console.log("existingCart", existingProduct);
+ 
+     const priceToUse =
+       product.offer && product.offerApplied === true
+         ? product.offerPrice
+         : product.price;
+     console.log("price used", priceToUse);
+ 
+     if (couponCode) {
+       const coupon = await CouponDB.findOne({
+         couponCode: couponCode,
+         status: true,
+       });
+       if (coupon && cart.cartTotal >= coupon.minAmount) {
+         cart.cartTotal -= coupon.discountAmount;
+         cart.couponApplied = true;
+       } else {
+         const userId = req.session.userId;
+         const userObjectId = mongoose.Types.ObjectId(userId);
+         const updatedCoupon = await CouponDB.updateOne(
+           {
+             couponCode: couponCode,
+           },
+           { $pull: { userUsed: { user_id: userObjectId } } }
+         );
+         cart.couponApplied = false;
+ 
+         console.log("updatedCoupon", updatedCoupon);
+       }
+     }
+ 
+     if (existingProduct) {
+       if (existingProduct.quantity + parseInt(quantity) > product.quantity) {
+         return res.json({
+           success: false,
+           message: "Product Quantity Exceeded",
+         });
+       } else {
+         existingProduct.quantity += parseInt(quantity);
+         cart.cartTotal = cart.products.reduce((total, product) => {
+           return total + product.quantity * product.price;
+         }, 0);
+       }
+     } else {
+       cart.products.push({
+         product: productId,
+         quantity: quantity,
+         price: priceToUse,
+         total: priceToUse * quantity,
+       });
+       cart.cartTotal += priceToUse * quantity;
+     }
+ 
+     await cart.save();
+ 
+     res.json({ success: true });
   } catch (error) {
-    console.log("InsertCartError", error);
+     console.log("InsertCartError", error);
   }
-});
+ });
+ 
 
 const cartUpdate = asyncHandler(async (req, res) => {
   try {

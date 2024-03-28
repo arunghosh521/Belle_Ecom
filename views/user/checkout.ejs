@@ -291,14 +291,12 @@
     for (const radio of addressRadios) {
       if (radio.checked) {
         selectedAddress = true;
-        console.log("address selected");
         break;
       }
     }
     for (const checkbox of paymentCheckboxes) {
       if (checkbox.checked) {
         paymentMethod = true;
-        console.log("payment  selected");
         break;
       }
     }
@@ -324,6 +322,8 @@
         success: (response) => {
           if (response.CodSuccess === true) {
             window.location.href = `/orderPlaced?orderId=${encodeURIComponent(response.orderId)}`;
+          }else {
+            toastr["error"](response.message, "Info!");
           }
         }
       })
@@ -343,7 +343,6 @@
 
     const totalAmount = parseInt(totalAmountwithoutSymbol) * 100;
 
-    console.log("total Amount", totalAmount);
     $.ajax({
       url: '/orderPlaced/placeOrder',
       method: 'POST',
@@ -388,7 +387,7 @@
     };
     var rzp1 = new Razorpay(options);
     rzp1.on('payment.failed', function(response) {
-      window.location.href = '/Cart?paymentFailed=true';
+      window.location.href = '/userProfile?paymentFailed=true';
     });
 
     rzp1.open();
@@ -412,7 +411,6 @@
       }),
     };
     $.ajax(settings).done(function(data) {
-      console.log('bifhiejv', data);
       if (data.success) {
         window.location.href = `/orderPlaced?orderId=${encodeURIComponent(data.orderId)}`;
       } else {
@@ -430,14 +428,12 @@
     const addressID = checkedAddressRadio ? checkedAddressRadio.value : null;
     const checkedPaymentCheckbox = document.querySelector('input[name="paymentMethod"]:checked');
     const payment = checkedPaymentCheckbox ? checkedPaymentCheckbox.value : null;
-    console.log(payment);
     const totalText = $('#sub_total').text().trim();
 
     totalAmountwithoutSymbol = totalText.replace('₹', '');
 
     const totalAmount = parseInt(totalAmountwithoutSymbol) * 100;
 
-    console.log("total Amount", totalAmount);
 
     $.ajax({
       url: '/orderPlaced/placeOrder',
@@ -466,7 +462,6 @@
     const couponCodeInput = document.getElementById('coupon-code');
     const couponElement = document.getElementById('couponAmt');
     const storedCouponAmount = localStorage.getItem('appliedCouponAmount');
-    console.log("fghfg", storedCouponAmount);
     const appliedCouponAmount = localStorage.getItem('appliedCouponAmount');
     if (!appliedCouponAmount) {
       couponElement.innerText = '-';
@@ -494,8 +489,7 @@
     const couponCode = document.getElementById('coupon-code').value;
     const subTotalElement = document.getElementById('sub_total');
     const couponElement = document.getElementById('couponAmt');
-    console.log(subTotalElement.innerText);
-    console.log(couponElement.innerText);
+
     const data = {
       couponCode: couponCode
     };

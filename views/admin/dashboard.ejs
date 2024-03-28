@@ -1,4 +1,24 @@
 <%- include('../adminLayouts/header.ejs') -%>
+
+<style>
+  .product-name-text {
+    white-space: pre-wrap;
+    width: 300px;
+  }
+
+  .scrollable-products {
+    max-height: 400px;
+    overflow-y: auto;
+
+  }
+
+  .col-xl-6 {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    width: 100%;
+  }
+</style>
 <!-- index body start -->
 <div class="page-body">
   <div class="container-fluid">
@@ -82,25 +102,30 @@
           </div>
         </div>
       </div>
-
-
-
-
       <!-- Earning chart star-->
-      <div class="col-xl-6">
+      <div class="col-xl-6 col-md-12">
         <div class="card o-hidden card-hover">
-          <div class="card-header border-0 pb-1">
+          <div class="card-header card-header-top card-header--2 px-0 pt-0">
             <div class="card-header-title">
-              <h4>Revenue Report</h4>
+              <h4>Sales Report</h4>
             </div>
+            <div class="best-selling-box d-sm-flex d-none">
+              <select class="form-select" id="reportPeriodSelect">
+                <option selected>Day Wise</option>
+                <option value="day">Day</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+
           </div>
           <div class="card-body p-0">
-            <div id="report-chart"></div>
+            <div id="bar-chart-earning"></div>
+            <input type="hidden" id="DailyWise" value="<%= arrayDayWise %>">
           </div>
         </div>
       </div>
-      <!-- Earning chart  end-->
-
+      <!-- Earning chart end-->
 
       <!-- Best Selling Product Start -->
       <div class="col-xl-6 col-md-12">
@@ -109,71 +134,68 @@
             <div class="card-header-title">
               <h4>Best Selling Product</h4>
             </div>
-
-            <div class="best-selling-box d-sm-flex d-none">
-              <span>Short By:</span>
-              <div class="dropdown">
-                <button class="btn p-0 dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" data-bs-auto-close="true">Today</button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
-                </ul>
-              </div>
-            </div>
           </div>
-
           <div class="card-body p-0">
             <div>
               <div class="table-responsive">
-                <table class="best-selling-table w-image
+                <div class="scrollable-products">
+                  <table class="best-selling-table w-image
                                 w-image
                                 w-image table border-0">
-                  <tbody>
-                    <tr>
-                      <td>
-                        <div class="best-product-box">
-                          <div class="product-image">
-                            <img src="/assets/images/product/1.png" class="img-fluid" alt="Product">
+                    <tbody>
+                      <% if(bestSellingProducts && bestSellingProducts.length > 0) { %>
+                      <% bestSellingProducts.forEach(product => { %>
+                      <tr>
+                        <td>
+                          <div class="best-product-box">
+                            <div class="product-image">
+                              <img src="/uploads/<%= product.images[0] %>" class="img-fluid" alt="Product">
+                            </div>
+                            <div class="product-name">
+                              <h5 class="product-name-text"><%= product.name %></h5>
+                              <h6><%= new Date(product.lastSold).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></h6>
+                            </div>
                           </div>
-                          <div class="product-name">
-                            <h5>Aata Buscuit</h5>
-                            <h6>26-08-2022</h6>
+                        </td>
+
+                        <td>
+                          <div class="product-detail-box">
+                            <h6>Price</h6>
+                            <h5>₹<%= product.price %></h5>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Price</h6>
-                          <h5>$29.00</h5>
-                        </div>
-                      </td>
+                        <td>
+                          <div class="product-detail-box">
+                            <h6>Orders</h6>
+                            <h5><%= product.sold %></h5>
+                          </div>
+                        </td>
 
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Orders</h6>
-                          <h5>62</h5>
-                        </div>
-                      </td>
+                        <td>
+                          <div class="product-detail-box">
+                            <h6>Stock</h6>
+                            <h5><%= product.quantity %></h5>
+                          </div>
+                        </td>
 
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Stock</h6>
-                          <h5>510</h5>
-                        </div>
-                      </td>
+                        <td>
+                          <div class="product-detail-box">
+                            <h6>Amount</h6>
+                            <h5>₹<%= product.sold * product.price   %></h5>
+                          </div>
+                        </td>
+                      </tr>
+                      <% }); %>
+                      <% } else { %>
+                      <tr>
+                        <h6>No products</h6>
+                      </tr>
 
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Amount</h6>
-                          <h5>$1,798</h5>
-                        </div>
-                      </td>
-                    </tr>
-
-                  </tbody>
-                </table>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -183,23 +205,11 @@
 
 
       <!-- Recent orders start-->
-      <div class="col-xl-6">
+      <div class="col-xxl-4 col-md-6">
         <div class="card o-hidden card-hover">
           <div class="card-header card-header-top card-header--2 px-0 pt-0">
             <div class="card-header-title">
-              <h4>Recent Orders</h4>
-            </div>
-
-            <div class="best-selling-box d-sm-flex d-none">
-              <span>Short By:</span>
-              <div class="dropdown">
-                <button class="btn p-0 dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" data-bs-auto-close="true">Today</button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
-                </ul>
-              </div>
+              <h4>Best Selling Category</h4>
             </div>
           </div>
 
@@ -227,144 +237,13 @@
 
                       <td>
                         <div class="product-detail-box">
-                          <h6>Price</h6>
+                          <h6>Total Sold</h6>
                           <h5>$250.00</h5>
                         </div>
                       </td>
 
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Order Status</h6>
-                          <h5>Completed</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Payment</h6>
-                          <h5 class="text-danger">Unpaid</h5>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <div class="best-product-box">
-                          <div class="product-name">
-                            <h5>Aata Buscuit</h5>
-                            <h6>26-08-2022</h6>
-                          </div>
-                        </div>
-                      </td>
-
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Date Placed</h6>
-                          <h5>5/1/22</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Price</h6>
-                          <h5>$250.00</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Order Status</h6>
-                          <h5>Completed</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Payment</h6>
-                          <h5 class="theme-color">Paid</h5>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <div class="best-product-box">
-                          <div class="product-name">
-                            <h5>Aata Buscuit</h5>
-                            <h6>26-08-2022</h6>
-                          </div>
-                        </div>
-                      </td>
-
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Date Placed</h6>
-                          <h5>5/1/22</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Price</h6>
-                          <h5>$250.00</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Order Status</h6>
-                          <h5>Completed</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Payment</h6>
-                          <h5 class="theme-color">Paid</h5>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <div class="best-product-box">
-                          <div class="product-name">
-                            <h5>Aata Buscuit</h5>
-                            <h6>26-08-2022</h6>
-                          </div>
-                        </div>
-                      </td>
-
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Date Placed</h6>
-                          <h5>5/1/22</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Price</h6>
-                          <h5>$250.00</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Order Status</h6>
-                          <h5>Completed</h5>
-                        </div>
-                      </td>
-
-                      <td>
-                        <div class="product-detail-box">
-                          <h6>Payment</h6>
-                          <h5 class="theme-color">Paid</h5>
-                        </div>
-                      </td>
+                      
+              
                     </tr>
                   </tbody>
                 </table>
@@ -375,20 +254,6 @@
       </div>
       <!-- Recent orders end-->
 
-      <!-- Earning chart star-->
-      <div class="col-xl-6">
-        <div class="card o-hidden card-hover">
-          <div class="card-header border-0 mb-0">
-            <div class="card-header-title">
-              <h4>Earning</h4>
-            </div>
-          </div>
-          <div class="card-body p-0">
-            <div id="bar-chart-earning"></div>
-          </div>
-        </div>
-      </div>
-      <!-- Earning chart end-->
 
 
       <!-- Transactions start-->
@@ -479,97 +344,78 @@
       </div>
       <!-- Transactions end-->
 
-      <!-- visitors chart start-->
-      <div class="col-xxl-4 col-md-6">
-        <div class="h-100">
-          <div class="card o-hidden card-hover">
-            <div class="card-header border-0">
-              <div class="d-flex align-items-center justify-content-between">
-                <div class="card-header-title">
-                  <h4>Visitors</h4>
-                </div>
-              </div>
-            </div>
-            <div class="card-body pt-0">
-              <div class="pie-chart">
-                <div id="pie-chart-visitors"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- visitors chart end-->
-
-
-      <!-- To Do List start-->
-      <div class="col-xxl-4 col-md-6">
-        <div class="card o-hidden card-hover">
-          <div class="card-header border-0">
-            <div class="card-header-title">
-              <h4>To Do List</h4>
-            </div>
-          </div>
-
-          <div class="card-body pt-0">
-            <ul class="to-do-list">
-              <li class="to-do-item">
-                <div class="form-check user-checkbox">
-                  <input class="checkbox_animated check-it" type="checkbox" value="" id="flexCheckDefault">
-                </div>
-                <div class="to-do-list-name">
-                  <strong>Pick up kids from school</strong>
-                  <p>8 Hours</p>
-                </div>
-              </li>
-              <li class="to-do-item">
-                <div class="form-check user-checkbox">
-                  <input class="checkbox_animated check-it" type="checkbox" value="" id="flexCheckDefault1">
-                </div>
-                <div class="to-do-list-name">
-                  <strong>Prepare or presentation.</strong>
-                  <p>8 Hours</p>
-                </div>
-              </li>
-              <li class="to-do-item">
-                <div class="form-check user-checkbox">
-                  <input class="checkbox_animated check-it" type="checkbox" value="" id="flexCheckDefault2">
-                </div>
-                <div class="to-do-list-name">
-                  <strong>Create invoice</strong>
-                  <p>8 Hours</p>
-                </div>
-              </li>
-              <li class="to-do-item">
-                <div class="form-check user-checkbox">
-                  <input class="checkbox_animated check-it" type="checkbox" value="" id="flexCheckDefault3">
-                </div>
-                <div class="to-do-list-name">
-                  <strong>Meeting with Alisa</strong>
-                  <p>8 Hours</p>
-                </div>
-              </li>
-
-              <li class="to-do-item">
-                <form class="row g-2">
-                  <div class="col-8">
-                    <input type="text" class="form-control" id="name" placeholder="Enter Task Name">
-                  </div>
-                  <div class="col-4">
-                    <button type="submit" class="btn btn-primary w-100 h-100">Add
-                      task</button>
-                  </div>
-                </form>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <!-- To Do List end-->
-
-
     </div>
   </div>
   <!-- Container-fluid Ends-->
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const reportPeriodSelect = document.getElementById('reportPeriodSelect');
+
+      reportPeriodSelect.addEventListener('change', function() {
+        const selectedOption = this.value;
+        console.log(selectedOption, 'selectedOption');
+        fetchDate(selectedOption);
+      });
+    });
+
+    function fetchDate(option) {
+
+      const baseUrl = '/admin/dashboard/report';
+      const url = `${baseUrl}?period=${option}`;
+      console.log(url, 'url');
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data, 'dataaaaaaaaaaaaaaaaaaaaaaa');
+          if (data.successMonthly === true) {
+            const newData = data.monthlyReport;
+            const newCategories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            Chart.updateOptions({
+              series: [{
+                name: 'Amount',
+                data: newData
+              }],
+              colors: ["#0da487"],
+              xaxis: {
+                categories: newCategories
+              }
+            });
+          }
+          if(data.successDay === true) {
+            var dayCategories = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
+            const newData = data.dayReport;
+            Chart.updateOptions({
+              series: [{
+                name: 'Amount',
+                data: newData
+              }],
+              colors: ["#FF0000"],
+              xaxis: {
+                categories: dayCategories
+              }
+            });
+          }
+          if(data.successYearly === true) {
+            const yearCategories = Array.from({ length: 11 }, (_, i) => (2020 + i).toString());
+            const newData = data.yearReport;
+            Chart.updateOptions({
+              series: [{
+                name: 'Amount',
+                data: newData
+              }],
+              colors: ["#000"],
+              xaxis: {
+                categories: yearCategories
+              }
+            });
+          }
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+  </script>
 
 
   <%- include('../adminLayouts/footer.ejs') -%>

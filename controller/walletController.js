@@ -89,12 +89,14 @@ const refferalLinkGenerating = asyncHandler(async (req, res) => {
     const userId = req.session.userId;
     const UserData = await UserDB.findOne({ _id: userId });
     if (UserData.refferalOfferToken) {
-      res.json({ success: false, message: "Link already generated" });
+      const existingToken = UserData.refferalOfferToken;
+      const existedLink =  `http://127.0.0.1:3000/register?token=${existingToken}`;
+      res.json({ success: false, link: existedLink, message: "Link copied to clipboard" });
     } else {
       const token = generateRefferalToken();
+      const generatedLink = `http://127.0.0.1:3000/register?token=${token}`;
       UserData.refferalOfferToken = token;
       UserData.save();
-      const generatedLink = `http://127.0.0.1:3000/register?token=${token}`;
       res.json({
         success: true,
         link: generatedLink,
@@ -112,7 +114,7 @@ const refferalLinkGenerating = asyncHandler(async (req, res) => {
 const paginationForWallet = asyncHandler(async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const itemsPerPage = parseInt(req.query.itemsPerPageOfWallet) || 8;
+    const itemsPerPage = parseInt(req.query.itemsPerPageOfWallet) || 4;
 
     const skip = (page - 1) * itemsPerPage;
     const walletDocument = await WalletDB.findOne({

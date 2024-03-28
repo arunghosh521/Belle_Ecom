@@ -16,10 +16,12 @@ const generateOtpCntrl = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
     const existingUser = await User.findOne({ email: email });
-    //console.log("existing user", existingUser);
+    console.log("existing user", existingUser);
     if (existingUser) {
-      req.flash("existmessage", "User with this email already exists");
-      return res.redirect("/register");
+      res.json({
+        success: false,
+        message: "User with this email already exists",
+      });
     }
 
     const newOtp = generateOtp();
@@ -27,11 +29,6 @@ const generateOtpCntrl = asyncHandler(async (req, res) => {
     await saveOtpToDb(req, email, newOtp);
 
     await sentOtpToUserEmail(email, newOtp);
-
-    // const isOtpValid = await verifyOtp(email, otp);
-    // if(!isOtpValid) {
-    //   return res.json({success: false, message: 'Invalid OTP. Please try again'});
-    // }
 
     res.json({ success: true, message: "OTP Sent Successfully" });
   } catch (error) {
@@ -42,25 +39,33 @@ const generateOtpCntrl = asyncHandler(async (req, res) => {
 
 const submitOtpHandler = asyncHandler(async (req, res) => {
   try {
-    const { otp, email } = req.body;
+    const { otp, email, fname, lname, password } = req.body;
     const token = req.query.token;
     console.log("token", token);
     console.log("otp", otp);
-    console.log("email", email);
 
     const isOtpValid = await verifyOtp(email, otp);
 
     if (isOtpValid) {
-      if (token) {
-        const tokenGeneratedUser = await User.findOne({
-          refferalOfferToken: token,
-        });
-        const userId = tokenGeneratedUser._id;
-        const transactionId = orderId.generate();
-        let wallet = await Wallet.findOne({ user: userId });
-        if (!wallet) {
+      const newUser = new User({
+        firstname: fname,
+        lastname: lname,
+        email,
+        password,
+        is_admin: 0,
+        is_blocked: 0,
+        is_verified: true,
+        refferedToken: token,
+      });
+
+      const userData = await newUser.save();
+      req.session.userId = userData._id;
+
+      let wallet = await Wallet.findOne({ user: userData._id });
+      if (!wallet) {
+        try {
           const newWallet = new Wallet({
-            user: userId,
+            user: userData._id,
             walletHistory: [
               {
                 transactionId: 0,
@@ -73,85 +78,19 @@ const submitOtpHandler = asyncHandler(async (req, res) => {
           });
           await newWallet.save();
           wallet = newWallet;
-          //console.log("asdfghjkl", newWallet);
-        }
-        const addTransaction = {
-          transactionId: transactionId,
-          date: new Date(),
-          amount: 199,
-          description: "Payment from Refferal Offer",
-          transactionType: "deposit",
-        };
-        await wallet.addTransaction(addTransaction);
-        // res.json({
-        //   success: true,
-        //   message: "Money added successfully",
-        // });
-
-        const { fname, lname, email, password } = req.body;
-
-        const newUser = new User({
-          firstname: fname,
-          lastname: lname,
-          email,
-          password,
-          is_admin: 0,
-          is_blocked: 0,
-          is_verified: true,
-        });
-
-        const userData = await newUser.save();
-        console.log("userdata111111111111111111111111111111111111111111111111", userData._id);
-        const newUserId = userData._id
-        const newTransactionId = orderId.generate();
-        let newUserWallet = await Wallet.findOne({ user: newUserId});
-        console.log("newSavedUser", newUserWallet);
-        if (!newUserWallet) {
-          let newWallet = new Wallet({
-            user: newUserId,
-            walletHistory: [
-              {
-                transactionId: 0,
-                date: Date.now(),
-                amount: 0,
-                description: "Initial balance",
-                transactionType: "deposit",
-              },
-            ],
+        } catch (walletError) {
+          console.error("Error creating wallet:", walletError);
+          return res.status(500).json({
+            success: false,
+            message: "Error creating wallet. Please try again later.",
           });
-          await newWallet.save();
-          newUserWallet = newWallet;
-          console.log("asdfghjkl", newUserWallet);
         }
-        const transaction = {
-          transactionId: newTransactionId,
-          date: new Date(),
-          amount: 99,
-          description: "Payment from Refferal Offer",
-          transactionType: "deposit",
-        };
-        await newUserWallet.addTransaction(transaction);
-        req.session.userId = userData._id;
-        return res.json({
-          success: true,
-          message: "User created successfully",
-        });
-      } else {
-        const { fname, lname, email, password } = req.body;
-
-        const newUser = new User({
-          firstname: fname,
-          lastname: lname,
-          email,
-          password,
-          is_admin: 0,
-          is_blocked: 0,
-          is_verified: true,
-        });
-
-        const userData = await newUser.save();
-        //console.log("userdata", userData);
       }
+
+      return res.json({
+        success: true,
+        message: "User created successfully",
+      });
     } else {
       return res.json({
         success: false,
@@ -159,8 +98,8 @@ const submitOtpHandler = asyncHandler(async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("Error in submitOtpHandler", error);
-    res.json({ success: false, message: "Internal server error" });
+    console.error("Error in submitOtpHandler:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
@@ -181,7 +120,6 @@ const saveOtpToDb = asyncHandler(async (req, email, otp) => {
 const getStoredOtpFromDatabase = asyncHandler(async (email) => {
   try {
     const otpDocument = await OTP.findOne({ email: email });
-    //console.log(otpDocument);
     return otpDocument ? otpDocument.otp : null;
   } catch (error) {
     console.error("Error retrieving OTP from the database:", error);
@@ -192,7 +130,6 @@ const getStoredOtpFromDatabase = asyncHandler(async (email) => {
 const verifyOtp = async (email, enteredOtp) => {
   try {
     const storedOtp = await getStoredOtpFromDatabase(email);
-    //console.log(storedOtp);
 
     // Compare the entered OTP with the stored OTP
     return storedOtp === enteredOtp;

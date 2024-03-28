@@ -129,7 +129,7 @@
                 <div class="mb-3" id="image-preview" style="display: flex; flex-wrap: wrap;">
                   <% products.images.forEach(image => { %>
                   <div class="mb-3" style="position: relative; flex: 0 0 calc(25% - 1rem);">
-                    <img src="/uploads/<%= image %>" alt="Product Image" class="img-thumbnail" style="max-width: 100%; height: 130px;">
+                    <img src="/uploads/<%= image %>" alt="Product Image" id="existingImage" class="img-thumbnail" style="max-width: 100%; height: 130px;">
                     <button type="button" class="btn btn-danger btn-sm close-image" data-image="/uploads/<%= image %>">&times;</button>
                   </div>
                   <% }) %>
@@ -324,48 +324,32 @@
   </script>
 
   <script>
-    function previewImages(event, imageId) {
+    function previewImages(event) {
       const previewDiv = document.getElementById('image-preview');
-      console.log(previewDiv,"previewDiv");
       const files = event.target.files;
-      console.log(files, "1234567890");
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        console.log(file,'zxcvbnm');
         const reader = new FileReader();
         reader.onload = function(e) {
-          const existingImage = document.querySelector(`#image-${imageId}`);
+            let existingImage = document.getElementById('existingImage');
           if (existingImage) {
             existingImage.src = e.target.result;
-          } else {
+            //console.log(existingImage.src, 'imagesource');
             const img = document.createElement('img');
-            img.id = `image-${imageId}`;
+            img.id = `image-${i}`;
+            img.src = e.target.result;
+            img.className = 'img-thumbnail';
+            img.style.maxWidth = '100px';
+            previewDiv.appendChild(img);
+          } else {
+            console.log('not existingImage');
+            const img = document.createElement('img');
+            img.id = `image-${i}`;
             img.src = e.target.result;
             img.className = 'img-thumbnail';
             img.style.maxWidth = '100px';
             previewDiv.appendChild(img);
           }
-        }
-        reader.readAsDataURL(file);
-      }
-    }
-
-
-    function previewAddProductImage(event) {
-      const previewDiv = document.getElementById('add-product-image-preview');
-      previewDiv.innerHTML = '';
-
-      const files = event.target.files;
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          previewDiv.innerHTML = '';
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          img.className = 'img-thumbnail';
-          img.style.maxWidth = '100px';
-          previewDiv.appendChild(img);
         }
         reader.readAsDataURL(file);
       }

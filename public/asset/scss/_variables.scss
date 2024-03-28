@@ -1,0 +1,48 @@
+:root {
+  --theme-color: #0da487;
+}
+
+$white: #ffffff;
+$black: #000000;
+$title-color: #222222;
+$content-color: #939393;
+$light-gray: #f7f7f7;
+$danger-color: #ff4f4f;
+$rating-color: #ffb321;
+$border-color: #ececec;
+
+// font family
+$nunito-sans: 'Nunito Sans',
+sans-serif;
+// $exo-sarif:'Exo 2',
+// sans-serif;
+// $russo-sarif: 'Russo One',
+// sans-serif;
+// $pacifico: 'Pacifico',
+// cursive;
+// $kaushan: 'Kaushan Script',
+// cursive;
+// $indie: 'Indie Flower',
+// cursive;
+// $great: 'Great Vibes',
+// cursive;
+// $qwitcher: 'Qwitcher Grypen',
+// cursive;
+$fontawesome: 'Font Awesome 6 Free';
+
+// Breakepoints
+$min-breakpoints: (lg: 992px,
+  xl: 1200px,
+  2xl: 1366px,
+);
+
+$max-breakpoints: (2xs: 360px,
+  xs: 480px,
+  sm: 575px,
+  md: 767px,
+  lg: 991px,
+  xl: 1199px,
+  2xl: 1366px,
+  3xl: 1460px,
+  4xl: 1660px,
+);

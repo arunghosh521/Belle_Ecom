@@ -64,7 +64,7 @@ const loadHome = async (req, res) => {
 //REndering the register page
 const loadRegister = async (req, res) => {
   try {
-    const success = req.flash("fmessage")[0];
+    const success = req.flash("existmessage")[0];
     const userData = await User.findOne({ _id: req.session.userId });
     res.render("user/register", { user: userData, message: success });
   } catch (error) {
@@ -541,7 +541,7 @@ const loadUserProfile = asyncHandler(async (req, res) => {
     }
 
     const orderData = await OrderDB.find({ orderBy: req.session.userId });
-    //console.log("orderData", orderData);
+    console.log("orderData", orderData);
     const addressData = await Address.find({ user: req.session.userId })
     .sort({ createdAt: -1 });
     //console.log("addressData", addressData);

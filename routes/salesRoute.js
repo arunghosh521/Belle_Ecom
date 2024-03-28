@@ -4,7 +4,7 @@ const salesController = require('../controller/salesController');
 const { isLogin, isLogout } = require("../middlewares/adminAuth");
 
 
-salesRouter.get('', salesController.loadSalesReport)
+salesRouter.get('', isLogin, salesController.loadSalesReport)
 
 salesRouter.get('/filterSalesReport', salesController.loadFilteredSalesPage)
 salesRouter.get('/download-salesreport', salesController.downloadSalesReport)

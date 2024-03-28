@@ -1,12 +1,14 @@
 <%- include('../layouts/header.ejs') -%>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+  .fa-heart-o {
+    color: #000;
+  }
 
-<!-- <style>
- .heart-icon {
-    color: red; 
-}
-
-</style> -->
+  .fa-heart-red {
+    color: #f00;
+  }
+</style>
 
 <!--MainContent-->
 <div id="MainContent" class="main-content" role="main">
@@ -117,11 +119,11 @@
                 <div class="product-action clearfix">
                   <div class="product-form__item--quantity">
                     <div class="wrapQtyBtn">
-                        <% if(couponData === null) { %>
-                          <input type="hidden" name="couponId" value="" id="coupon">
-                          <% } else { %>
+                      <% if(couponData === null) { %>
+                      <input type="hidden" name="couponId" value="" id="coupon">
+                      <% } else { %>
                       <input type="hidden" name="couponId" value="<%= couponData.couponCode %>" id="coupon">
-                            <% } %>
+                      <% } %>
                       <div class="qtyField">
                         <% if(product.quantity > 0) { %>
                         <a class="qtyBtn minus" href="javascript:void(0);" onclick="updateQuantity('<%= product._id %>', -1)"><i class="fa anm anm-minus-r" aria-hidden="true"></i></a>
@@ -1147,6 +1149,8 @@
       <!--#ProductSection-product-template-->
     </div>
     <!--MainContent-->
+
+
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 
 
@@ -1157,47 +1161,84 @@
 
     <script src="/js/vendor/photoswipe.min.js"></script>
     <script src="/js/vendor/photoswipe-ui-default.min.js"></script>
+
+
     <script>
       $(function() {
-        var $pswp = $('.pswp')[0],
-          image = [],
-          getItems = function() {
-            var items = [];
-            $('.lightboximages a').each(function() {
-              var $href = $(this).attr('href'),
-                $size = $(this).data('size').split('x'),
-                item = {
-                  src: $href,
-                  w: $size[0],
-                  h: $size[1]
-                }
-              items.push(item);
-            });
-            return items;
-          }
+        var $pswp = $('.pswp')[0];
+
+        // Define the getItems function
+        var getItems = function() {
+          var items = [];
+          $('.lightboximages a').each(function() {
+            var $href = $(this).attr('href'),
+              $size = $(this).data('size').split('x'),
+              item = {
+                src: $href,
+                w: parseInt($size[0], 10),
+                h: parseInt($size[1], 10)
+              };
+            items.push(item);
+          });
+          return items;
+        };
+
+        // Get items
         var items = getItems();
 
-        $.each(items, function(index, value) {
-          image[index] = new Image();
-          image[index].src = value['src'];
-        });
+        // Function to initialize PhotoSwipe
+        var initPhotoSwipe = function(index) {
+          var gallery = new PhotoSwipe($pswp, PhotoSwipeUI_Default, items, {
+            index: index, // Start at the specified index
+            bgOpacity: 0.9,
+            showHideOpacity: true
+          });
+          gallery.init();
+        };
+
         $('.prlightbox').on('click', function(event) {
           event.preventDefault();
 
-          var $index = $(".active-thumb").parent().attr('data-slick-index');
-          $index++;
-          $index = $index - 1;
+          // Find the index of the clicked image
+          var clickedImage = $(this).closest('.zoompro-wrap').find('.zoompro');
+          var index = $('.lightboximages a').index(clickedImage.parent());
 
-          var options = {
-            index: $index,
-            bgOpacity: 0.9,
-            showHideOpacity: true
-          }
-          var lightBox = new PhotoSwipe($pswp, PhotoSwipeUI_Default, items, options);
-          lightBox.init();
+          // Initialize PhotoSwipe at the correct index
+          initPhotoSwipe(index);
         });
       });
     </script>
+
+
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="pswp__bg"></div>
+      <div class="pswp__scroll-wrap">
+        <div class="pswp__container">
+          <div class="pswp__item"></div>
+          <div class="pswp__item"></div>
+          <div class="pswp__item"></div>
+        </div>
+        <div class="pswp__ui pswp__ui--hidden">
+          <div class="pswp__top-bar">
+            <div class="pswp__counter"></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button><button class="pswp__button pswp__button--share" title="Share"></button><button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button><button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+            <div class="pswp__preloader">
+              <div class="pswp__preloader__icn">
+                <div class="pswp__preloader__cut">
+                  <div class="pswp__preloader__donut"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+            <div class="pswp__share-tooltip"></div>
+          </div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button><button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+          <div class="pswp__caption">
+            <div class="pswp__caption__center"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <script>
       toastr.options = {
@@ -1219,7 +1260,7 @@
       };
       $('#addWishlist').click(function(event) {
         event.preventDefault();
-
+        const heartIcon = $('.heart-icon');
         const productId = "<%= product._id %>"
 
         $.ajax({
@@ -1230,9 +1271,12 @@
             productId
           }),
           success: function(data) {
+            console.log(data,'sdfghjk');
             if (data.success === true) {
               toastr.success(data.message, "Added");
-                $('#wishlistDiv').html(data.wishlistHtml);
+              $('#wishlistDiv').html(data.isInWishlist);
+              var updatedHeartIcon = $('#wishlistDiv .heart-icon');
+              updatedHeartIcon.removeClass('fa-heart-o').addClass('fa-heart-red');
             } else {
               toastr.success(data.message, "Info");
             }
@@ -1258,11 +1302,10 @@
       $(document).ready(function() {
         const productId = "<%= product._id %>"
         const heartIcon = $('.heart-icon');
-        console.log(heartIcon);
         isProductInWishlist(productId).done(function(response) {
           if (response.isInWishlist) {
             heartIcon.removeClass('fa-heart-o').addClass('fa-heart-red');
-          }else {
+          } else {
             heartIcon.removeClass('fa-heart-red').addClass('fa-heart-o');
           }
         }).fail(function(jqXHR, textStatus, errorThrown) {
@@ -1270,7 +1313,7 @@
         })
       })
     </script>
-    
+
     <script>
       document.getElementById('Quantity').addEventListener('input', function() {
         const quantityInput = this;
@@ -1354,121 +1397,22 @@
             })
           });
           const data = await response.json();
-         
-          Swal.fire({
-              icon: 'error',
-              title: 'Warning',
-              text: data.message
-            });
 
-         return data;
+          Swal.fire({
+            icon: 'error',
+            title: 'Warning',
+            text: data.message
+          });
+
+          return data;
         } catch (error) {
           console.log("Error adding item to cart:", error);
           return null; // Indicate error by returning null
         }
       }
-
-//       async function updateQuantity(productId, increment) {
-
-// try {
-
-//   const quantityInput = document.getElementById(`Quantity_${productId}`);
-//   const currentQuantity = parseInt(quantityInput.value);
-//   console.log(("quantityValue", currentQuantity));
-  
-//   if (currentQuantity + increment < 1) {
-//     toastr.info("Quantity cannot be less than 1", "info!");
-//     return;
-//   }
-
-//   const response = await fetch('/cart/update', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify({
-//       productId: productId,
-//       quantity: increment
-//     })
-//   });
-
-
-
-
     </script>
 
-    <script src="/js/vendor/photoswipe.min.js"></script>
-    <script src="/js/vendor/photoswipe-ui-default.min.js"></script>
-    <script>
-      $(function() {
-        var $pswp = $('.pswp')[0],
-          image = [],
-          getItems = function() {
-            var items = [];
-            $('.lightboximages a').each(function() {
-              var $href = $(this).attr('href'),
-                $size = $(this).data('size').split('x'),
-                item = {
-                  src: $href,
-                  w: $size[0],
-                  h: $size[1]
-                }
-              items.push(item);
-            });
-            return items;
-          }
-        var items = getItems();
 
-        $.each(items, function(index, value) {
-          image[index] = new Image();
-          image[index].src = value['src'];
-        });
-        $('.prlightbox').on('click', function(event) {
-          event.preventDefault();
-
-          var $index = $(".active-thumb").parent().attr('data-slick-index');
-          $index++;
-          $index = $index - 1;
-
-          var options = {
-            index: $index,
-            bgOpacity: 0.9,
-            showHideOpacity: true
-          }
-          var lightBox = new PhotoSwipe($pswp, PhotoSwipeUI_Default, items, options);
-          lightBox.init();
-        });
-      });
-    </script>
-
-    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="pswp__bg"></div>
-      <div class="pswp__scroll-wrap">
-        <div class="pswp__container">
-          <div class="pswp__item"></div>
-          <div class="pswp__item"></div>
-          <div class="pswp__item"></div>
-        </div>
-        <div class="pswp__ui pswp__ui--hidden">
-          <div class="pswp__top-bar">
-            <div class="pswp__counter"></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button><button class="pswp__button pswp__button--share" title="Share"></button><button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button><button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-            <div class="pswp__preloader">
-              <div class="pswp__preloader__icn">
-                <div class="pswp__preloader__cut">
-                  <div class="pswp__preloader__donut"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-            <div class="pswp__share-tooltip"></div>
-          </div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button><button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-          <div class="pswp__caption">
-            <div class="pswp__caption__center"></div>
-          </div>
-        </div>
-      </div>
-    </div>
 
 
 

@@ -1,13 +1,11 @@
 const asyncHandler = require("express-async-handler");
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 const Product = require("../models/products");
 const CategoryDB = require("../models/category");
 const AdminDB = require("../models/userModel");
-const {resizeAndSaveImages} = require('../middlewares/multer');
+const { resizeAndSaveImages } = require("../middlewares/multer");
 const { log } = require("sharp/lib/libvips");
-
-
 
 const loadProducts = asyncHandler(async (req, res) => {
   try {
@@ -30,7 +28,9 @@ const loadAddProducts = asyncHandler(async (req, res) => {
 
 const loadProductsView = asyncHandler(async (req, res) => {
   try {
-    const products = await Product.find().sort({createdAt: -1}).populate("category");
+    const products = await Product.find()
+      .sort({ createdAt: -1 })
+      .populate("category");
     //console.log('products',products);
     res.render("admin/productView", { products });
   } catch (error) {
@@ -38,25 +38,29 @@ const loadProductsView = asyncHandler(async (req, res) => {
   }
 });
 
-const paginationForProductView = asyncHandler(async(req,res) => {
+const paginationForProductView = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
- const limit = parseInt(req.query.limit) || 6; 
- const skip = (page - 1) * limit;
+  const limit = parseInt(req.query.limit) || 6;
+  const skip = (page - 1) * limit;
 
- try {
-    const products = await Product.find().sort({createdAt: -1}).skip(skip).limit(limit).populate("category");
+  try {
+    const products = await Product.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("category");
     const totalProducts = await Product.countDocuments();
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.json({
       products,
       totalPages,
-      currentPage: page
+      currentPage: page,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching products' });
+    res.status(500).json({ message: "Error fetching products" });
   }
-})
+});
 
 const validateProduct = asyncHandler(async (req, res) => {
   try {
@@ -71,7 +75,8 @@ const validateProduct = asyncHandler(async (req, res) => {
       response.pNameStatus =
         "Productname cannot be Empty it must contain 3 or more letters";
     } else if (productName && /[0-9]/.test(productName)) {
-      response.pNameStatus = "Productname cannot be contain numbers and symbolys";
+      response.pNameStatus =
+        "Productname cannot be contain numbers and symbolys";
     } else {
       response.pNameStatus = "";
     }
@@ -80,7 +85,8 @@ const validateProduct = asyncHandler(async (req, res) => {
       if (parseFloat(productPrice) < 0) {
         response.pPriceStatus = "Product Price cannot be a negative value";
       } else if (/[a-zA-Z]/.test(productPrice)) {
-        response.pPriceStatus = "Product Price cannot contain alphabets or any other symbols";
+        response.pPriceStatus =
+          "Product Price cannot contain alphabets or any other symbols";
       } else {
         response.pPriceStatus = "";
       }
@@ -90,13 +96,12 @@ const validateProduct = asyncHandler(async (req, res) => {
 
     if (productQuantity === undefined || productQuantity.trim() === "") {
       response.pQuantityStatus = "Product Quantity cannot be empty or Zero";
-  } else {
+    } else {
       const parsedQuantity = parseFloat(productQuantity);
       if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
-          response.pQuantityStatus = "Product Quantity must be a positive number";
+        response.pQuantityStatus = "Product Quantity must be a positive number";
       }
-  }
-  
+    }
 
     if (productDescription) {
       const words = productDescription.trim().split(/\s+/);
@@ -116,57 +121,56 @@ const validateProduct = asyncHandler(async (req, res) => {
 });
 
 const addProductsCntrl = asyncHandler(async (req, res) => {
-    try {
-      const {
-        productName,
-        description,
-        quantity,
-        productPrice,
-        category,
-        size,
-        color,
-      } = req.body;
-      console.log('prdtData:', req.body);
+  try {
+    const {
+      productName,
+      description,
+      quantity,
+      productPrice,
+      category,
+      size,
+      color,
+    } = req.body;
+    console.log("prdtData:", req.body);
 
-      console.log("imagesfromsystem", req.files);
-      const filenames = await resizeAndSaveImages(req.files);
+    console.log("imagesfromsystem", req.files);
+    const filenames = await resizeAndSaveImages(req.files);
 
-      const findCategory = await CategoryDB.findOne({ category: category });
-      console.log('findCategory:', findCategory);
-      const products = new Product({
-        name: productName,
-        category: findCategory._id,
-        price: productPrice,
-        description: description,
-        quantity: quantity,
-        size: size,
-        color: color,
-        is_listed: true,
-        images: filenames.map((filename) => `${filename}`),
-        sold: 0,
-      });
+    const findCategory = await CategoryDB.findOne({ category: category });
+    console.log("findCategory:", findCategory);
+    const products = new Product({
+      name: productName,
+      category: findCategory._id,
+      price: productPrice,
+      description: description,
+      quantity: quantity,
+      size: size,
+      color: color,
+      is_listed: true,
+      images: filenames.map((filename) => `${filename}`),
+      sold: 0,
+    });
 
-      await products.save();
+    await products.save();
 
-      res.redirect('/admin/product/listProduct');
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
-
+    res.redirect("/admin/product/listProduct");
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 const loadEditProducts = asyncHandler(async (req, res) => {
   try {
     const _id = req.params.id;
     //console.log("ID:", _id);
-    const products = await Product.findById(_id).populate('category');
-   // console.log("product Data", products);
+    const products = await Product.findById(_id).populate("category");
+    // console.log("product Data", products);
 
     const category = await CategoryDB.find({ is_listed: true });
-   
+
     const categoryData = Array.isArray(category) ? category : [];
-   //console.log("Category Data", categoryData);
+    //console.log("Category Data", categoryData);
     res.render("admin/editProduct", { categoryData, products, productId: _id });
   } catch (error) {
     console.log("editProductError", error);
@@ -196,63 +200,74 @@ const updateEditProducts = asyncHandler(async (req, res) => {
       quantity,
       productPrice,
       productID,
-      categoryID, 
+      categoryID,
       size,
       color,
     } = req.body;
-    const filenames = await resizeAndSaveImages(req.files)
+    const filenames = await resizeAndSaveImages(req.files);
     const findCategory = await CategoryDB.findById(categoryID);
 
-    const updateProduct = await Product.findByIdAndUpdate(productID, {
-      name: productName,
-      category: findCategory._id,
-      price: productPrice,
-      description: description,
-      quantity: quantity,
-      size: size,
-      color: color,
-      is_listed: true,
-      images: filenames.map((filename) => `${filename}`),
-    },{new: true});
-
-    console.log("ProductUpdated", updateProduct);
-    req.flash("productMsg", "Product updated successfully");
-    res.redirect("/admin/product/listProduct");
+    const updateProduct = await Product.findByIdAndUpdate(
+      productID,
+      {
+        $set: {
+          name: productName,
+          category: findCategory._id,
+          price: productPrice,
+          description: description,
+          quantity: quantity,
+          size: size,
+          color: color,
+          is_listed: true,
+        },
+        $push: {
+          images: { $each: filenames.map((filename) => `${filename}`) },
+        },
+      },
+      { new: true }
+    );
+    if (updateProduct.images.length > 5) {
+      req.flash("productMsg", "Note: The product has more than 5 images.");
+      return res.redirect(`/admin/product/editProduct/${productID}`);
+    } else {
+      req.flash("productMsg", "Product updated successfully");
+      return res.redirect("/admin/product/listProduct");
+    }
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
   }
 });
 
-
-const deleteImageControl = asyncHandler(async(req,res) => {
+const deleteImageControl = asyncHandler(async (req, res) => {
   try {
     console.log("deleteImage");
-    const {imageUrl} = req.body;
+    const { imageUrl } = req.body;
     console.log("bodyData:", imageUrl);
-    const productId = req.query.id; 
+    const productId = req.query.id;
     console.log("bodyData:", req.query);
 
     const imageName = path.basename(imageUrl);
     console.log("imageName:", imageName);
 
-    const product = await Product.findByIdAndUpdate(productId, {$pull:{images: imageName}});
+    const product = await Product.findByIdAndUpdate(productId, {
+      $pull: { images: imageName },
+    });
 
-    const imagePath = `../Belle_Ecom/public${imageUrl}`
+    const imagePath = `../Belle_Ecom/public${imageUrl}`;
     console.log("imagePath", imagePath);
     fs.unlink(imagePath, (err) => {
-      if(err) {
+      if (err) {
         console.log("Error deleting image:", err);
-        res.status(500).json({error: 'Failed to delete image'});
-      }else{
-        res.status(200).json({message: 'Image deleted successfully'});
+        res.status(500).json({ error: "Failed to delete image" });
+      } else {
+        res.status(200).json({ message: "Image deleted successfully" });
       }
     });
   } catch (error) {
     console.log("deletingImageError", error);
   }
-})
-
+});
 
 module.exports = {
   loadProducts,

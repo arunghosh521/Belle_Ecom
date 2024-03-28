@@ -70,7 +70,8 @@ const addToWishList = asyncHandler(async (req, res) => {
       if (!productExist) {
         wishList.products.push({ product: productId });
         await wishList.save();
-        res.status(200).json({ message: "Product added to wishlist" });
+
+        res.status(200).json({ isInWishlist: true, message: "Product added to wishlist" });
       } else {
         res.status(200).json({
           success: false,

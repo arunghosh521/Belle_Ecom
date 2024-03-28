@@ -257,19 +257,6 @@
 
     }
   }
-
-  //displaying the message from the checkout
-  document.addEventListener('DOMContentLoaded', function() {
- const urlParams = new URLSearchParams(window.location.search);
- const paymentFailed = urlParams.get('paymentFailed');
-
- if (paymentFailed === 'true') {
-    toastr.error('Payment Failed. Please try again.', 'Info!');
- }
-});
-
-
-
 </script>
 
 <script>

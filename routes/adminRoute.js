@@ -8,6 +8,7 @@ adminRouter
   .get(isLogout, adminController.loadAdminlogin)
   .post(adminController.AdminLoginCntrl);
 adminRouter.get("/dashboard", isLogin, adminController.loadDashboard);
+adminRouter.get("/dashboard/report", isLogin, adminController.generatePeriodWiseReport);
 adminRouter.get("/logout", adminController.logout);
 adminRouter.get("/listUser", isLogin, adminController.loadUsers);
 adminRouter.post("/listUser/toggleBlock", adminController.toggleBlockUser);

@@ -1,5 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const crypto = require("crypto");
+const ejs = require("ejs");
+const path = require("path");
+const puppeteer = require("puppeteer");
 const UserDB = require("../models/userModel");
 const CartDB = require("../models/cart");
 const WalletDb = require("../models/Wallet");
@@ -36,17 +39,15 @@ const loadOrderConfirm = asyncHandler(async (req, res) => {
 const placeOrder = asyncHandler(async (req, res) => {
   try {
     const { addressId, selectedPayment, subtotal } = req.body;
-    console.log("bodyData", req.body);
     const totalAmount = parseInt(subtotal);
     const cartTotal = totalAmount / 100;
-    console.log("amount", cartTotal);
-    console.log("bodyDatawdefwef", typeof totalAmount, totalAmount);
     const findCart = await CartDB.findOne({ orderBy: req.session.userId });
-    console.log("FindCArt", findCart);
     const cartItems = findCart.products;
-    console.log("sfdsdfvdsv", cartItems);
+    const cartTotalFromDB = findCart.cartTotal;
     const wallet = await WalletDb.findOne({ user: req.session.userId });
-
+    const orderDb = await orderDB.findOne({ orderBy: req.session.userId });
+    const user = await UserDB.findOne({ _id: req.session.userId });
+    const refferedtoken = user.refferedToken;
     const date = new Date();
 
     const orderDate = date.toLocaleDateString("en-GB");
@@ -60,46 +61,152 @@ const placeOrder = asyncHandler(async (req, res) => {
       .replace(/\//g, "-");
 
     if (selectedPayment === "COD") {
-      const productsInDb = await ProductDB.find({
-        _id: { $in: cartItems.map((item) => item.product) },
-      });
-      // console.log("productsInDatabase", productsInDb);
-
-      for (const item of cartItems) {
-        const product = productsInDb.find(
-          (p) => p._id.toString() === item.product.toString()
-        );
-        console.log("productsdvbisudgfvbedjhgvsuyb", product);
-        if (product) {
-          product.quantity -= item.quantity;
-          product.sold += item.quantity;
-          product.lastSold = new Date();
-          await product.save();
-          await ProductDB.updateOne(
-            { _id: product._id },
-            { $set: { quantity: product.quantity, sold: product.sold } }
+      if (cartTotalFromDB > 1000) {
+        res.json({
+          CodSuccess: false,
+          message:
+            "Orders exceeding 1000 are not eligible for cash on delivery.",
+        });
+      } else {
+        if (!orderDb) {
+          const productsInDb = await ProductDB.find({
+            _id: { $in: cartItems.map((item) => item.product) },
+          });
+          for (const item of cartItems) {
+            const product = productsInDb.find(
+              (p) => p._id.toString() === item.product.toString()
+            );
+            if (product) {
+              product.quantity -= item.quantity;
+              product.sold += item.quantity;
+              product.lastSold = new Date();
+              await product.save();
+              await ProductDB.updateOne(
+                { _id: product._id },
+                { $set: { quantity: product.quantity, sold: product.sold } }
+              );
+            }
+          }
+          const newOrder = new orderDB({
+            products: cartItems,
+            payment: selectedPayment,
+            orderId: orderIdGenerator.generate(),
+            address: addressId,
+            orderBy: req.session.userId,
+            expectedDelivery: deliveryDate,
+            orderedDate: orderDate,
+            orderTotal: findCart.cartTotal,
+            paymentStatus: "pending",
+          });
+          await newOrder.save();
+          await CartDB.updateOne(
+            { orderBy: req.session.userId },
+            { products: [], cartTotal: 0 }
           );
+
+          //?refferal offer for the reffered person
+          const tokenGeneratedUser = await UserDB.findOne({
+            refferalOfferToken: refferedtoken,
+          });
+          const userId = tokenGeneratedUser._id;
+          const transactionId = orderIdGenerator.generate();
+          let wallet = await WalletDb.findOne({ user: userId });
+          if (!wallet) {
+            const newWallet = new WalletDb({
+              user: userId,
+              walletHistory: [
+                {
+                  transactionId: 0,
+                  date: Date.now(),
+                  amount: 0,
+                  description: "Initial balance",
+                  transactionType: "deposit",
+                },
+              ],
+            });
+            await newWallet.save();
+            wallet = newWallet;
+          }
+          const addTransaction = {
+            transactionId: transactionId,
+            date: new Date(),
+            amount: 199,
+            description: "Payment from Refferal Offer",
+            transactionType: "deposit",
+          };
+          await wallet.addTransaction(addTransaction);
+          user.refferedToken = "";
+          user.save();
+
+          //?refferal offer for the user
+          const UserId = req.session.userId;
+          const newTransactionId = orderIdGenerator.generate();
+          let newUserWallet = await WalletDb.findOne({ user: UserId });
+          if (!newUserWallet) {
+            let newWallet = new WalletDb({
+              user: UserId,
+              walletHistory: [
+                {
+                  transactionId: 0,
+                  date: Date.now(),
+                  amount: 0,
+                  description: "Initial balance",
+                  transactionType: "deposit",
+                },
+              ],
+            });
+            await newWallet.save();
+            newUserWallet = newWallet;
+          }
+          const transaction = {
+            transactionId: newTransactionId,
+            date: new Date(),
+            amount: 99,
+            description: "Payment from Refferal Offer",
+            transactionType: "deposit",
+          };
+          await newUserWallet.addTransaction(transaction);
+
+          res.json({ CodSuccess: true, orderId: newOrder.orderId });
+        } else {
+          const productsInDb = await ProductDB.find({
+            _id: { $in: cartItems.map((item) => item.product) },
+          });
+
+          for (const item of cartItems) {
+            const product = productsInDb.find(
+              (p) => p._id.toString() === item.product.toString()
+            );
+            if (product) {
+              product.quantity -= item.quantity;
+              product.sold += item.quantity;
+              product.lastSold = new Date();
+              await product.save();
+              await ProductDB.updateOne(
+                { _id: product._id },
+                { $set: { quantity: product.quantity, sold: product.sold } }
+              );
+            }
+          }
+          const newOrder = new orderDB({
+            products: cartItems,
+            payment: selectedPayment,
+            orderId: orderIdGenerator.generate(),
+            address: addressId,
+            orderBy: req.session.userId,
+            expectedDelivery: deliveryDate,
+            orderedDate: orderDate,
+            orderTotal: findCart.cartTotal,
+            paymentStatus: "pending",
+          });
+          await newOrder.save();
+          await CartDB.updateOne(
+            { orderBy: req.session.userId },
+            { products: [], cartTotal: 0 }
+          );
+          res.json({ CodSuccess: true, orderId: newOrder.orderId });
         }
       }
-      const newOrder = new orderDB({
-        products: cartItems,
-        payment: selectedPayment,
-        orderId: orderIdGenerator.generate(),
-        address: addressId,
-        orderBy: req.session.userId,
-        expectedDelivery: deliveryDate,
-        orderedDate: orderDate,
-        orderTotal: findCart.cartTotal,
-        paymentStatus: "pending",
-      });
-      await newOrder.save();
-      //console.log("orderSaved", newOrder);
-      await CartDB.updateOne(
-        { orderBy: req.session.userId },
-        { products: [], cartTotal: 0 }
-      );
-      console.log("orderIdOfNewOrder", newOrder.orderId);
-      res.json({ CodSuccess: true, orderId: newOrder.orderId });
     } else if (selectedPayment === "banking") {
       const newOrderId = orderIdGenerator.generate();
       const order = await razorpayInstance.orders.create({
@@ -111,13 +218,11 @@ const placeOrder = asyncHandler(async (req, res) => {
       const productsInDb = await ProductDB.find({
         _id: { $in: cartItems.map((item) => item.product) },
       });
-      // console.log("productsInDatabase", productsInDb);
 
       for (const item of cartItems) {
         const product = productsInDb.find(
           (p) => p._id.toString() === item.product.toString()
         );
-        console.log("productsdvbisudgfvbedjhgvsuyb", product);
         if (product) {
           product.quantity -= item.quantity;
           product.sold += item.quantity;
@@ -142,12 +247,10 @@ const placeOrder = asyncHandler(async (req, res) => {
         paymentStatus: "Failed",
       });
       await newOrder.save();
-      console.log("newOrder", newOrder);
       await CartDB.updateOne(
         { orderBy: req.session.userId },
         { products: [], cartTotal: 0 }
       );
-      console.log("order: ", order);
       res.json({ successBanking: true, order, orderId: newOrder.orderId });
     } else if (selectedPayment === "wallet") {
       const transactionId = orderIdGenerator.generate();
@@ -165,13 +268,11 @@ const placeOrder = asyncHandler(async (req, res) => {
         const productsInDb = await ProductDB.find({
           _id: { $in: cartItems.map((item) => item.product) },
         });
-        // console.log("productsInDatabase", productsInDb);
 
         for (const item of cartItems) {
           const product = productsInDb.find(
             (p) => p._id.toString() === item.product.toString()
           );
-          console.log("productsdvbisudgfvbedjhgvsuyb", product);
           if (product) {
             product.quantity -= item.quantity;
             product.sold += item.quantity;
@@ -192,10 +293,9 @@ const placeOrder = asyncHandler(async (req, res) => {
           expectedDelivery: deliveryDate,
           orderedDate: orderDate,
           orderTotal: findCart.cartTotal,
-          paymentStatus: "pending",
+          paymentStatus: "completed",
         });
         await newOrder.save();
-        //console.log("orderSaved", newOrder);
         await CartDB.updateOne(
           { orderBy: req.session.userId },
           { products: [], cartTotal: 0 }
@@ -204,11 +304,11 @@ const placeOrder = asyncHandler(async (req, res) => {
 
         res.json({ successWallet: true, orderId: newOrder.orderId });
       } else {
-
         console.log("Wallet has enoughf money:");
-        res
-          .status(200)
-          .json({ successWallet: false, message: "Wallet does not have enough money." });
+        res.status(200).json({
+          successWallet: false,
+          message: "Wallet does not have enough money.",
+        });
       }
     } else {
       console.error("Razorpay order creation error:", error);
@@ -234,7 +334,6 @@ const razorpayPaymentVerify = asyncHandler(async (req, res) => {
       .createHmac("sha256", secret)
       .update(orderId + "|" + paymentId)
       .digest("hex");
-    //console.log("generatedSignature", generatedSignature);
 
     if (generatedSignature === signature) {
       await orderDB.updateOne(
@@ -254,19 +353,17 @@ const razorpayPaymentVerify = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log("PaymentVerifying Error", error);
     res
-        .status(500)
-        .json({ success: false, message: "Payment verification failed" });
+      .status(500)
+      .json({ success: false, message: "Payment verification failed" });
   }
 });
 
 const loadMyOrders = asyncHandler(async (req, res) => {
   try {
     const { orderId } = req.body;
-    //console.log("orderIdFromBody", orderId);
     const orderData = await orderDB
       .findOne({ orderId: orderId })
       .populate("products.product");
-    //console.log("loadOrderData", orderData);
     res.json({ orderData });
   } catch (error) {
     console.log("loadError", error);
@@ -276,12 +373,12 @@ const loadMyOrders = asyncHandler(async (req, res) => {
 const orderListPagination = asyncHandler(async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const itemsPerPage = parseInt(req.query.itemsPerPage) || 8;
+    const itemsPerPage = parseInt(req.query.itemsPerPage) || 5;
 
     const skip = (page - 1) * itemsPerPage;
 
     const orders = await orderDB
-      .find()
+      .find({ orderBy: req.session.userId })
       .skip(skip)
       .limit(itemsPerPage)
       .sort({ createdAt: -1 });
@@ -296,24 +393,14 @@ const orderListPagination = asyncHandler(async (req, res) => {
   }
 });
 
-// const getOrderIds = asyncHandler(async(req,res) => {
-//   try {
-//     const orders = await orderDB.find()
-//     res.json({success: true, orders})
-//   } catch (error) {
-//     console.error("error", error);
-//   }
-// })
 
 const returnMyOrder = asyncHandler(async (req, res) => {
   try {
     const { orderId } = req.body;
-    //console.log("orderIdFromReturn", orderId);
     const userId = req.session.userId;
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: userId });
-    //console.log("walletFromReturn", wallet);
     const updatePromises = order.products.map(async (product) => {
       return ProductDB.findByIdAndUpdate(
         product._id,
@@ -353,7 +440,6 @@ const returnMyOrder = asyncHandler(async (req, res) => {
 
       await newWallet.save();
       wallet = newWallet;
-      console.log("asdfghjkl", newWallet);
     }
     const transaction = {
       transactionId: transactionId,
@@ -374,7 +460,6 @@ const returnMyOrder = asyncHandler(async (req, res) => {
 const cancelMyOrder = asyncHandler(async (req, res) => {
   try {
     const { orderId } = req.body;
-    //console.log("bodyDataCancel", orderId);
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: req.session.userId });
@@ -393,7 +478,6 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
     });
 
     const updatedProducts = await Promise.all(updatePromises);
-    console.log("updatedProducts", updatedProducts);
     const updatedCancelOrder = await orderDB.findOneAndUpdate(
       { _id: orderId },
       { $set: { orderStatus: "Cancelled", statusChangedBy: "user" } },
@@ -427,7 +511,6 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
     };
     await wallet.addTransaction(transaction);
 
-    //console.log("orderDataFromCancel", updatedOrder);
     res.json({ success: true, orderData: updatedCancelOrder });
   } catch (error) {
     console.log("cancelOrderError", error);
@@ -435,28 +518,22 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
   }
 });
 
-const retryPaymentOrder =asyncHandler(async(req,res) => {
+const retryPaymentOrder = asyncHandler(async (req, res) => {
   try {
-    const {orderId} = req.body;
-    console.log("qwertyuiop", orderId);
-    const failedOrder = await orderDB.findOne({_id: orderId});
-    console.log("1234", failedOrder);
+    const { orderId } = req.body;
+    const failedOrder = await orderDB.findOne({ _id: orderId });
     const order = await razorpayInstance.orders.create({
       amount: failedOrder.orderTotal * 100,
       currency: "INR",
       receipt: failedOrder.orderId,
     });
-    console.log("1234567890", order);
     res.json({ success: true, order, orderId: failedOrder.orderId });
-  } catch (error) {
-    
-  }
+  } catch (error) {}
 });
 
-const retryPaymentVerify = asyncHandler(async(req,res) => {
+const retryPaymentVerify = asyncHandler(async (req, res) => {
   try {
     const { orderId, paymentId, signature, newOrderId } = req.body;
-    console.log("bofopiuytr",  orderId, paymentId, signature, newOrderId);
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
 
@@ -464,7 +541,6 @@ const retryPaymentVerify = asyncHandler(async(req,res) => {
       .createHmac("sha256", secret)
       .update(orderId + "|" + paymentId)
       .digest("hex");
-    //console.log("generatedSignature", generatedSignature);
 
     if (generatedSignature === signature) {
       await orderDB.updateOne(
@@ -482,11 +558,63 @@ const retryPaymentVerify = asyncHandler(async(req,res) => {
         .json({ success: false, message: "Payment verification failed" });
     }
   } catch (error) {
-    res
-        .status(500)
-        .json({ success: false, message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
-})
+});
+
+const downloadInvoice = asyncHandler(async (req, res) => {
+  try {
+    const orderId = req.query.id;
+    const orderData = await orderDB
+      .find({ _id: orderId })
+      .populate("products.product")
+      .populate({ path: "address", model: "Address" })
+      .populate("orderBy");
+    const pdfBuffer = await generateSalesReportPdf(orderData);
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Length": pdfBuffer.length,
+    });
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.log("invoiceDownloadError", error);
+  }
+});
+
+const generateSalesReportPdf = async (orderData) => {
+  const templatePath = path.join(
+    __dirname,
+    "..",
+    "views",
+    "user",
+    "invoice.ejs"
+  );
+
+  const renderTemplate = async () => {
+    try {
+      return await ejs.renderFile(templatePath, { orderData });
+    } catch (err) {
+      console.error("Error rendering EJS template:", err);
+      throw new Error("Error rendering sales report");
+    }
+  };
+
+  const htmlContent = await renderTemplate();
+
+  if (!htmlContent) {
+    throw new Error("Failed to render sales report template");
+  }
+
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 800 });
+  await page.setContent(htmlContent, { baseURL: "http://localhost:3000" });
+  const pdfBuffer = await page.pdf({ format: "letter" });
+  await browser.close();
+
+  return pdfBuffer;
+};
 
 module.exports = {
   loadOrderConfirm,
@@ -497,5 +625,6 @@ module.exports = {
   razorpayPaymentVerify,
   orderListPagination,
   retryPaymentOrder,
-  retryPaymentVerify
+  retryPaymentVerify,
+  downloadInvoice,
 };

@@ -14,6 +14,7 @@ userOrderRoute.post('/orderCancel', orderController.cancelMyOrder);
 userOrderRoute.post('/orderReturn', orderController.returnMyOrder);
 userOrderRoute.post('/retryPayment', orderController.retryPaymentOrder);
 userOrderRoute.post('/paymentRetryVerify', orderController.retryPaymentVerify);
+userOrderRoute.post('/downloadInvoice', orderController.downloadInvoice);
 
 
 

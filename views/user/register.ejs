@@ -79,7 +79,6 @@
                   <input type="password" value="" name="password" required placeholder="" id="CustomerPassword" class="">
                   <input type="checkbox" id="showPassword"> Show Password
                   <p id="alertPassword" style="color: red;"></p>
-                  <p><%= messages.existmessage? messages.existmessage:"" %></p>
                 </div>
               </div>
             </div>
@@ -127,15 +126,15 @@
 
 
 <script>
-    document.getElementById('showPassword').addEventListener('change', function() {
-      var passwordInput = document.getElementById('CustomerPassword');
-      if (this.checked) {
-        passwordInput.type = 'text';
-      } else {
-        passwordInput.type = 'password';
-      }
-    });
-  </script>
+  document.getElementById('showPassword').addEventListener('change', function() {
+    var passwordInput = document.getElementById('CustomerPassword');
+    if (this.checked) {
+      passwordInput.type = 'text';
+    } else {
+      passwordInput.type = 'password';
+    }
+  });
+</script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -156,15 +155,12 @@
     SubmitButton.disabled = true;
 
     registerForm.addEventListener('submit', function(event) {
-      console.log("register form clicked");
       if (!fNameInput.value || !emailInput.value || inputPassword.value) {
         return false
         validationAlert.innerText = 'All fields are required.';
-        console.log('validation Failed. form submission prevented');
       } else {
 
         validationAlert.innerText = '';
-        console.log("before disabled inside event");
         SubmitButton.disabled = false;
 
 
@@ -187,9 +183,8 @@
           if (data.fnameStatus) {
             nameAlert.innerText = data.fnameStatus;
           } else {
-            nameAlert.innerText = ''; // Clear the message if there is no error
+            nameAlert.innerText = ''; 
           }
-          console.log(data);
         })
         .catch(error => {
           console.error('Error:', error);
@@ -237,10 +232,9 @@
           if (data.passwordStatus) {
             alertPassword.innerText = data.passwordStatus;
           } else {
-            alertPassword.innerText = ''; 
+            alertPassword.innerText = '';
           }
-          console.log(data);
-          enableSubmitBtn(); 
+          enableSubmitBtn();
         })
         .catch(error => {
           console.error('Error:', error);
@@ -264,9 +258,8 @@
           if (data.otpStatus) {
             alertOtp.innerText = data.otpStatus;
           } else {
-            alertOtp.innerText = '';  
+            alertOtp.innerText = '';
           }
-          console.log(data);
           enableOtpSubmitBtn();
         })
         .catch(error => {
@@ -274,8 +267,6 @@
         });
 
     })
-
-
 
     function enableSubmitBtn() {
       if (nameAlert.innerText === "" && emailAlert.innerText === "" && alertPassword.innerText === "") {
@@ -286,9 +277,9 @@
     }
 
     function enableOtpSubmitBtn() {
-      if(alertOtp.innerText === ""){
+      if (alertOtp.innerText === "") {
         submitOtpBtn.disabled = false;
-      }else{
+      } else {
         submitOtpBtn.disabled = true;
       }
     }
@@ -299,22 +290,22 @@
 
 <script>
   toastr.options = {
-  "closeButton": false,
-  "debug": false,
-  "newestOnTop": true,
-  "progressBar": false,
-  "positionClass": "toast-top-right",
-  "preventDuplicates": false,
-  "onclick": null,
-  "showDuration": "300",
-  "hideDuration": "1000",
-  "timeOut": "5000",
-  "extendedTimeOut": "1000",
-  "showEasing": "swing",
-  "hideEasing": "linear",
-  "showMethod": "fadeIn",
-  "hideMethod": "fadeOut"
-};
+    "closeButton": false,
+    "debug": false,
+    "newestOnTop": true,
+    "progressBar": false,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+  };
   document.addEventListener('DOMContentLoaded', function() {
     let submitButton = document.getElementById('submitButton');
     let otpSection = document.getElementById('otpSection');
@@ -347,15 +338,13 @@
           },
           body: JSON.stringify({
             email: document.getElementById('CustomerEmail').value,
-            fname: FirstName.value,
-            lname: LastName.value,
-            password: CustomerPassword.value,
           }),
         })
         .then(response => response.json())
         .then(data => {
           loader.style.display = 'none';
           if (data.success) {
+            console.log(data, 'asdfghjkl');
             // OTP sent successfully, show OTP section
             otpSection.removeAttribute('hidden');
             // Optionally, hide unnecessary form fields
@@ -366,7 +355,7 @@
             submitButton.disabled = true;
             submitOtpBtn.disabled = false;
             resendButton.disabled = true;
-            
+
             toastr.success(data.message);
 
             startTimer();

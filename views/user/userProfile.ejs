@@ -2,7 +2,7 @@
 
 <link rel="stylesheet" href="/style.css">
 
-<!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 
 
 <style>
@@ -443,6 +443,7 @@
                                 <button class="btn btn-primary me-3" id="returnBtn">Return</button>
                                 <button class="btn btn-primary me-3" id="cancelBtn">Cancel Order</button>
                                 <button class="btn btn-primary me-3" id="retryBtn">Retry Payment</button>
+                                <button class="btn btn-primary me-3" id="invoiceBtn">Invoice</button>
 
                               </div>
                             </div>
@@ -838,14 +839,14 @@
           console.log(response);
           if (response.success === true) {
             Swal.fire({
-                title: 'Success!',
-                text: 'Your address has been added successfully.',
-                icon: 'success',
-                confirmButtonText: 'OK'
+              title: 'Success!',
+              text: 'Your address has been added successfully.',
+              icon: 'success',
+              confirmButtonText: 'OK'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.reload();
-                }
+              if (result.isConfirmed) {
+                window.location.reload();
+              }
             });
           } else {
             if (response.successFailed === false) {
@@ -993,15 +994,15 @@
       success: function(response) {
         if (response.success === true) {
           Swal.fire({
-                title: 'Success!',
-                text: 'Your address has been updated successfully.',
-                icon: 'success',
-                confirmButtonText: 'OK'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.reload();
-                }
-            });
+            title: 'Success!',
+            text: 'Your address has been updated successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.reload();
+            }
+          });
         } else {
 
           if (response.successFailed === false) {
@@ -1158,17 +1159,18 @@
             retryButton.setAttribute('data-retry-id', response.orderData._id);
             retryButton.setAttribute('data-retry-status', response.orderData.paymentStatus)
             const paymentStatus = retryButton.getAttribute('data-retry-status');
-
-            console.log("retry", retryButton);
-
+            const invoiceButton = document.getElementById('invoiceBtn');
+            invoiceButton.setAttribute('data-invoice-id', response.orderData._id);
 
 
 
             if (orderStatus && orderStatus === 'Delivered') {
               returnButton.hidden = false;
+              invoiceButton.hidden = false;
               cancelButton.hidden = true;
             } else {
               returnButton.hidden = true;
+              invoiceButton.hidden = true;
             }
 
             if (orderStatus && orderStatus === 'Cancelled' || orderStatus === 'Returned') {
@@ -1214,6 +1216,44 @@
         });
       });
     });
+
+    // Attach click event listener to the #invoiceBtn element
+    $(document).on('click', '#invoiceBtn', function() {
+      const invoiceButton = $(this);
+      console.log(invoiceButton, 'btninvoice');
+      const orderId = invoiceButton.data('invoice-id');
+      console.log(orderId, '12345689');
+      const url = '/orderPlaced/downloadInvoice?id=' + orderId;
+
+      $.ajax({
+        url: url,
+        method: 'POST',
+        xhrFields: {
+          responseType: 'blob' 
+        },
+        success: function(data) {
+         
+          const blob = new Blob([data], {
+            type: 'application/pdf'
+          }); 
+          const blobUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = blobUrl;
+          a.download = 'report.pdf';
+          document.body.appendChild(a);
+          a.click();
+          
+          window.URL.revokeObjectURL(blobUrl);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.error('Error downloading orders:', errorThrown);
+        }
+      });
+    });
+
+
+
 
     //return order
     $(document).on('click', '#returnBtn', function() {
@@ -1400,14 +1440,14 @@
 <!-- pagination for order list -->
 <script>
   let currentPageNo = 1;
-  let itemsPerPage = 8;
+  let itemsPerPage = 5;
   let currentPageOrders = [];
 
   function fetchOrders(page) {
     fetch(`/orderPlaced/pagination?page=${page}&itemsPerPage=${itemsPerPage}`)
       .then(response => response.json())
       .then(data => {
-        currentPageOrders = data.orders; // Store the current page's orders
+        currentPageOrders = data.orders;
         updateTable(data.orders);
         updatePagination(data.totalPages, data.currentPage);
       })
@@ -1468,22 +1508,6 @@
   });
   fetchOrders(currentPageNo);
 
-  // function getAllOrders() {
-  //   return fetch('/orderPlaced/getOrderIds')
-  //   .then(response => {
-  //     if(!response.ok) {
-  //       throw new Error('Network response was not ok');
-  //     }
-  //     return response.json();
-  //   })
-  //   .then(data => {
-  //     return data.orders;
-  //   })
-  //   .catch(error => {
-  //     console.log('There was a problem with fetching operations', error);
-  //     throw error;
-  //   })
-  // }
 
   function searchOrders() {
     const searchInput = document.getElementById('searchOrderId');
@@ -1617,7 +1641,6 @@
       event.preventDefault();
       axios.get('/userProfile/refferal-offer')
         .then(function(response) {
-          console.log(response);
           if (response.success) {
             const link = response.data.link;
             navigator.clipboard.writeText(link)
@@ -1643,7 +1666,7 @@
 <!-- pagination for wallet -->
 <script>
   let currentPageNoOfWallet = 1;
-  let itemsPerPageOfWallet = 8;
+  let itemsPerPageOfWallet = 4;
 
   function fetchTransactions(page) {
     fetch(`/userProfile/wallet/pagination?page=${page}&itemsPerPage=${itemsPerPageOfWallet}`)
@@ -1707,6 +1730,19 @@
   });
 
   fetchTransactions(currentPageNoOfWallet);
+</script>
+
+<!-- displaying the message from the checkout -->
+<script>
+   
+   document.addEventListener('DOMContentLoaded', function() {
+ const urlParams = new URLSearchParams(window.location.search);
+ const paymentFailed = urlParams.get('paymentFailed');
+
+ if (paymentFailed === 'true') {
+    toastr.error('Payment Failed. Please try again.', 'Info!');
+ }
+});
 </script>
 
 
