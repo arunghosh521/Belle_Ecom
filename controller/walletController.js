@@ -6,15 +6,18 @@ const orderId = require("order-id")("key");
 const Razorpay = require("razorpay");
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
 
+//* Generating refferal token
 const generateRefferalToken = () => {
   return crypto.randomBytes(20).toString("hex");
 };
 
+//* Instance of Razorpay
 const razorpayInstance = new Razorpay({
   key_id: RAZORPAY_KEY_ID,
   key_secret: RAZORPAY_KEY_SECRET,
 });
 
+//* Adding cash to wallet
 const addMoneyToWallet = asyncHandler(async (req, res) => {
   try {
     const { amount } = req.body;
@@ -31,6 +34,7 @@ const addMoneyToWallet = asyncHandler(async (req, res) => {
   }
 });
 
+//* Verifying payment of adding cash to wallet
 const razorPaymentVerify = asyncHandler(async (req, res) => {
   try {
     const { orderId, paymentId, signature, transactionId, Amount } = req.body;
@@ -84,14 +88,19 @@ const razorPaymentVerify = asyncHandler(async (req, res) => {
   }
 });
 
+//* Generating refferal link
 const refferalLinkGenerating = asyncHandler(async (req, res) => {
   try {
     const userId = req.session.userId;
     const UserData = await UserDB.findOne({ _id: userId });
     if (UserData.refferalOfferToken) {
       const existingToken = UserData.refferalOfferToken;
-      const existedLink =  `http://127.0.0.1:3000/register?token=${existingToken}`;
-      res.json({ success: false, link: existedLink, message: "Link copied to clipboard" });
+      const existedLink = `http://127.0.0.1:3000/register?token=${existingToken}`;
+      res.json({
+        success: false,
+        link: existedLink,
+        message: "Link copied to clipboard",
+      });
     } else {
       const token = generateRefferalToken();
       const generatedLink = `http://127.0.0.1:3000/register?token=${token}`;
@@ -111,6 +120,7 @@ const refferalLinkGenerating = asyncHandler(async (req, res) => {
   }
 });
 
+//* Pagination for wallet transactions 
 const paginationForWallet = asyncHandler(async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -135,6 +145,8 @@ const paginationForWallet = asyncHandler(async (req, res) => {
   }
 });
 
+
+//? Exporting modules to wallet route
 module.exports = {
   addMoneyToWallet,
   razorPaymentVerify,

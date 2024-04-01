@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const CouponDb = require("../models/coupon");
 var voucher_codes = require("voucher-code-generator");
 
+//* Load create coupon code page
 const loadCreateCoupon = asyncHandler(async (req, res) => {
   try {
     res.render("admin/createCoupon");
@@ -10,6 +11,7 @@ const loadCreateCoupon = asyncHandler(async (req, res) => {
   }
 });
 
+//* Add new coupon control
 const addNewCoupon = asyncHandler(async (req, res) => {
   try {
     const {
@@ -133,6 +135,8 @@ const addNewCoupon = asyncHandler(async (req, res) => {
   }
 });
 
+
+//* Load coupon list page
 const loadCouponList = asyncHandler(async (req, res) => {
   try {
     const couponData = await CouponDb.find().sort({ createdAt: -1 });
@@ -142,6 +146,8 @@ const loadCouponList = asyncHandler(async (req, res) => {
   }
 });
 
+
+//* Load edit coupon page
 const loadCouponEdit = asyncHandler(async (req, res) => {
   try {
     const couponId = req.query.id;
@@ -152,6 +158,7 @@ const loadCouponEdit = asyncHandler(async (req, res) => {
   }
 });
 
+//* Edit coupon control
 const editCouponControl = asyncHandler(async (req, res) => {
   try {
     const {
@@ -265,6 +272,7 @@ const editCouponControl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Deleting the coupon from the list
 const deleteCouponControl = asyncHandler(async (req, res) => {
   try {
     const { couponId } = req.body;
@@ -279,6 +287,7 @@ const deleteCouponControl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Enable and disable coupon
 const statusChangeOfCoupon = asyncHandler(async (req, res) => {
   console.log("asdfghjkl");
   try {
@@ -315,6 +324,7 @@ const statusChangeOfCoupon = asyncHandler(async (req, res) => {
   }
 });
 
+//? Exporting modules to coupon route
 module.exports = {
   loadCreateCoupon,
   loadCouponList,

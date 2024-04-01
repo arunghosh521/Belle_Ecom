@@ -1,29 +1,27 @@
 const { OTP } = require("../models/userOtp");
 const asyncHandler = require("express-async-handler");
 const { sentOtpToUserEmail } = require("./emailController");
-const isEmail = require("validator");
 const User = require("../models/userModel");
 const Wallet = require("../models/Wallet");
-const orderId = require("order-id")("key");
 
+//* OTP generator
 const generateOtp = () => {
   const otp = Math.floor(100000 + Math.random() * 900000);
   return otp.toString();
 };
 
+//* Send OTP to Email
 const generateOtpCntrl = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
 
     const existingUser = await User.findOne({ email: email });
-    console.log("existing user", existingUser);
     if (existingUser) {
-      res.json({
+      return res.json({
         success: false,
         message: "User with this email already exists",
       });
     }
-
     const newOtp = generateOtp();
     console.log("OTP:", newOtp);
     await saveOtpToDb(req, email, newOtp);
@@ -37,11 +35,11 @@ const generateOtpCntrl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Submittong OTP and signup the user
 const submitOtpHandler = asyncHandler(async (req, res) => {
   try {
     const { otp, email, fname, lname, password } = req.body;
     const token = req.query.token;
-    console.log("token", token);
     console.log("otp", otp);
 
     const isOtpValid = await verifyOtp(email, otp);
@@ -103,6 +101,7 @@ const submitOtpHandler = asyncHandler(async (req, res) => {
   }
 });
 
+//* Saving OTP to database
 const saveOtpToDb = asyncHandler(async (req, email, otp) => {
   try {
     const otpDocument = new OTP({
@@ -117,6 +116,7 @@ const saveOtpToDb = asyncHandler(async (req, email, otp) => {
   }
 });
 
+//* getting OTP from database
 const getStoredOtpFromDatabase = asyncHandler(async (email) => {
   try {
     const otpDocument = await OTP.findOne({ email: email });
@@ -127,11 +127,11 @@ const getStoredOtpFromDatabase = asyncHandler(async (email) => {
   }
 });
 
+//* Verifying OTP
 const verifyOtp = async (email, enteredOtp) => {
   try {
     const storedOtp = await getStoredOtpFromDatabase(email);
-
-    // Compare the entered OTP with the stored OTP
+    //? Compare the entered OTP with the stored OTP
     return storedOtp === enteredOtp;
   } catch (error) {
     console.error("Error verifying OTP:", error);
@@ -139,6 +139,7 @@ const verifyOtp = async (email, enteredOtp) => {
   }
 };
 
+//* Resend OTP control
 const resendOtp = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
@@ -155,6 +156,8 @@ const resendOtp = asyncHandler(async (req, res) => {
     return res.json({ success: false, message: "Internal server error" });
   }
 });
+
+//? Exporting Modules
 module.exports = {
   generateOtp,
   generateOtpCntrl,

@@ -11,7 +11,10 @@ var cartSchema = new mongoose.Schema(
         quantity: Number,
         price: Number,
         total: Number,
-       
+        offer: {
+          type: String,
+          default: false,
+        },
       },
     ],
     couponApplied: {

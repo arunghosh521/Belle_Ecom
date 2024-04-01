@@ -5,6 +5,7 @@ const CartDB = require("../models/cart");
 const ProductDB = require('../models/products')
 const mongoose = require('mongoose');
 
+//* Load wishlist page
 const loadWishlist = asyncHandler(async (req, res) => {
   try {
     const userData = await UserDB.findOne({ _id: req.session.userId });
@@ -47,11 +48,10 @@ const loadWishlist = asyncHandler(async (req, res) => {
   }
 });
 
+//* Adding products to wishlist
 const addToWishList = asyncHandler(async (req, res) => {
   try {
     const productId = req.body.productId;
-    //console.log("productId", req.body);
-
     const wishList = await WishlistDB.findOne({ user: req.session.userId });
 
     if (!wishList) {
@@ -85,6 +85,8 @@ const addToWishList = asyncHandler(async (req, res) => {
   }
 });
 
+
+//* Check products in wishlist
 const checkProductInWishlist = asyncHandler(async (req, res) => {
   try {
     const { productId } = req.body;
@@ -100,6 +102,7 @@ const checkProductInWishlist = asyncHandler(async (req, res) => {
   }
 });
 
+//* Removing products from wishlist
 const removeItemFromWishlist = asyncHandler(async (req, res) => {
   try {
     const itemId = req.query.itemId;
@@ -117,21 +120,18 @@ const removeItemFromWishlist = asyncHandler(async (req, res) => {
   }
 });
 
+//* Add to cart from wishlist
 const addToCartFromWishlist = asyncHandler(async (req, res) => {
   try {
      const { productId, quantity = 1 } = req.body;
-     //console.log("Product ID", productId);
  
      const product = await ProductDB.findById(productId);
-     //console.log("Product", product);
  
      if (!product) {
        return res.json({ success: false, message: "Product not Found" });
      }
  
-     //console.log("User ID", req.session.userId);
      const cart = await CartDB.findOne({ orderBy: req.session.userId });
-     //console.log("Cart:", cart);
  
      if (!cart) {
        cart = new CartDB({
@@ -139,14 +139,12 @@ const addToCartFromWishlist = asyncHandler(async (req, res) => {
          cartTotal: 0,
          orderBy: req.session.userId,
        });
-       console.log("New Cart", cart);
        await cart.save();
      }
  
      const existingProduct = cart.products.find(
        (item) => item.product.toString() === productId
      );
-    // console.log("Existing Product", existingProduct);
  
      if (existingProduct) {
        existingProduct.quantity += parseInt(quantity);
@@ -170,9 +168,7 @@ const addToCartFromWishlist = asyncHandler(async (req, res) => {
       { $pull: { products: { product: productId } } },
       { new: true }
      );
-     
-     console.log(removedWishlistProduct, "sdfghj");
-     
+          
      res.json({ success: true });
   } catch (error) {
      console.log("InsertCartError", error);
@@ -182,7 +178,7 @@ const addToCartFromWishlist = asyncHandler(async (req, res) => {
  
 
 
-
+//? Exporting modules to wishlist route
 module.exports = {
   loadWishlist,
   addToWishList,

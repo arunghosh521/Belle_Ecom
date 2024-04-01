@@ -468,7 +468,7 @@
               </div><br>
               <div class="input-button-container">
                 <input type="Number" id="enteredMoney" min="1" placeholder="Enter amount">
-                <button class="btn btn-outline-primary-2" id="addMoney" onclick="openRazorpayCheckout()">Add Money</button>
+                <button class="btn btn btn-primary me-2" id="addMoney" onclick="openRazorpayCheckout()">Add Money</button>
               </div><br>
               <div style="display: inline-flex;">
                 <h4>Reffer a friend and get ₹199 in your wallet</h4> <a href="#" id="refferalLink" style="margin-left: 20px;">Click here</a>
@@ -516,7 +516,7 @@
 
 
             <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
-              <button id="openBtn" class="btn btn-outline-primary-2">
+              <button id="openBtn" class="btn btn-primary me-2">
                 <span>ADD ADDRESS</span>
               </button>
               <br><br>
@@ -534,11 +534,11 @@
                         <%= addressData[j].apartment %>, <%= addressData[j].city %><br>
                         <%= addressData[j].pincode %><br>
                         <%= addressData[j].mobile %><br>
-                        <button id="editBtn" data-id="<%= addressData[j]._id %>" class="editBtn btn btn-outline-primary-2">
+                        <button id="editBtn" data-id="<%= addressData[j]._id %>" class="editBtn btn btn-primary me-2">
                           <span>EDIT</span>
                         </button>
                         <a href="/address/delete?id=<%= addressData[j]._id %>">
-                          <button id="deleteBtn" data-address-id="<%= addressData[j]._id %>" class="editBtn btn btn-outline-primary-2">
+                          <button id="deleteBtn" data-address-id="<%= addressData[j]._id %>" class="editBtn btn btn-primary me-2">
                             <span>Delete</span>
                           </button></a>
                       </p>
@@ -630,7 +630,7 @@
                             </div>
                           </div>
                           <div class="order-button-payment">
-                            <button class="btn" value="Submit" type="submit">Submit</button>
+                            <button class="btn btn-primary me-2" value="Submit" type="submit">Submit</button>
                             <p id="editValidationAlert" style="color: red;"></p>
                           </div>
                         </fieldset>
@@ -720,7 +720,7 @@
                             </div>
                           </div>
                           <div class="order-button-payment">
-                            <button class="btn" value="Submit" type="submit">Submit</button>
+                            <button class="btn btn-primary me-2" value="Submit" type="submit">Submit</button>
                             <p id="validationAlert" style="color: red;"></p>
 
                           </div>
@@ -746,7 +746,7 @@
                     <img class="img-lg mb-3 img-avatar" id="userPhoto" src="/avatar-2.png" alt="User Photo" />
                     <% } %>
                     <figcaption>
-                      <label for="photoUpload" class="btn btn-light rounded font-md btn-upload">
+                      <label for="photoUpload" class="btn btn btn-primary me-2">
                         <i class="icons material-icons md-backup font-md"></i> Upload
                       </label>
                       <input type="file" name="image" id="photoUpload" style="display: none;">
@@ -787,7 +787,7 @@
                 <label>Confirm new password</label>
                 <input type="password" name="confirmPass" class="form-control mb-2">
 
-                <button type="submit" class="btn btn-outline-primary-2">
+                <button type="submit" class="btn btn btn-primary me-2">
                   <span>SAVE CHANGES</span>
                 </button>
               </form>
@@ -1175,12 +1175,15 @@
 
             if (orderStatus && orderStatus === 'Cancelled' || orderStatus === 'Returned') {
               cancelButton.hidden = true;
+              retryButton.hidden = true;
             }
 
 
             if (paymentStatus && paymentStatus === 'Failed') {
               retryButton.hidden = false;
-            } else {
+            }
+
+            if (orderStatus && orderStatus === 'Cancelled') {
               retryButton.hidden = true;
             }
 
@@ -1222,20 +1225,19 @@
       const invoiceButton = $(this);
       console.log(invoiceButton, 'btninvoice');
       const orderId = invoiceButton.data('invoice-id');
-      console.log(orderId, '12345689');
       const url = '/orderPlaced/downloadInvoice?id=' + orderId;
 
       $.ajax({
         url: url,
         method: 'POST',
         xhrFields: {
-          responseType: 'blob' 
+          responseType: 'blob'
         },
         success: function(data) {
-         
+
           const blob = new Blob([data], {
             type: 'application/pdf'
-          }); 
+          });
           const blobUrl = window.URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.style.display = 'none';
@@ -1243,7 +1245,7 @@
           a.download = 'report.pdf';
           document.body.appendChild(a);
           a.click();
-          
+
           window.URL.revokeObjectURL(blobUrl);
         },
         error: function(jqXHR, textStatus, errorThrown) {
@@ -1383,7 +1385,7 @@
         }),
       };
       $.ajax(settings).done(function(data) {
-        console.log('bifhiejv', data);
+        console.log("Payment verification response:", data); // Debugging line
         if (data.success) {
           toastr.success(data.message, "Success!");
           window.location.reload();
@@ -1444,6 +1446,7 @@
   let currentPageOrders = [];
 
   function fetchOrders(page) {
+    
     fetch(`/orderPlaced/pagination?page=${page}&itemsPerPage=${itemsPerPage}`)
       .then(response => response.json())
       .then(data => {
@@ -1734,15 +1737,14 @@
 
 <!-- displaying the message from the checkout -->
 <script>
-   
-   document.addEventListener('DOMContentLoaded', function() {
- const urlParams = new URLSearchParams(window.location.search);
- const paymentFailed = urlParams.get('paymentFailed');
+  document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentFailed = urlParams.get('paymentFailed');
 
- if (paymentFailed === 'true') {
-    toastr.error('Payment Failed. Please try again.', 'Info!');
- }
-});
+    if (paymentFailed === 'true') {
+      toastr.error('Payment Failed. Please try again.', 'Info!');
+    }
+  });
 </script>
 
 

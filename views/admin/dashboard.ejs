@@ -11,6 +11,11 @@
     overflow-y: auto;
 
   }
+  .scrollable-category {
+    max-height: 300px;
+    overflow-y: auto;
+
+  }
 
   .col-xl-6 {
     -webkit-box-flex: 0;
@@ -216,45 +221,47 @@
           <div class="card-body p-0">
             <div>
               <div class="table-responsive">
+                <div class="scrollable-category">
                 <table class="best-selling-table table border-0">
                   <tbody>
+                    <% if(bestSellingCategory && bestSellingCategory.length > 0) { %>
+                    <% bestSellingCategory.forEach(category => { %>
                     <tr>
                       <td>
                         <div class="best-product-box">
                           <div class="product-name">
-                            <h5>Aata Buscuit</h5>
-                            <h6>#64548</h6>
+                            <h5><%= category.categoryName %></h5>
                           </div>
                         </div>
                       </td>
 
                       <td>
                         <div class="product-detail-box">
-                          <h6>Date Placed</h6>
-                          <h5>5/1/22</h5>
+                          <h6>Total Sold</h6>
+                          <h5><%= category.totalSold %></h5>
                         </div>
                       </td>
-
+                    </tr>
+                    <% }); %>
+                    <% } else { %>
+                    <tr>
                       <td>
                         <div class="product-detail-box">
-                          <h6>Total Sold</h6>
-                          <h5>$250.00</h5>
+                          <h6>No Category</h6>
                         </div>
                       </td>
-
-                      
-              
                     </tr>
+                    <% } %>
+
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       <!-- Recent orders end-->
-
-
 
       <!-- Transactions start-->
       <div class="col-xxl-4 col-md-6">
@@ -384,8 +391,10 @@
               }
             });
           }
-          if(data.successDay === true) {
-            var dayCategories = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
+          if (data.successDay === true) {
+            var dayCategories = Array.from({
+              length: 31
+            }, (_, i) => (i + 1).toString());
             const newData = data.dayReport;
             Chart.updateOptions({
               series: [{
@@ -398,8 +407,10 @@
               }
             });
           }
-          if(data.successYearly === true) {
-            const yearCategories = Array.from({ length: 11 }, (_, i) => (2020 + i).toString());
+          if (data.successYearly === true) {
+            const yearCategories = Array.from({
+              length: 11
+            }, (_, i) => (2020 + i).toString());
             const newData = data.yearReport;
             Chart.updateOptions({
               series: [{

@@ -1,4 +1,3 @@
-const { log } = require("sharp/lib/libvips");
 const User = require("../models/userModel");
 const ProductModel = require("../models/products");
 const categoryDB = require("../models/category");
@@ -8,32 +7,29 @@ const WishlistDB = require("../models/wishlist");
 const OfferDB = require("../models/offer");
 const WalletDB = require("../models/Wallet");
 const CouponDB = require("../models/coupon");
+const { NotFoundError, BadRequestError, InternalServerError } = require('../middlewares/appError');
 const asyncHandler = require("express-async-handler");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
 
-const { resizeAndSaveImages } = require("../middlewares/multer");
 const {
-  saveOtpToDb,
-  getStoredOtpFromDatabase,
-  generateOtp,
-  verifyOtp,
   resendOtp,
   generateOtpCntrl,
   submitOtpHandler,
 } = require("./otpController");
 const {
-  sentOtpToUserEmail,
   sendResetPasswordMail,
   sendVerificationMail,
 } = require("./emailController");
 const Product = require("../models/products");
 const Address = require("../models/address");
 
+//* Generating token for password reseting
 const generateResetToken = () => {
   return crypto.randomBytes(20).toString("hex");
 };
 
+//* function for send cart data to reset password page
 const fetchCartProductData = async (userId) => {
   try {
     const cartProduct = await CartDB.findOne({ orderBy: userId }).populate(
@@ -46,22 +42,31 @@ const fetchCartProductData = async (userId) => {
   }
 };
 
-//Rendering the home page
+//* Rendering the home page
 const loadHome = async (req, res) => {
   try {
     const userData = await User.findOne({ _id: req.session.userId });
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    console.log("cartPtoductFromHomePage:", cartProduct);
-    //console.log("usergetting HomePage ", userData);
     res.render("user/home", { user: userData, cartProduct });
   } catch (error) {
     console.log(error);
   }
 };
 
-//REndering the register page
+//* Rendering the aboutUs page
+const loadAboutUs = asyncHandler(async (req, res) => {
+  try {
+    const userData = await User.findOne({ _id: req.session.userId });
+    const cartProduct = await CartDB.findOne({
+      orderBy: req.session.userId,
+    }).populate("products.product");
+    res.render("user/aboutUs", { user: userData, cartProduct });
+  } catch (error) {}
+});
+
+//* Rendering the register page
 const loadRegister = async (req, res) => {
   try {
     const success = req.flash("existmessage")[0];
@@ -73,30 +78,29 @@ const loadRegister = async (req, res) => {
   }
 };
 
-//Rendering the user logged in page
+//* Rendering the user logged in page
 const loadLogin = async (req, res) => {
   try {
     const success = req.flash("fmessage")[0];
     const userData = await User.findOne({ _id: req.session.userId });
     res.render("user/login", { user: userData, message: success });
-    //console.log("usergetting Checking", res.locals.user);
   } catch (error) {
     console.log(error);
+    next(error);
   }
 };
 
+//* Logout user control
 const userLogout = asyncHandler(async (req, res) => {
   try {
     req.session.userId = null;
-    //console.log("logout successfully");
     res.redirect("/");
   } catch (error) {
     console.log("logoutError", error);
-    req.flash("message", " ");
   }
 });
 
-//Validate form
+//* Validate form of signup
 const validateUser = asyncHandler(async (req, res) => {
   try {
     const { firstname, email, password, OTP } = req.body;
@@ -111,11 +115,9 @@ const validateUser = asyncHandler(async (req, res) => {
     } else {
       response.fnameStatus = "";
     }
-
     if (!email || email.trim() === "") {
-      //console.log("executed");
       response.emailStatus = "Email address is required";
-    } else if (!/^\S+@gmail\.com$|^\S+@glaslack\.com$/.test(email)) {
+    } else if (!/^\S+@gmail\.com$|^\S+@gufum\.com$/.test(email)) {
       response.emailStatus = "Invalid email address";
     } else {
       response.emailStatus = "";
@@ -154,41 +156,14 @@ const validateUser = asyncHandler(async (req, res) => {
   }
 });
 
-// //Create user
-// const createUser = asyncHandler(async (req, res) => {
-//   try {
-//     const { email, otp } = req.body;
-//     console.log(req.body);
 
-//     // Assuming otp is verified successfully
-//     const isOtpValid = await verifyOtp(email, otp);
-//     console.log("Valid OTP", isOtpValid);
-//     if (isOtpValid) {
-//       const findUser = await User.findOne({email})
-//       console.log("signupUser", findUser);
-//       req.session.userId = findUser._id;
-//       console.log("SignupGetting", req.session.userId);
-
-//       req.flash("fmessage", "User created successfully");
-//       return res.redirect("/");
-//     } else {
-//       // Handle invalid OTP
-//       return res.redirect("/register");
-//     }
-//   } catch (error) {
-//     res.redirect("/register");
-//   }
-// });
-
-//User Login
+//* User Login control
 const loginUserCtrl = asyncHandler(async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // check if user exists or not
+    //* check if user exists or not
     const findUser = await User.findOne({ email });
-
-    //console.log("iam user", findUser);
     if (!findUser) {
       req.flash("fmessage", "User not found");
       return res.redirect("/login");
@@ -200,7 +175,6 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
         return res.redirect("/login");
       }
       if (findUser.is_blocked === true) {
-        //console.log("userBlocked");
         req.flash(
           "fmessage",
           "Your account is blocked. Please contact support"
@@ -208,7 +182,6 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
         return res.redirect("/login");
       }
       if (findUser.is_admin === true) {
-        console.log("admin");
         req.flash("fmessage", "No permission to visit user side");
         return res.redirect("/login");
       }
@@ -216,11 +189,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       if (findUser && (await findUser.isPasswordMatched(password))) {
         if (findUser.is_verified === true) {
           req.session.userId = findUser._id;
-
-          //console.log("loggingGetting", req.session.userId);
-
           res.redirect("/");
-          //res.render("user/home", { user: findUser });
         }
       }
     } else {
@@ -228,13 +197,11 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       res.redirect("/login");
     }
   } catch (error) {
-    // Handle unexpected errors
     console.error("Error in loginUserCtrl:", error);
-    req.flash("fmessage", "An unexpected error occurred");
-    res.redirect("/login");
   }
 });
 
+//* Load forget password page
 const loadForgetPassword = asyncHandler(async (req, res) => {
   try {
     let success = req.flash("forgetMsg")[0];
@@ -245,13 +212,11 @@ const loadForgetPassword = asyncHandler(async (req, res) => {
   }
 });
 
+//* Forget password control
 const forgetPasswordCntrl = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
-    //console.log("forgetemail", email);
     const user = await User.findOne({ email: email });
-    //console.log("forgetuser", user.firstname);
-
     if (!user) {
       req.flash("forgetMsg", "User not found");
       res.redirect("/forgetPassword");
@@ -259,9 +224,10 @@ const forgetPasswordCntrl = asyncHandler(async (req, res) => {
 
     const resetToken = generateResetToken();
     user.passwordResetToken = resetToken;
-    user.passwordResetExpires = Date.now() + 600000; //10 minutes
+    user.passwordResetExpires = Date.now() + 600000; //?10 minutes
     await user.save();
 
+    //? send reset password function from email controller
     await sendResetPasswordMail(user.firstname, user.email, resetToken);
 
     req.flash("forgetMsg", "Please check your email to reset your password.");
@@ -273,6 +239,7 @@ const forgetPasswordCntrl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load forget password page via email 
 const loadForgetPasswordPage = asyncHandler(async (req, res) => {
   try {
     const token = req.query.token;
@@ -287,6 +254,7 @@ const loadForgetPasswordPage = asyncHandler(async (req, res) => {
   }
 });
 
+//* ForgetPassword control
 const forgetPasswordControl = asyncHandler(async (req, res) => {
   try {
     const { password, userId } = req.body;
@@ -307,6 +275,7 @@ const forgetPasswordControl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load products page for users
 const loadProductUserView = asyncHandler(async (req, res) => {
   try {
     var page = 1;
@@ -316,7 +285,6 @@ const loadProductUserView = asyncHandler(async (req, res) => {
     const minPrice = req.query.priceFrom;
     const maxPrice = req.query.priceLimit;
     const category = req.query.catId;
-    //console.log("11111111111111111111111111");
     const userData = await User.findOne({ _id: req.session.userId });
     if (req.query.page) {
       page = req.query.page;
@@ -364,17 +332,14 @@ const loadProductUserView = asyncHandler(async (req, res) => {
     } else {
       sortQuery = { createdAt: -1 };
     }
-    //console.log(sortQuery, "1234567890");
     const products = await ProductModel.find(query)
       .sort(sortQuery)
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .populate("offer")
       .exec();
-    //console.log("products", products);
 
     const count = await ProductModel.find(query).countDocuments();
-    // console.log("count", count);
     const totalPages = Math.ceil(count / limit);
     const sizeForViewing = await ProductModel.aggregate([
       {
@@ -383,7 +348,6 @@ const loadProductUserView = asyncHandler(async (req, res) => {
         },
       },
     ]);
-    //console.log(sizeForViewing, "2222222222222222222222");
     const paginationLinks = generatePaginationLinks(
       page,
       totalPages,
@@ -391,7 +355,6 @@ const loadProductUserView = asyncHandler(async (req, res) => {
       sort,
       size
     );
-    //console.log(paginationLinks, "link");
 
     res.render("user/ProductPage", {
       products,
@@ -411,6 +374,7 @@ const loadProductUserView = asyncHandler(async (req, res) => {
   }
 });
 
+//* Generating pagination links
 function generatePaginationLinks(
   currentPage,
   totalPages,
@@ -432,17 +396,17 @@ function generatePaginationLinks(
     }
     links.push(link);
   }
-  //console.log(links, "link");
   return links;
 }
 
+//* Calculaton of delivery dates for displaying the product detail page
 function calculateDeliveryDates() {
   const currentDate = new Date();
   const earliestDeliveryDate = new Date(currentDate);
-  earliestDeliveryDate.setDate(currentDate.getDate() + 1); // Add 1 day for earliest delivery
+  earliestDeliveryDate.setDate(currentDate.getDate() + 1); //? Add 1 day for earliest delivery
 
   const latestDeliveryDate = new Date(currentDate);
-  latestDeliveryDate.setDate(currentDate.getDate() + 7); // Add 7 days for latest delivery
+  latestDeliveryDate.setDate(currentDate.getDate() + 7); //? Add 7 days for latest delivery
 
   return {
     earliestDeliveryDate,
@@ -450,6 +414,7 @@ function calculateDeliveryDates() {
   };
 }
 
+//* Load product detail page
 const loadSingleProductUserView = asyncHandler(async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -463,13 +428,10 @@ const loadSingleProductUserView = asyncHandler(async (req, res) => {
       orderBy: req.session.userId,
     }).populate("products.product");
     const product = await Product.findById(id).populate("offer");
-    //console.log("single",product);
     let couponData = await CouponDB.findOne({
       "userUsed.user._id": userObjectId,
     });
-    console.log("code", couponData);
     if (!couponData || couponData.userUsed.length === 0) {
-      console.log("No coupon found or userUsed array is empty.");
       couponData = null;
     } else {
       console.log("Coupon found:", couponData);
@@ -478,7 +440,6 @@ const loadSingleProductUserView = asyncHandler(async (req, res) => {
       user: req.session.userId,
       "products.product": product._id,
     });
-    console.log("wishlist", wishlistProduct);
     const currentTime = new Date();
     const lastSoldTime = new Date(product.lastSold);
     const timeDifferenceInHours =
@@ -504,10 +465,11 @@ const loadSingleProductUserView = asyncHandler(async (req, res) => {
       wishlistProduct: !!wishlistProduct,
     });
   } catch (error) {
-    console.log("loadSinglePageError", error);
+    throw new NotFoundError("Page not found");
   }
 });
 
+//* Load user profile page
 const loadUserProfile = asyncHandler(async (req, res) => {
   try {
     const cartProduct = await CartDB.findOne({
@@ -515,7 +477,6 @@ const loadUserProfile = asyncHandler(async (req, res) => {
     }).populate("products.product");
 
     let walletData = await WalletDB.findOne({ user: req.session.userId });
-    console.log("wallet", walletData);
     if (walletData && walletData.walletHistory) {
       walletData.walletHistory.sort(
         (a, b) => new Date(b.date) - new Date(a.date)
@@ -537,16 +498,13 @@ const loadUserProfile = asyncHandler(async (req, res) => {
 
       await newWallet.save();
       walletData = [newWallet];
-     // console.log("asdfghjkl", newWallet);
     }
 
     const orderData = await OrderDB.find({ orderBy: req.session.userId });
-    console.log("orderData", orderData);
-    const addressData = await Address.find({ user: req.session.userId })
-    .sort({ createdAt: -1 });
-    //console.log("addressData", addressData);
+    const addressData = await Address.find({ user: req.session.userId }).sort({
+      createdAt: -1,
+    });
     const userData = await User.findOne({ _id: req.session.userId });
-    //console.log("userEditData", userData);
     res.render("user/userProfile", {
       user: userData,
       cartProduct,
@@ -559,12 +517,13 @@ const loadUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+//* Edit profile control
 const editProfileCntrl = asyncHandler(async (req, res) => {
   try {
     const { Fname, Lname, UserID, Email, CurrentPass, newPass, confirmPass } =
       req.body;
 
-    // Validate First Name
+    //* Validate First Name
     if (Fname && (Fname.trim() === "" || Fname.length < 3)) {
       return res.status(200).json({
         success: false,
@@ -583,7 +542,7 @@ const editProfileCntrl = asyncHandler(async (req, res) => {
         message: "LastName cannot be Empty",
       });
     }
-    // Validate Email
+    //* Validate Email
     if (!Email || Email.trim() === "") {
       return res
         .status(200)
@@ -641,7 +600,7 @@ const editProfileCntrl = asyncHandler(async (req, res) => {
     }
 
     if (newPass && newPass !== userData.password) {
-      // Validate Password
+      //* Validate Password
       if (newPass && newPass.trim() === "") {
         return res
           .status(200)
@@ -686,6 +645,7 @@ const editProfileCntrl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Change email from edit profile
 const changedEmailVerify = asyncHandler(async (req, res) => {
   try {
     const token = req.query.token;
@@ -705,9 +665,11 @@ const changedEmailVerify = asyncHandler(async (req, res) => {
   } catch (error) {}
 });
 
+//? Exporting modules to auth route
 module.exports = {
   loadRegister,
   loadHome,
+  loadAboutUs,
   loadLogin,
   loginUserCtrl,
   userLogout,

@@ -1,19 +1,31 @@
 <%- include('../layouts/header.ejs') -%>
+<style>
+  .image-404 img {
+    max-width: 50%;
+    height: auto;
+    width: 300px;
+    margin: 0 auto;
+    margin-top: 10px;
+  }
+</style>
 <!--Body Content-->
-<div id="page-content">        
-    <!-- Lookbook Start -->
-    <div class="container">
-        <div class="row">
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12">	
-                <div class="empty-page-content text-center">
-                    <h1>404 Page Not Found</h1>
-                    <p>The page you requested does not exist.</p>
-                    <p><a href="/" class="btn btn--has-icon-after">Continue shopping <i class="fa fa-caret-right" aria-hidden="true"></i></a></p>
-                  </div>
-            </div>
+<div id="page-content">
+  <!-- Lookbook Start -->
+  <div class="container">
+    <div class="row">
+      <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="empty-page-content text-center">
+          <div class="image-404">
+            <img src="/404.png" class="img-fluid blur-up lazyload" alt="404 Error" style="width: 300px; margin: 0 auto;">
+          </div>
+          <h1>404 Page Not Found</h1>
+          <p>The page you requested does not exist.</p>
+          <p><a href="/" class="btn btn--has-icon-after">Continue shopping <i class="fa fa-caret-right" aria-hidden="true"></i></a></p>
         </div>
+      </div>
     </div>
-    <!-- Lookbook Start -->
+  </div>
+  <!-- Lookbook Start -->
 </div>
 <!--End Body Content-->
 

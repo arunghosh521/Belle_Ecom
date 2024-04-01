@@ -8,27 +8,25 @@ const WalletDB = require("../models/Wallet");
 const WishlistDB = require("../models/wishlist");
 const mongoose = require("mongoose");
 
+
+//* Load user cart
 const loadUserCart = asyncHandler(async (req, res) => {
   try {
     const userData = await UserDB.findOne({ _id: req.session.userId });
-    //console.log("product ID");
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-
-    //console.log("singleProduct", cartProduct.products.length);
     res.render("user/userCart", { user: userData, cartProduct });
   } catch (error) {
     console.log("userCartError", error);
   }
 });
 
+//* Insert a product to cart from product detail page 
 const insertCartItem = asyncHandler(async (req, res) => {
   try {
      const { quantity, productId, couponCode } = req.body;
-     console.log("bodyDataCArt", req.body);
      const product = await ProductDB.findById(productId).populate("offer");
-     console.log("Product", product);
      
      if (!product) {
        return res.json({ success: false, message: "Product not Found" });
@@ -36,38 +34,34 @@ const insertCartItem = asyncHandler(async (req, res) => {
      if (quantity > product.quantity) {
        return res.json({ success: false, message: "Product Quantity Exceeded" });
      }
-     console.log("userID", req.session.userId);
- 
+
      const removedWishlistProduct = await WishlistDB.findOneAndUpdate(
        { user: req.session.userId },
        { $pull: { products: { product: productId } } },
        { new: true }
       );
-      
-      console.log(removedWishlistProduct, "sdfghj");
- 
+       
      let cart = await CartDB.findOne({ orderBy: req.session.userId });
-     console.log("cart:", cart);
      if (!cart) {
        cart = new CartDB({
          products: [],
          cartTotal: 0,
          orderBy: req.session.userId,
        });
-       console.log("newCart", cart);
        await cart.save();
      }
      const existingProduct = cart.products.find(
        (item) => item.product.toString() === productId
      );
-     console.log("existingCart", existingProduct);
  
      const priceToUse =
        product.offer && product.offerApplied === true
          ? product.offerPrice
          : product.price;
-     console.log("price used", priceToUse);
- 
+     const offerStatusInCart =
+       product.offer && product.offerApplied === true
+         ? true
+         : false;
      if (couponCode) {
        const coupon = await CouponDB.findOne({
          couponCode: couponCode,
@@ -85,9 +79,7 @@ const insertCartItem = asyncHandler(async (req, res) => {
            },
            { $pull: { userUsed: { user_id: userObjectId } } }
          );
-         cart.couponApplied = false;
- 
-         console.log("updatedCoupon", updatedCoupon);
+         cart.couponApplied = false; 
        }
      }
  
@@ -109,9 +101,10 @@ const insertCartItem = asyncHandler(async (req, res) => {
          quantity: quantity,
          price: priceToUse,
          total: priceToUse * quantity,
+         offer: offerStatusInCart
        });
-       cart.cartTotal += priceToUse * quantity;
-     }
+       cart.cartTotal += priceToUse * quantity
+    }
  
      await cart.save();
  
@@ -122,6 +115,7 @@ const insertCartItem = asyncHandler(async (req, res) => {
  });
  
 
+//* Updating quantities of product from the cart page
 const cartUpdate = asyncHandler(async (req, res) => {
   try {
     const { productId, quantity } = req.body;
@@ -135,7 +129,6 @@ const cartUpdate = asyncHandler(async (req, res) => {
       existingProduct.offer && existingProduct.offerApplied === true
         ? existingProduct.offerPrice
         : existingProduct.price;
-    console.log("price used", priceToUse);
 
     if (existingCart && existingProduct && productDetails.is_listed === true) {
       const newQuantity = quantity + existingProduct.quantity;
@@ -166,16 +159,15 @@ const cartUpdate = asyncHandler(async (req, res) => {
   }
 });
 
+//* Removing product from the cart
 const removeCartItem = asyncHandler(async (req, res) => {
   try {
     const { productId } = req.body;
-    console.log("removeProductID", productId);
     const findProduct = await CartDB.findOneAndUpdate(
       { "products._id": productId },
       { $pull: { products: { _id: productId } } },
       { new: true }
     );
-    console.log("productforRemove", findProduct);
     if (!findProduct) {
       return res
         .status(404)
@@ -200,6 +192,7 @@ const removeCartItem = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load the checkout page
 const loadCheckout = asyncHandler(async (req, res) => {
   try {
     const userData = await UserDB.findOne({ _id: req.session.userId });
@@ -207,11 +200,8 @@ const loadCheckout = asyncHandler(async (req, res) => {
       orderBy: req.session.userId,
     }).populate("products.product");
     const couponList = await CouponDB.find({ status: true });
-    //console.log("coupon", couponList);
     const addressData = await AddressDB.find({ user: req.session.userId });
-    //console.log(addressData);
     const walletData = await WalletDB.findOne({ user: req.session.userId });
-    console.log("walletData", walletData);
     res.render("user/checkout", {
       user: userData,
       cartProduct,
@@ -224,6 +214,7 @@ const loadCheckout = asyncHandler(async (req, res) => {
   }
 });
 
+//* Apply coupon control
 const applyCoupon = asyncHandler(async (req, res) => {
   try {
     const { couponCode } = req.body;
@@ -254,7 +245,6 @@ const applyCoupon = asyncHandler(async (req, res) => {
     const userHasUsedCoupon = couponDetails.userUsed.some((user) =>
       user.user_id.equals(userObjectId)
     );
-    console.log("bddvis", userHasUsedCoupon);
     if (userHasUsedCoupon) {
       return res
         .status(200)
@@ -293,6 +283,8 @@ const applyCoupon = asyncHandler(async (req, res) => {
   }
 });
 
+
+//* Remove Coupon
 const removeCoupon = asyncHandler(async (req, res) => {
   try {
     const { couponCode } = req.body;
@@ -331,6 +323,8 @@ const removeCoupon = asyncHandler(async (req, res) => {
   }
 });
 
+
+//? Exporting modules to cart route
 module.exports = {
   loadUserCart,
   insertCartItem,

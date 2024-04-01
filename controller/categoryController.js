@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const CategoryDB = require("../models/category");
 
+//* Load create category page
 const loadAddCategory = asyncHandler(async (req, res) => {
   try {
     res.render("admin/addCategory");
@@ -9,6 +10,7 @@ const loadAddCategory = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load category list page
 const loadCategory = asyncHandler(async (req, res) => {
   try {
     res.render("admin/category");
@@ -17,6 +19,7 @@ const loadCategory = asyncHandler(async (req, res) => {
   }
 });
 
+//* validation for create category fields
 const validateCategory = asyncHandler(async (req, res) => {
   try {
     const {catName, decpArea} = req.body;
@@ -26,7 +29,6 @@ const validateCategory = asyncHandler(async (req, res) => {
     const max_word = 100;
     if(catName && (catName.trim() === '' || catName.length < 3)) {
       response.caterogyStatus = "Category cannot be empty it must contain 3 or more letters";
-      console.log("vdfvvfe",  response.caterogyStatus);
     }else if(catName && /[0-9]/.test(catName)) {
       response.caterogyStatus = "category cannot be conatin numbers";
     }else {
@@ -47,6 +49,7 @@ const validateCategory = asyncHandler(async (req, res) => {
   } catch (error) {}
 });
 
+//* Load category listing
 const categoryView = asyncHandler(async (req, res) => {
   try {
     const categories = await CategoryDB.find();
@@ -56,10 +59,10 @@ const categoryView = asyncHandler(async (req, res) => {
   }
 });
 
+//* Add category control
 const addCategoryCntrl = asyncHandler(async (req, res) => {
   try {
     const { name, description } = req.body;
-    //console.log(req.body);
 
     const existingCategory = await CategoryDB.findOne({ category: name });
     if (!existingCategory) {
@@ -67,16 +70,12 @@ const addCategoryCntrl = asyncHandler(async (req, res) => {
         category: name,
         description: description,
       });
-      //console.log("newCat", newCategory);
-      //console.log("description", newCategory.description);
 
       const categories = await newCategory.save();
-      //console.log("catData:", categories);
       res.json({success: true, message: 'Category added successfully'})
   
     } else {
       res.json({success: false, message: 'Category already exists.'})
-      //console.log("Category already exists.");
     }
   } catch (error) {
     console.error("Error adding category:", error);
@@ -84,10 +83,10 @@ const addCategoryCntrl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load edit category page
 const loadEditCategory = asyncHandler(async (req, res) => {
   try {
     const id = req.params.id;
-    //console.log("CatID", id);
     const success = req.flash("Alrtmessage")[0];
     const categoryData = await CategoryDB.findById(id);
     res.render("admin/editCategory", { categoryData, message: success });
@@ -96,19 +95,15 @@ const loadEditCategory = asyncHandler(async (req, res) => {
   }
 });
 
+//* Listing and unlisting category
 const toggleListcategory = asyncHandler(async (req, res) => {
   try {
-    //console.log("body", req.body);
     const { categoryId, isListed } = req.body;
-
     const categories = await CategoryDB.findByIdAndUpdate(
       categoryId,
       { is_listed: isListed },
       { new: true }
     );
-
-    // console.log("Updated category:", categories);
-
     res.json({ success: true });
   } catch (error) {
     console.error("ToggleBlockUserError", error);
@@ -116,14 +111,13 @@ const toggleListcategory = asyncHandler(async (req, res) => {
   }
 });
 
+//* Update category control
 const updateCategoryCntrl = asyncHandler(async (req, res) => {
   try {
     const { name, categoryID, description } = req.body;
-    //console.log(req.body);
     const existingCategory = await CategoryDB.findOne({
       category: { $regex: new RegExp("^" + name + "$", "i") },
     });
-    //console.log("existCategory", existingCategory);
     if (existingCategory) {
       req.flash("Alrtmessage", "Category already exist !");
       const id = req.params.id;
@@ -138,6 +132,7 @@ const updateCategoryCntrl = asyncHandler(async (req, res) => {
   } catch (error) {}
 });
 
+//? Exporting modules to category route
 module.exports = {
   loadAddCategory,
   loadCategory,

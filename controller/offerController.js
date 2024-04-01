@@ -3,6 +3,7 @@ const OfferDB = require("../models/offer");
 const ProductDB = require("../models/products");
 const categoryDB = require("../models/category");
 
+//* Load create offer page
 const loadCreateOffer = asyncHandler(async (req, res) => {
   try {
     res.render("admin/createOffer");
@@ -11,19 +12,21 @@ const loadCreateOffer = asyncHandler(async (req, res) => {
   }
 });
 
+//* Create offer control
 const createOfferControl = asyncHandler(async (req, res) => {
   try {
     const { title, percentage, startDate, endDate, description } = req.body;
-    //console.log("couponBodyData", startDate, endDate);
     const alphanumericRegex = /^[a-zA-Z0-9]{6}$/;
     const numericRegex = /^\d+$/;
     const titleRegex = /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
     const descriptionWords = description.split(/\s+/);
 
+    //* Validation for fields
     if (!title || !percentage || !startDate || !endDate || !description) {
-      return res
-        .status(200)
-        .json({ successValidation: false, message: "All fields are required." });
+      return res.status(200).json({
+        successValidation: false,
+        message: "All fields are required.",
+      });
     }
 
     if (!titleRegex.test(title)) {
@@ -41,7 +44,7 @@ const createOfferControl = asyncHandler(async (req, res) => {
           "Coupon code must be exactly 6 characters long and can only contain alphabets and numbers.",
       });
     }
-    
+
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
     if (new Date(startDate) < currentDate) {
@@ -50,7 +53,7 @@ const createOfferControl = asyncHandler(async (req, res) => {
         message: "The expiry date must not be earlier than today.",
       });
     }
-    
+
     if (descriptionWords.length < 5 || descriptionWords.length > 15) {
       return res.status(200).json({
         successDescription: false,
@@ -75,7 +78,6 @@ const createOfferControl = asyncHandler(async (req, res) => {
     });
 
     const savedOffer = await newOffer.save();
-    //console.log("savedcoupon", savedOffer);
 
     res.status(200).json({
       success: true,
@@ -91,32 +93,31 @@ const createOfferControl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load offer listing page
 const loadOfferList = asyncHandler(async (req, res) => {
   try {
-    const offerData = await OfferDB.find().sort({createdAt: -1});
-    //console.log(offerData);
+    const offerData = await OfferDB.find().sort({ createdAt: -1 });
     res.render("admin/offerList", { offerData });
   } catch (error) {
     console.log("loadOfferList", error);
   }
 });
 
+//* Delete offer control
 const deleteOfferControl = asyncHandler(async (req, res) => {
   try {
     const { offerId } = req.body;
-    //console.log("id", offerId);
     const deletedOffer = await OfferDB.findByIdAndDelete(offerId);
-   //console.log("deleted", deletedOffer);
     res
       .status(200)
       .json({ success: true, message: "Coupon Deleted successfully" });
   } catch (error) {}
 });
 
+//* Enable and disable offer
 const statusChangeOfOffer = asyncHandler(async (req, res) => {
   try {
     const { offerId, status } = req.body;
-    //console.log(req.body);
     const offerID = { _id: offerId };
     const offer = await OfferDB.findOne(offerID);
     if (!offer) {
@@ -141,6 +142,7 @@ const statusChangeOfOffer = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load edit offer page
 const loadEditOffer = asyncHandler(async (req, res) => {
   try {
     const offerId = req.query.id;
@@ -151,108 +153,114 @@ const loadEditOffer = asyncHandler(async (req, res) => {
   }
 });
 
+//* Edit offer control
 const editOfferControl = asyncHandler(async (req, res) => {
   try {
-     const { title, percentage, startDate, endDate, description } = req.body;
-     console.log("couponBodyData", startDate, endDate);
-     const numericRegex = /^\d+$/; 
-     const titleRegex = /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
- 
-     if (!title || !percentage || !startDate || !endDate || !description) {
-       return res
-         .status(200)
-         .json({ success: false, message: "All fields are required." });
-     }
- 
-     if (!titleRegex.test(title)) {
-       return res.status(200).json({
-         status: false,
-         message: "Title must contain only letters and be at least 4 characters long.",
-       });
-     }
- 
-     if (!numericRegex.test(percentage)) {
-       return res.status(200).json({
-         success: false,
-         message: "Percentage must be a valid number.",
-       });
-     }
- 
-     const descriptionWords = description.split(/\s+/);
-     if (descriptionWords.length < 5 || descriptionWords.length > 15) {
-       return res.status(200).json({
-         success: false,
-         message: "Description must contain between 5 and 15 words.",
-       });
-     }
- 
-     const currentDate = new Date();
-     currentDate.setHours(0, 0, 0, 0);
-     if (new Date(startDate) < currentDate) {
-       return res.status(200).json({
-         success: false,
-         message: "The start and expiry date must not be earlier than today.",
-       });
-     }
- 
-     const existingOffer = await OfferDB.findOne({ offerName: title });
-     if (existingOffer) {
-       const hasChanges = existingOffer.percentage !== percentage ||
-                           existingOffer.startingDate.toISOString() !== new Date(startDate).toISOString() ||
-                           existingOffer.expiryDate.toISOString() !== new Date(endDate).toISOString() ||
-                           existingOffer.offerDescription !== description;
- 
-       if (hasChanges) {
-         existingOffer.percentage = percentage;
-         existingOffer.startingDate = new Date(startDate);
-         existingOffer.expiryDate = new Date(endDate);
-         existingOffer.offerDescription = description;
-         existingOffer.isListed = true;
- 
-         const updatedOffer = await existingOffer.save();
-         //console.log("updatedOffer", updatedOffer);
- 
-         return res.status(200).json({
-           success: true,
-           message: "Offer updated successfully.",
-           data: updatedOffer,
-         });
-       } else {
-         return res.status(200).json({
-           success: false,
-           message: "No changes detected. Please make some changes to update the offer.",
-         });
-       }
-     } else {
-       return res.status(200).json({
-         success: false,
-         message: "Offer not found. Please check the offer name.",
-       });
-     }
-  } catch (error) {
-     console.error("Error editing offer:", error);
-     res.status(500).json({
-       success: false,
-       message: "An error occurred while editing the offer.",
-     });
-  }
- });
- 
+    const { title, percentage, startDate, endDate, description } = req.body;
+    console.log("couponBodyData", startDate, endDate);
+    const numericRegex = /^\d+$/;
+    const titleRegex = /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
 
+    if (!title || !percentage || !startDate || !endDate || !description) {
+      return res
+        .status(200)
+        .json({ success: false, message: "All fields are required." });
+    }
+
+    if (!titleRegex.test(title)) {
+      return res.status(200).json({
+        status: false,
+        message:
+          "Title must contain only letters and be at least 4 characters long.",
+      });
+    }
+
+    if (!numericRegex.test(percentage)) {
+      return res.status(200).json({
+        success: false,
+        message: "Percentage must be a valid number.",
+      });
+    }
+
+    const descriptionWords = description.split(/\s+/);
+    if (descriptionWords.length < 5 || descriptionWords.length > 15) {
+      return res.status(200).json({
+        success: false,
+        message: "Description must contain between 5 and 15 words.",
+      });
+    }
+
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    if (new Date(startDate) < currentDate) {
+      return res.status(200).json({
+        success: false,
+        message: "The start and expiry date must not be earlier than today.",
+      });
+    }
+
+    const existingOffer = await OfferDB.findOne({ offerName: title });
+    if (existingOffer) {
+      const hasChanges =
+        existingOffer.percentage !== percentage ||
+        existingOffer.startingDate.toISOString() !==
+          new Date(startDate).toISOString() ||
+        existingOffer.expiryDate.toISOString() !==
+          new Date(endDate).toISOString() ||
+        existingOffer.offerDescription !== description;
+
+      if (hasChanges) {
+        existingOffer.percentage = percentage;
+        existingOffer.startingDate = new Date(startDate);
+        existingOffer.expiryDate = new Date(endDate);
+        existingOffer.offerDescription = description;
+        existingOffer.isListed = true;
+
+        const updatedOffer = await existingOffer.save();
+
+        return res.status(200).json({
+          success: true,
+          message: "Offer updated successfully.",
+          data: updatedOffer,
+        });
+      } else {
+        return res.status(200).json({
+          success: false,
+          message:
+            "No changes detected. Please make some changes to update the offer.",
+        });
+      }
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: "Offer not found. Please check the offer name.",
+      });
+    }
+  } catch (error) {
+    console.error("Error editing offer:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while editing the offer.",
+    });
+  }
+});
+
+//* Send offer details to offer modal
 const offerDetailsControl = asyncHandler(async (req, res) => {
   try {
     const currentData = new Date();
     const offerDetails = await OfferDB.find({
-      expiryDate: { $gte: currentData }, isListed: true
+      expiryDate: { $gte: currentData },
+      isListed: true,
     });
-
-    console.log("sdvsdv", offerDetails);
+    console.log(offerDetails,'asdfghjkl');
     res.status(200).json({ success: true, offerDetails });
   } catch (error) {
     console.log("offerDetailsError", error);
   }
 });
 
+//* Applying offer to product
 const offerApplyingToProduct = asyncHandler(async (req, res) => {
   try {
     const { offerName, productId } = req.body;
@@ -280,21 +288,18 @@ const offerApplyingToProduct = asyncHandler(async (req, res) => {
     productData.offer.push(offer);
 
     await productData.save();
-    //console.log("saved", productData);
     res.json({ success: true, message: "Offer applied successfully" });
   } catch (error) {
     console.log("applyOfferError", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "An error occurred while applying the offer",
-      });
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while applying the offer",
+    });
   }
 });
 
-
-const offerRemovingProduct = asyncHandler(async(req,res) => {
+//* Remove offer from product
+const offerRemovingProduct = asyncHandler(async (req, res) => {
   try {
     const { offerName, productId } = req.body;
     const productData = await ProductDB.findById(productId);
@@ -304,35 +309,30 @@ const offerRemovingProduct = asyncHandler(async(req,res) => {
     const offerAlreadyApplied = productData.offer.some(
       (offerId) => offerId.toString() === offerId._id.toString()
     );
-    
-    if(offerAlreadyApplied && offer){
+
+    if (offerAlreadyApplied && offer) {
       productData.offerPrice = 0;
-    productData.offerApplied = false;
-    productData.offer = [];
-    await productData.save();
-    //console.log("saved", productData);
-    res.json({ success: true, message: "Offer removed successfully" });
+      productData.offerApplied = false;
+      productData.offer = [];
+      await productData.save();
+      res.json({ success: true, message: "Offer removed successfully" });
     } else {
-      //console.log("offer not exist");
       res.json({ success: false, message: "Offer not exist" });
     }
   } catch (error) {
     console.log("removeOfferError", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "An error occurred while removing the offer",
-      });
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while removing the offer",
+    });
   }
-})
+});
 
+//* Applying offer to categroy
 const offerApplyingToCategory = asyncHandler(async (req, res) => {
   try {
     const { offerName, categoryId } = req.body;
-    //console.log("bodyData", req.body);
     const categoryData = await categoryDB.findById(categoryId);
-    //console.log("category", categoryData);
     const offer = await OfferDB.findOne({ offerName: offerName });
     const offerAlreadyApplied = categoryData.offer.some(
       (offerId) => offerId.toString() === offerId._id.toString()
@@ -342,9 +342,7 @@ const offerApplyingToCategory = asyncHandler(async (req, res) => {
       return;
     }
 
-    const products = await ProductDB.find({category:categoryId});
-    //console.log("products", products);
-    
+    const products = await ProductDB.find({ category: categoryId });
     categoryData.offerApplied = true;
     categoryData.offer.push(offer);
     await categoryData.save();
@@ -352,28 +350,28 @@ const offerApplyingToCategory = asyncHandler(async (req, res) => {
     products.forEach(async (product) => {
       product.offerApplied = true;
       product.offer.push(offer);
-      const highestOfferPercentage = await calculateHighestOfferPercentage(product);
+      const highestOfferPercentage = await calculateHighestOfferPercentage(
+        product
+      );
       console.log(highestOfferPercentage);
-      product.offerPrice = product.price - (product.price * highestOfferPercentage / 100);
+      product.offerPrice =
+        product.price - (product.price * highestOfferPercentage) / 100;
       await product.save();
     });
 
     res.json({ success: true, message: "Offer applied successfully" });
   } catch (error) {
     console.log("applyOfferError", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "An error occurred while applying the offer",
-      });
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while applying the offer",
+    });
   }
 });
 
-
+//? function for calculating the highest offer price
 function calculateHighestOfferPercentage(product) {
   let highestPercentage = product.offer[0].percentage;
- // console.log("dfv", highestPercentage);
 
   product.offer.forEach((offer) => {
     if (offer.percentage > highestPercentage) {
@@ -383,27 +381,25 @@ function calculateHighestOfferPercentage(product) {
   return highestPercentage;
 }
 
-const offerRemovingCategory = asyncHandler(async(req,res) => {
+//* Remove offer from categroy
+const offerRemovingCategory = asyncHandler(async (req, res) => {
   try {
     const { offerName, categoryId } = req.body;
-   // console.log("bodyData", req.body);
     const categoryData = await categoryDB.findById(categoryId);
-    //console.log("category", categoryData);
     const offer = await OfferDB.findOne({ offerName: offerName });
     const offerAlreadyApplied = categoryData.offer.some(
       (offerId) => offerId.toString() === offerId._id.toString()
     );
-   // console.log(offerAlreadyApplied,"qwertyuiop");
     if (offerAlreadyApplied) {
-      const products = await ProductDB.find({category:categoryId});      
+      const products = await ProductDB.find({ category: categoryId });
       categoryData.offerApplied = false;
       categoryData.offer = [];
       await categoryData.save();
-  
+
       products.forEach(async (product) => {
         product.offerApplied = false;
         product.offer = [];
-        product.offerPrice = 0
+        product.offerPrice = 0;
         await product.save();
       });
       res.json({ success: true, message: "Offer removed successfully" });
@@ -411,15 +407,14 @@ const offerRemovingCategory = asyncHandler(async(req,res) => {
       res.json({ success: false, message: "Offer not exist" });
     }
   } catch (error) {
-    res
-    .status(500)
-    .json({
+    res.status(500).json({
       success: false,
       message: "An error occurred while removing the offer",
     });
   }
-})
+});
 
+//? Export modules to offer route
 module.exports = {
   loadCreateOffer,
   createOfferControl,

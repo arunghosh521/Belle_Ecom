@@ -126,16 +126,17 @@
               'Content-Type': 'application/json'
             }
           })
-          .then(response => {
-            if (response.ok) {
-              Swal.fire("Success!", "Status changed successfully", "success")
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire("Success!", data.message, "success")
                 .then((value) => {
                   if (value) {
                     window.location.href = '/admin/orderList';
                   }
                 });
             } else {
-              Swal.fire("Error!", "Order cancelled successfully", "Filed")
+              Swal.fire("Error!", data.message, "error") 
                 .then((value) => {
                   if (value) {
                     window.location.href = '/admin/orderList';
@@ -144,8 +145,10 @@
             }
           })
           .catch(error => {
-            console.error("Error updating order status:", error);
+            console.error('Error:', error);
+            Swal.fire("Error!", "An error occurred while updating the order status.", "error");
           });
+
       }
     });
   }

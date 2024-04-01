@@ -8,6 +8,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+//* Sent OTP to mail
 const sentOtpToUserEmail = async (email, otp) => {
   try {
     const mailOption = {
@@ -29,8 +30,7 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-//for reset password sent mail
-
+//*for reset password sent mail
 const sendResetPasswordMail = async (name, email, token) => {
   try {
     if (!isValidEmail(email)) {
@@ -80,7 +80,7 @@ const sendResetPasswordMail = async (name, email, token) => {
   }
 };
 
-
+//* Send verification for changing the email from the profile
 const sendVerificationMail = async (name, email, token) => {
   try {
     if (!isValidEmail(email)) {
@@ -130,4 +130,9 @@ const sendVerificationMail = async (name, email, token) => {
   }
 };
 
-module.exports = { sentOtpToUserEmail, sendResetPasswordMail, sendVerificationMail };
+//? Exporting modules
+module.exports = {
+  sentOtpToUserEmail,
+  sendResetPasswordMail,
+  sendVerificationMail,
+};

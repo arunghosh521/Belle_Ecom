@@ -13,15 +13,16 @@ const orderIdGenerator = require("order-id")("key");
 const Razorpay = require("razorpay");
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
 
+//* Instance of RazorPay
 const razorpayInstance = new Razorpay({
   key_id: RAZORPAY_KEY_ID,
   key_secret: RAZORPAY_KEY_SECRET,
 });
 
+//* Load order confirmed page
 const loadOrderConfirm = asyncHandler(async (req, res) => {
   try {
     const orderId = req.query.orderId;
-    console.log("orderId", orderId);
     const userData = await UserDB.findOne({ _id: req.session.userId });
     const orderData = await orderDB
       .findOne({ orderId: orderId })
@@ -29,13 +30,13 @@ const loadOrderConfirm = asyncHandler(async (req, res) => {
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    //const addressData = await AddressDB.findOne()
     res.render("user/placeOrder", { user: userData, cartProduct, orderData });
   } catch (error) {
     console.log("placeOrderError", error);
   }
 });
 
+//* Placing the orders via COD, Razorpay, Wallet
 const placeOrder = asyncHandler(async (req, res) => {
   try {
     const { addressId, selectedPayment, subtotal } = req.body;
@@ -43,6 +44,7 @@ const placeOrder = asyncHandler(async (req, res) => {
     const cartTotal = totalAmount / 100;
     const findCart = await CartDB.findOne({ orderBy: req.session.userId });
     const cartItems = findCart.products;
+    console.log(cartItems, "itemssssssssss");
     const cartTotalFromDB = findCart.cartTotal;
     const wallet = await WalletDb.findOne({ user: req.session.userId });
     const orderDb = await orderDB.findOne({ orderBy: req.session.userId });
@@ -60,6 +62,7 @@ const placeOrder = asyncHandler(async (req, res) => {
       })
       .replace(/\//g, "-");
 
+    //? COD payment
     if (selectedPayment === "COD") {
       if (cartTotalFromDB > 1000) {
         res.json({
@@ -207,7 +210,9 @@ const placeOrder = asyncHandler(async (req, res) => {
           res.json({ CodSuccess: true, orderId: newOrder.orderId });
         }
       }
-    } else if (selectedPayment === "banking") {
+    }
+    //? Razorpay payment
+    else if (selectedPayment === "banking") {
       const newOrderId = orderIdGenerator.generate();
       const order = await razorpayInstance.orders.create({
         amount: totalAmount,
@@ -244,7 +249,7 @@ const placeOrder = asyncHandler(async (req, res) => {
         expectedDelivery: deliveryDate,
         orderedDate: orderDate,
         orderTotal: findCart.cartTotal,
-        paymentStatus: "Failed",
+        paymentStatus: "Pending",
       });
       await newOrder.save();
       await CartDB.updateOne(
@@ -252,7 +257,9 @@ const placeOrder = asyncHandler(async (req, res) => {
         { products: [], cartTotal: 0 }
       );
       res.json({ successBanking: true, order, orderId: newOrder.orderId });
-    } else if (selectedPayment === "wallet") {
+    }
+    //? Wallet payment
+    else if (selectedPayment === "wallet") {
       const transactionId = orderIdGenerator.generate();
 
       if (wallet.balance > cartTotal) {
@@ -300,11 +307,9 @@ const placeOrder = asyncHandler(async (req, res) => {
           { orderBy: req.session.userId },
           { products: [], cartTotal: 0 }
         );
-        console.log("orderIdOfNewOrder", newOrder.orderId);
 
         res.json({ successWallet: true, orderId: newOrder.orderId });
       } else {
-        console.log("Wallet has enoughf money:");
         res.status(200).json({
           successWallet: false,
           message: "Wallet does not have enough money.",
@@ -324,6 +329,7 @@ const placeOrder = asyncHandler(async (req, res) => {
   }
 });
 
+//* Verifying payment of razorpay
 const razorpayPaymentVerify = asyncHandler(async (req, res) => {
   try {
     const { orderId, paymentId, signature, newOrderId } = req.body;
@@ -358,6 +364,7 @@ const razorpayPaymentVerify = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load my orders page
 const loadMyOrders = asyncHandler(async (req, res) => {
   try {
     const { orderId } = req.body;
@@ -370,6 +377,7 @@ const loadMyOrders = asyncHandler(async (req, res) => {
   }
 });
 
+//* Pagination for order list
 const orderListPagination = asyncHandler(async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -393,7 +401,7 @@ const orderListPagination = asyncHandler(async (req, res) => {
   }
 });
 
-
+//* Return order control
 const returnMyOrder = asyncHandler(async (req, res) => {
   try {
     const { orderId } = req.body;
@@ -416,8 +424,6 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     });
 
     const updatedProducts = await Promise.all(updatePromises);
-    console.log("updatedProducts", updatedProducts);
-
     const updatedReturnOrder = await orderDB.findOneAndUpdate(
       { _id: orderId },
       { $set: { orderStatus: "Returned" } },
@@ -457,12 +463,14 @@ const returnMyOrder = asyncHandler(async (req, res) => {
   }
 });
 
+//* Cancel order control
 const cancelMyOrder = asyncHandler(async (req, res) => {
   try {
     const { orderId } = req.body;
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: req.session.userId });
+
     const updatePromises = order.products.map(async (product) => {
       return ProductDB.findByIdAndUpdate(
         product._id,
@@ -484,40 +492,44 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    if (!wallet) {
-      const newWallet = new wallet({
-        user: req.session.userId,
-        walletHistory: [
-          {
-            transactionId: 0,
-            date: Date.now(),
-            amount: 0,
-            description: "Initial balance",
-            transactionType: "refund",
-          },
-        ],
-      });
+    if (order.paymentStatus === "Failed") {
+      res.json({ success: true, orderData: updatedCancelOrder });
+    } else {
+      if (!wallet) {
+        const newWallet = new WalletDb({
+          user: req.session.userId,
+          walletHistory: [
+            {
+              transactionId: 0,
+              date: Date.now(),
+              amount: 0,
+              description: "Initial balance",
+              transactionType: "refund",
+            },
+          ],
+        });
 
-      await newWallet.save();
-      wallet = newWallet;
-      console.log("asdfghjkl", newWallet);
+        await newWallet.save();
+        wallet = newWallet;
+      }
+      const transaction = {
+        transactionId: transactionId,
+        date: new Date(),
+        amount: order.orderTotal,
+        description: "Refund from Belle",
+        transactionType: "refund",
+      };
+      await wallet.addTransaction(transaction);
+
+      res.json({ success: true, orderData: updatedCancelOrder });
     }
-    const transaction = {
-      transactionId: transactionId,
-      date: new Date(),
-      amount: order.orderTotal,
-      description: "Refund from Belle",
-      transactionType: "refund",
-    };
-    await wallet.addTransaction(transaction);
-
-    res.json({ success: true, orderData: updatedCancelOrder });
   } catch (error) {
     console.log("cancelOrderError", error);
     res.json({ success: false, error: "Filed to cancel the order" });
   }
 });
 
+//* Retry payment from order list page
 const retryPaymentOrder = asyncHandler(async (req, res) => {
   try {
     const { orderId } = req.body;
@@ -531,6 +543,7 @@ const retryPaymentOrder = asyncHandler(async (req, res) => {
   } catch (error) {}
 });
 
+//* Verifying retrying payments
 const retryPaymentVerify = asyncHandler(async (req, res) => {
   try {
     const { orderId, paymentId, signature, newOrderId } = req.body;
@@ -562,6 +575,7 @@ const retryPaymentVerify = asyncHandler(async (req, res) => {
   }
 });
 
+//* Invoice download control
 const downloadInvoice = asyncHandler(async (req, res) => {
   try {
     const orderId = req.query.id;
@@ -570,7 +584,7 @@ const downloadInvoice = asyncHandler(async (req, res) => {
       .populate("products.product")
       .populate({ path: "address", model: "Address" })
       .populate("orderBy");
-    const pdfBuffer = await generateSalesReportPdf(orderData);
+    const pdfBuffer = await generateInvoicePdf(orderData);
 
     res.set({
       "Content-Type": "application/pdf",
@@ -582,7 +596,8 @@ const downloadInvoice = asyncHandler(async (req, res) => {
   }
 });
 
-const generateSalesReportPdf = async (orderData) => {
+//* Invoice HTML page generating
+const generateInvoicePdf = async (orderData) => {
   const templatePath = path.join(
     __dirname,
     "..",
@@ -616,6 +631,7 @@ const generateSalesReportPdf = async (orderData) => {
   return pdfBuffer;
 };
 
+//? Exporting modules to user order route
 module.exports = {
   loadOrderConfirm,
   placeOrder,

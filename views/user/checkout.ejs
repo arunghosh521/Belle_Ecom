@@ -371,7 +371,9 @@
       "order_id": order.id,
       // "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
       "handler": function(response) {
+        console.log(response, 'qwertyui');
         verifyPayment(response, order, newOrderId)
+      
       },
       "prefill": {
         "name": "Gaurav Kumar",
@@ -383,7 +385,12 @@
       },
       "theme": {
         "color": "#99cc33"
-      }
+      },
+      "modal": {
+        "ondismiss": function(){
+          window.location.href = '/userProfile?paymentFailed=true';
+        }
+    }
     };
     var rzp1 = new Razorpay(options);
     rzp1.on('payment.failed', function(response) {
@@ -393,7 +400,6 @@
     rzp1.open();
 
   }
-
 
   function verifyPayment(response, order, newOrderId) {
     var settings = {

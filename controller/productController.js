@@ -5,8 +5,8 @@ const Product = require("../models/products");
 const CategoryDB = require("../models/category");
 const AdminDB = require("../models/userModel");
 const { resizeAndSaveImages } = require("../middlewares/multer");
-const { log } = require("sharp/lib/libvips");
 
+//* Load products page
 const loadProducts = asyncHandler(async (req, res) => {
   try {
     const findAdmin = await AdminDB.find();
@@ -16,6 +16,7 @@ const loadProducts = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load add products page
 const loadAddProducts = asyncHandler(async (req, res) => {
   try {
     const category = await CategoryDB.find({ is_listed: true });
@@ -26,23 +27,23 @@ const loadAddProducts = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load products listing page
 const loadProductsView = asyncHandler(async (req, res) => {
   try {
     const products = await Product.find()
       .sort({ createdAt: -1 })
       .populate("category");
-    //console.log('products',products);
     res.render("admin/productView", { products });
   } catch (error) {
     console.log("productPageError", error);
   }
 });
 
+//* Pagination for products listing page
 const paginationForProductView = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 6;
   const skip = (page - 1) * limit;
-
   try {
     const products = await Product.find()
       .sort({ createdAt: -1 })
@@ -62,6 +63,7 @@ const paginationForProductView = asyncHandler(async (req, res) => {
   }
 });
 
+//* Validation for add products fields 
 const validateProduct = asyncHandler(async (req, res) => {
   try {
     const { productName, productPrice, productQuantity, productDescription } =
@@ -120,6 +122,7 @@ const validateProduct = asyncHandler(async (req, res) => {
   }
 });
 
+//* Add products control
 const addProductsCntrl = asyncHandler(async (req, res) => {
   try {
     const {
@@ -131,13 +134,10 @@ const addProductsCntrl = asyncHandler(async (req, res) => {
       size,
       color,
     } = req.body;
-    console.log("prdtData:", req.body);
 
-    console.log("imagesfromsystem", req.files);
     const filenames = await resizeAndSaveImages(req.files);
 
     const findCategory = await CategoryDB.findOne({ category: category });
-    console.log("findCategory:", findCategory);
     const products = new Product({
       name: productName,
       category: findCategory._id,
@@ -160,23 +160,20 @@ const addProductsCntrl = asyncHandler(async (req, res) => {
   }
 });
 
+//* Load edit products page
 const loadEditProducts = asyncHandler(async (req, res) => {
   try {
     const _id = req.params.id;
-    //console.log("ID:", _id);
     const products = await Product.findById(_id).populate("category");
-    // console.log("product Data", products);
-
     const category = await CategoryDB.find({ is_listed: true });
-
     const categoryData = Array.isArray(category) ? category : [];
-    //console.log("Category Data", categoryData);
     res.render("admin/editProduct", { categoryData, products, productId: _id });
   } catch (error) {
     console.log("editProductError", error);
   }
 });
 
+//* Listing unlisting products
 const toggleListUser = asyncHandler(async (req, res) => {
   try {
     const { productId, isListed } = req.body;
@@ -192,6 +189,7 @@ const toggleListUser = asyncHandler(async (req, res) => {
   }
 });
 
+//* Edit Product control
 const updateEditProducts = asyncHandler(async (req, res) => {
   try {
     const {
@@ -239,26 +237,22 @@ const updateEditProducts = asyncHandler(async (req, res) => {
   }
 });
 
+
+//* Deleting products from edit product page
 const deleteImageControl = asyncHandler(async (req, res) => {
   try {
-    console.log("deleteImage");
     const { imageUrl } = req.body;
-    console.log("bodyData:", imageUrl);
     const productId = req.query.id;
-    console.log("bodyData:", req.query);
 
     const imageName = path.basename(imageUrl);
-    console.log("imageName:", imageName);
 
     const product = await Product.findByIdAndUpdate(productId, {
       $pull: { images: imageName },
     });
 
     const imagePath = `../Belle_Ecom/public${imageUrl}`;
-    console.log("imagePath", imagePath);
     fs.unlink(imagePath, (err) => {
       if (err) {
-        console.log("Error deleting image:", err);
         res.status(500).json({ error: "Failed to delete image" });
       } else {
         res.status(200).json({ message: "Image deleted successfully" });
@@ -269,6 +263,7 @@ const deleteImageControl = asyncHandler(async (req, res) => {
   }
 });
 
+//? Exporting modules to product route
 module.exports = {
   loadProducts,
   loadAddProducts,

@@ -1,43 +1,46 @@
 const asyncHandler = require("express-async-handler");
-
 const OrderDB = require("../models/order");
 const puppeteer = require("puppeteer");
 
+//* Load order list page
 const loadOrderList = asyncHandler(async (req, res) => {
   try {
     const orderData = await OrderDB.find().populate("products");
-    //console.log("orderData", orderData);
     res.render("admin/orderList", { orderData });
   } catch (error) {
     console.log("loadOrderListError", error);
   }
 });
 
+//* Load order detail page
 const loadOrderDetails = asyncHandler(async (req, res) => {
   try {
     const id = req.query.id;
-    // console.log("sdgfvdbd", id);
     const orderData = await OrderDB.findOne({ _id: id })
       .populate("products.product")
       .populate({ path: "address", model: "Address" });
-
-    // console.log("orderDataDetails", orderData);
     res.render("admin/orderDetails", { orderData });
   } catch (error) {
     console.log("loadOrderDetailsError", error);
   }
 });
 
+//* Changing the the order status
 const updateOrderStatus = asyncHandler(async (req, res) => {
   try {
     const { orderId, newStatus } = req.body;
-    //console.log("bodyDataFromUpdateOrder", orderId, newStatus);
     const order = await OrderDB.findById(orderId);
 
     if (order.orderStatus === "Cancelled") {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         message: "cannot change the status of a cancelled order.",
+      });
+    }
+    if(order.paymentStatus === "Failed"){
+      return res.status(200).json({
+        success: false,
+        message: "cannot change the status of a failed Payments.",
       });
     }
 
@@ -48,26 +51,24 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-    //console.log("updatedOrder", updatedOrder);
-    res.json({ success: true, updatedOrder });
+    res.json({ success: true, updatedOrder, message: "Status changed successfully" });
   } catch (error) {
     console.log("updateOrderStatus", error);
     res.json({ success: false });
   }
 });
 
+//* Disabling the update status dropdown menu
 const getOrderDetails = asyncHandler(async (req, res) => {
   try {
     const orders = await OrderDB.find({
       orderStatus: { $in: ["Cancelled", "Returned"] },
     });
-    console.log("order", orders);
     const orderDetails = orders.map((order) => ({
       orderId: order._id,
       orderStatus: order.orderStatus,
       statusChangedBy: order.statusChangedBy,
     }));
-    console.log("orderStatus", orderDetails);
     res.json(orderDetails);
   } catch (error) {
     console.error("Error fetching order details:", error);
@@ -75,6 +76,7 @@ const getOrderDetails = asyncHandler(async (req, res) => {
   }
 });
 
+//* Pagination order listing in admin
 const orderListPagination = asyncHandler(async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -97,6 +99,7 @@ const orderListPagination = asyncHandler(async (req, res) => {
   }
 });
 
+//* Download order details
 const downloadOrders = asyncHandler(async (req, res) => {
   try {
     const orderData = await OrderDB.find();
@@ -121,6 +124,7 @@ const downloadOrders = asyncHandler(async (req, res) => {
   }
 });
 
+//* Order HTML generator
 function generateOrdersHTML(orderData) {
   let htmlContent = `
   <!DOCTYPE html>
@@ -190,6 +194,8 @@ function generateOrdersHTML(orderData) {
   return htmlContent;
 }
 
+
+//? Exporting modules to order route
 module.exports = {
   loadOrderList,
   loadOrderDetails,

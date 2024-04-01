@@ -1,17 +1,32 @@
 <%- include('../adminLayouts/header.ejs') -%>
 <style>
-  /* Restore the default appearance */
   select.js-example-basic-single {
     -webkit-appearance: menulist;
-    /* For Safari */
+
     -moz-appearance: menulist;
-    /* For Firefox */
+
     appearance: menulist;
-    /* For modern browsers */
+
   }
 
   select::-ms-expand {
     display: block;
+  }
+
+  .scrollable-sales {
+    max-height: 500px;
+    overflow-y: auto;
+
+  }
+
+  .scrollable-tbody {
+    max-height: 400px;
+    overflow-y: auto;
+    display: block;
+  }
+
+  .user-table {
+    width: 100%;
   }
 
 
@@ -83,30 +98,7 @@
   <!-- Container-fluid starts-->
   <div class="container-fluid">
     <div class="row">
-      <!-- Expenses star-->
-      <!-- <div class="col-xl-4 col-lg-12 col-md-6">
-        <div class="card o-hidden">
-          <div class="card-header border-0 pb-1">
-            <div class="card-header-title d-flex align-items-center">
-              <label for="search" class="mb-0 mr-2">Search by ID:</label>
-              <input type="search" class="form-control" placeholder="Search">
-            </div><br>
-            <label for="filter"> Filter by:
-              <div class="select-wrapper">
-                <select class="js-example-basic-single w-200 form-control" name="filter">
-                  <option disabled>Select Color</option>
-                  <option>Red</option>
-                  <option>White</option>
-                  <option>Blue</option>
-                  <option>Black</option>
-                </select>
-              </div>
-            </label>
-          </div>
-        </div>
-      </div> -->
-      <!-- Expenses end-->
-      <!-- Sales / Purchase Return star-->
+      <!-- Sales / search by date-->
       <div class="col-12">
         <div class="card o-hidden">
           <div class="card-header border-0 pb-1">
@@ -125,9 +117,9 @@
           </div>
         </div>
       </div>
-      <!-- Sales / Purchase Return end-->
+      <!-- Sales / search by date end-->
 
-     
+
       <div style="margin-bottom: 20px;"> <input type="search" class="form-control" placeholder="Search by name..">
       </div>
       <!-- Booking history start-->
@@ -143,81 +135,101 @@
           <div class="card-body">
             <div>
               <div class="table-responsive">
-                <table class="user-table list-table table" style="font-size: 12px;">
-                  <thead>
-                    <tr>
-                      <th>Order Id</th>
-                      <th>Customer Name</th>
-                      <th>Address</th>
-                      <th>Product Name</th>
-                      <th>Quantity</th>
-                      <th>Total</th>
-                      <th>Status</th>
-                      <th>Order Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% if(orderData && orderData.length > 0) { %>
-                    <% orderData.forEach(function(order) { %>
-                    <tr>
-                      <td>#<%= order.orderId %></td>
-                      <td>
-                        <h5><%= order.orderBy.firstname %></h5>
-                      </td>
-                      <td>
-                        <ul class="address-details">
-                          <li><%= order.address[0].Fname %></li>
-                          <li><%= order.address[0].mobile %></li>
-                          <li><%= order.address[0].address %>, <br> <%= order.address[0].apartment %>, <br> <%= order.address[0].city %></li>
-                          <li><%= order.address[0].state %>, <%= order.address[0].pincode %></li>
-                          <li><%= order.address[0].country %></li>
-                        </ul>
-                      </td>
+                <div class="scrollable-sales">
+                  <table class="user-table list-table table" style="font-size: 12px;">
+                    <thead>
+                      <tr>
+                        <th>Order Id</th>
+                        <th>Customer Name</th>
+                        <th>Address</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Order Date</th>
+                      </tr>
+                    </thead>
+                    <div class="scrollable-tbody">
+                      <tbody>
+                        <% if(orderData && orderData.length > 0) { %>
+                        <% orderData.forEach(function(order) { %>
+                        <tr>
+                          <td>#<%= order.orderId %></td>
+                          <td>
+                            <h5><%= order.orderBy.firstname %></h5>
+                          </td>
+                          <td>
+                            <ul class="address-details">
+                              <li><%= order.address[0].Fname %></li>
+                              <li><%= order.address[0].mobile %></li>
+                              <li><%= order.address[0].address %>, <br> <%= order.address[0].apartment %>, <br> <%= order.address[0].city %></li>
+                              <li><%= order.address[0].state %>, <%= order.address[0].pincode %></li>
+                              <li><%= order.address[0].country %></li>
+                            </ul>
+                          </td>
 
-                      <td class="product-name">
-                        <% order.products.forEach(function(product, index) { %>
+                          <td class="product-name">
+                            <% order.products.forEach(function(product, index) { %>
                             <% let words = product.product.name.split(' '); %>
                             <% for (let i = 0; i < words.length; i++) { %>
-                                <%= words[i] %>
-                                <% if (i < words.length - 1) { %>
-                                    <% if ((i + 1) % 5 === 0) { %>
-                                        <br>
-                                    <% } else { %>
-                                        <% if (i < words.length - 1) { %>
-                                            <%= ' ' %>
-                                        <% } %>
-                                    <% } %>
-                                <% } %>
+                            <%= words[i] %>
+                            <% if (i < words.length - 1) { %>
+                            <% if ((i + 1) % 5 === 0) { %>
+                            <br>
+                            <% } else { %>
+                            <% if (i < words.length - 1) { %>
+                            <%= ' ' %>
+                            <% } %>
+                            <% } %>
+                            <% } %>
                             <% } %>
                             <% if (index < order.products.length - 1) { %>,<br><% } %>
+                            <% }); %>
+                          </td>
+
+                          <td style="text-align: center;">
+                            <% order.products.forEach(function(product, index) { %>
+                            <%= product.quantity %><% if (index < order.products.length - 1) { %><br><% } %>
+                            <% }); %>
+                          </td>
+                          <td><%= order.orderTotal %></td>
+                          <td><%= order.orderStatus %></td>
+                          <td><%= order.orderedDate %></td>
+                        </tr>
                         <% }); %>
-                    </td>
-                    
-                      <td style="text-align: center;">
-                        <% order.products.forEach(function(product, index) { %>
-                        <%= product.quantity %><% if (index < order.products.length - 1) { %><br><% } %>
-                        <% }); %>
-                      </td>
-                      <td><%= order.orderTotal %></td>
-                      <td><%= order.orderStatus %></td>
-                      <td><%= order.orderedDate %></td>
-                    </tr>
-                    <% }); %>
-                    <tr>
-                      <td style="font-size: 20px;">Total:</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td style="font-size: 16px;"> <strong>₹<%= orderTotalAmt %></strong></td>
-                    </tr>
-                    <% } else { %>
-                    <tr>
-                      <td colspan="8">No Data</td>
-                    </tr>
-                    <% } %>
-                  </tbody>
-                </table>
+                        <tr>
+                          <td style="font-size: 20px;">Total:</td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td style="font-size: 16px;"> <strong>₹<%= totalSum %></strong></td>
+                        </tr>
+                        <tr>
+                          <td style="font-size: 20px;">Discount Amount:</td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td style="font-size: 16px;"> <strong>₹<%= Math.round(discountAmount) %></strong></td>
+                        </tr>
+                        <tr>
+                          <td style="font-size: 20px;">Grant Total:</td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td style="font-size: 16px;"> <strong>₹<%= Math.round(orderTotalAmt) %></strong></td>
+                        </tr>
+                        <% } else { %>
+                        <tr>
+                          <td colspan="8">No Data</td>
+                        </tr>
+                        <% } %>
+                      </tbody>
+                    </div>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -250,15 +262,14 @@
         .catch(error => console.error('Error downloading orders:', error));
     }
 
-function filterSalesReport() {
-    var startDate = document.getElementById('startDate').value;
-    var endDate = document.getElementById('endDate').value;
+    function filterSalesReport() {
+      var startDate = document.getElementById('startDate').value;
+      var endDate = document.getElementById('endDate').value;
 
-    var url = '/admin/salesReport/filterSalesReport?startDate=' + startDate + '&endDate=' + endDate;
+      var url = '/admin/salesReport/filterSalesReport?startDate=' + startDate + '&endDate=' + endDate;
 
-    window.location.href = url;
-}
-
+      window.location.href = url;
+    }
   </script>
 
   <%- include('../adminLayouts/footer.ejs') -%>

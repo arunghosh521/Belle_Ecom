@@ -36,6 +36,7 @@ router
   .get(isLogin, isBlocked, userController.loadUserProfile)
 router.patch("/editProfile", multerMiddleware.uploads.single("image"),userController.editProfileCntrl);
 router.get("/verify-email", userController.changedEmailVerify);
+router.get("/aboutUs", userController.loadAboutUs);
 
 
 module.exports = router;
