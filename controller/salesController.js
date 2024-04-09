@@ -3,6 +3,7 @@ const OrderDB = require("../models/order");
 const ejs = require("ejs");
 const path = require("path");
 const puppeteer = require("puppeteer");
+const ExcelJS = require("exceljs");
 
 //* Load salesReport page
 const loadSalesReport = asyncHandler(async (req, res) => {
@@ -140,6 +141,8 @@ const generateSalesReportPdf = async (
 //* Download sales report
 const downloadSalesReport = asyncHandler(async (req, res) => {
   try {
+    const format = req.query.format || "pdf";
+    console.log(format, "format");
     const orderData = await OrderDB.find({ orderStatus: "Delivered" })
       .populate("products.product")
       .populate({ path: "address", model: "Address" })
@@ -159,18 +162,60 @@ const downloadSalesReport = asyncHandler(async (req, res) => {
     );
     const discountAmount = totalSum - orderTotalAmt;
 
-    const pdfBuffer = await generateSalesReportPdf(
-      orderData,
-      orderTotalAmt,
-      totalSum,
-      discountAmount
-    );
+    let buffer;
+    if (format === "pdf") {
+      console.log("sdfghjk");
+      buffer = await generateSalesReportPdf(
+        orderData,
+        orderTotalAmt,
+        totalSum,
+        discountAmount
+      );
+      console.log("bufferpdf", buffer);
 
-    res.set({
-      "Content-Type": "application/pdf",
-      "Content-Length": pdfBuffer.length,
-    });
-    res.send(pdfBuffer);
+      res.set({
+        "Content-Type": "application/pdf",
+        "Content-Length": buffer.length,
+      });
+    } else if (format === "xlsx") {
+      const workbook = new ExcelJS.Workbook();
+      //console.log("workbook", workbook);
+      const worksheet = workbook.addWorksheet("Sales Report");
+      //console.log("worksheet", worksheet);
+
+      worksheet.columns = [
+        { header: "Order ID", key: "orderId", width: 10 },
+        { header: "Customer Name", key: "Customer Name", width: 20 },
+        { header: "Address", key: "address", width: 20 },
+        { header: "Product Name", key: "productname", width: 20 },
+        { header: "Quantity", key: "quantity", width: 10 },
+        { header: "Order Total", key: "orderTotal", width: 15 },
+        { header: "Status", key: "status", width: 15 },
+        { header: "Order Date", key: "orderDate", width: 15 },
+      ];
+
+      orderData.forEach((order, index) => {
+        const product = order.products[0];
+        console.log('product', product)
+        worksheet.addRow({
+          orderId: order.orderId,
+          customerName: `${order.orderBy.firstname} ${order.orderBy.lastname}`,
+          address: `${order.address.address}, ${order.address.apartment}, ${order.address.city}, ${order.address.state}, ${order.address.pincode}, ${order.address.country}`,
+          productName: product.product.name,
+          quantity: product.quantity,
+          orderTotal: order.orderTotal,
+          status: order.orderStatus,
+          orderDate: order.orderedDate,
+        });
+      });
+      buffer = await workbook.xlsx.writeBuffer();
+      res.set({
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Length": buffer.length,
+      });
+    }
+    res.send(buffer);
   } catch (error) {
     console.error("Error generating sales report:", error);
     res.status(500).send("Error generating sales report");

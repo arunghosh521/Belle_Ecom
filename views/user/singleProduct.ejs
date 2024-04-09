@@ -1277,6 +1277,7 @@
               $('#wishlistDiv').html(data.isInWishlist);
               var updatedHeartIcon = $('#wishlistDiv .heart-icon');
               updatedHeartIcon.removeClass('fa-heart-o').addClass('fa-heart-red');
+              location.reload();
             } else {
               toastr.success(data.message, "Info");
             }

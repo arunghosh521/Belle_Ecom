@@ -2,7 +2,7 @@ const { OTP } = require("../models/userOtp");
 const asyncHandler = require("express-async-handler");
 const { sentOtpToUserEmail } = require("./emailController");
 const User = require("../models/userModel");
-const Wallet = require("../models/Wallet");
+const Wallet = require("../models/wallet");
 
 //* OTP generator
 const generateOtp = () => {

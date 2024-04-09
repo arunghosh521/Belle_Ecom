@@ -4,10 +4,9 @@ const UserDB = require("../models/userModel");
 const ProductDB = require("../models/products");
 const AddressDB = require("../models/address");
 const CouponDB = require("../models/coupon");
-const WalletDB = require("../models/Wallet");
+const WalletDB = require("../models/wallet");
 const WishlistDB = require("../models/wishlist");
 const mongoose = require("mongoose");
-
 
 //* Load user cart
 const loadUserCart = asyncHandler(async (req, res) => {
@@ -22,98 +21,95 @@ const loadUserCart = asyncHandler(async (req, res) => {
   }
 });
 
-//* Insert a product to cart from product detail page 
+//* Insert a product to cart from product detail page
 const insertCartItem = asyncHandler(async (req, res) => {
   try {
-     const { quantity, productId, couponCode } = req.body;
-     const product = await ProductDB.findById(productId).populate("offer");
-     
-     if (!product) {
-       return res.json({ success: false, message: "Product not Found" });
-     }
-     if (quantity > product.quantity) {
-       return res.json({ success: false, message: "Product Quantity Exceeded" });
-     }
+    const { quantity, productId, couponCode } = req.body;
+    const product = await ProductDB.findById(productId).populate("offer");
 
-     const removedWishlistProduct = await WishlistDB.findOneAndUpdate(
-       { user: req.session.userId },
-       { $pull: { products: { product: productId } } },
-       { new: true }
-      );
-       
-     let cart = await CartDB.findOne({ orderBy: req.session.userId });
-     if (!cart) {
-       cart = new CartDB({
-         products: [],
-         cartTotal: 0,
-         orderBy: req.session.userId,
-       });
-       await cart.save();
-     }
-     const existingProduct = cart.products.find(
-       (item) => item.product.toString() === productId
-     );
- 
-     const priceToUse =
-       product.offer && product.offerApplied === true
-         ? product.offerPrice
-         : product.price;
-     const offerStatusInCart =
-       product.offer && product.offerApplied === true
-         ? true
-         : false;
-     if (couponCode) {
-       const coupon = await CouponDB.findOne({
-         couponCode: couponCode,
-         status: true,
-       });
-       if (coupon && cart.cartTotal >= coupon.minAmount) {
-         cart.cartTotal -= coupon.discountAmount;
-         cart.couponApplied = true;
-       } else {
-         const userId = req.session.userId;
-         const userObjectId = mongoose.Types.ObjectId(userId);
-         const updatedCoupon = await CouponDB.updateOne(
-           {
-             couponCode: couponCode,
-           },
-           { $pull: { userUsed: { user_id: userObjectId } } }
-         );
-         cart.couponApplied = false; 
-       }
-     }
- 
-     if (existingProduct) {
-       if (existingProduct.quantity + parseInt(quantity) > product.quantity) {
-         return res.json({
-           success: false,
-           message: "Product Quantity Exceeded",
-         });
-       } else {
-         existingProduct.quantity += parseInt(quantity);
-         cart.cartTotal = cart.products.reduce((total, product) => {
-           return total + product.quantity * product.price;
-         }, 0);
-       }
-     } else {
-       cart.products.push({
-         product: productId,
-         quantity: quantity,
-         price: priceToUse,
-         total: priceToUse * quantity,
-         offer: offerStatusInCart
-       });
-       cart.cartTotal += priceToUse * quantity
+    if (!product) {
+      return res.json({ success: false, message: "Product not Found" });
     }
- 
-     await cart.save();
- 
-     res.json({ success: true });
+    if (quantity > product.quantity) {
+      return res.json({ success: false, message: "Product Quantity Exceeded" });
+    }
+
+    const removedWishlistProduct = await WishlistDB.findOneAndUpdate(
+      { user: req.session.userId },
+      { $pull: { products: { product: productId } } },
+      { new: true }
+    );
+
+    let cart = await CartDB.findOne({ orderBy: req.session.userId });
+    if (!cart) {
+      cart = new CartDB({
+        products: [],
+        cartTotal: 0,
+        orderBy: req.session.userId,
+      });
+      await cart.save();
+    }
+    const existingProduct = cart.products.find(
+      (item) => item.product.toString() === productId
+    );
+
+    const priceToUse =
+      product.offer && product.offerApplied === true
+        ? product.offerPrice
+        : product.price;
+    const offerStatusInCart =
+      product.offer && product.offerApplied === true ? true : false;
+    if (couponCode) {
+      const coupon = await CouponDB.findOne({
+        couponCode: couponCode,
+        status: true,
+      });
+      if (coupon && cart.cartTotal >= coupon.minAmount) {
+        cart.cartTotal -= coupon.discountAmount;
+        cart.couponApplied = true;
+      } else {
+        const userId = req.session.userId;
+        const userObjectId = mongoose.Types.ObjectId(userId);
+        const updatedCoupon = await CouponDB.updateOne(
+          {
+            couponCode: couponCode,
+          },
+          { $pull: { userUsed: { user_id: userObjectId } } }
+        );
+        cart.couponApplied = false;
+      }
+    }
+
+    if (existingProduct) {
+      if (existingProduct.quantity + parseInt(quantity) > product.quantity) {
+        return res.json({
+          success: false,
+          message: "Product Quantity Exceeded",
+        });
+      } else {
+        existingProduct.quantity += parseInt(quantity);
+        cart.cartTotal = cart.products.reduce((total, product) => {
+          return total + product.quantity * product.price;
+        }, 0);
+      }
+    } else {
+      cart.products.push({
+        product: productId,
+        quantity: quantity,
+        price: priceToUse,
+        total: priceToUse * quantity,
+        offer: offerStatusInCart,
+      });
+      cart.cartTotal += priceToUse * quantity;
+    }
+
+    await cart.save();
+
+    res.json({ success: true });
   } catch (error) {
-     console.log("InsertCartError", error);
+    console.log("InsertCartError", error);
   }
- });
- 
+});
 
 //* Updating quantities of product from the cart page
 const cartUpdate = asyncHandler(async (req, res) => {
@@ -199,7 +195,11 @@ const loadCheckout = asyncHandler(async (req, res) => {
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    const couponList = await CouponDB.find({ status: true });
+    const couponList = await CouponDB.find({
+      status: true,
+      Availability: { $gt: 0 },
+      userUsed: { $not: { $elemMatch: { user_id: req.session.userId } } },
+    });
     const addressData = await AddressDB.find({ user: req.session.userId });
     const walletData = await WalletDB.findOne({ user: req.session.userId });
     res.render("user/checkout", {
@@ -260,6 +260,7 @@ const applyCoupon = asyncHandler(async (req, res) => {
       userCart.couponApplied = true;
       await userCart.save();
       couponDetails.userUsed.push({ user_id: userId });
+      couponDetails.Availability--;
       await couponDetails.save();
 
       return res.status(200).json({
@@ -282,7 +283,6 @@ const applyCoupon = asyncHandler(async (req, res) => {
       .json({ success: false, message: "Internal server error" });
   }
 });
-
 
 //* Remove Coupon
 const removeCoupon = asyncHandler(async (req, res) => {
@@ -308,7 +308,9 @@ const removeCoupon = asyncHandler(async (req, res) => {
       userCart.save();
       const userObjectId = mongoose.Types.ObjectId(userId);
       couponDetails.userUsed.pull({ user_id: userObjectId });
+      couponDetails.Availability++;
       await couponDetails.save();
+
       return res.status(200).json({
         success: true,
         cartDetails: userCart,
@@ -322,7 +324,6 @@ const removeCoupon = asyncHandler(async (req, res) => {
       .json({ success: false, message: "Internal server error" });
   }
 });
-
 
 //? Exporting modules to cart route
 module.exports = {

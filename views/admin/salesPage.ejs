@@ -72,8 +72,12 @@
   }
 
   .btn.btn-solid {
-    margin-left: 550px;
-  }
+    margin-left: 100px;
+    width: 150px; 
+    max-width: 150px; 
+    padding: 10px 20px; 
+}
+
 
   .product-name {
     font-size: 12px;
@@ -128,7 +132,8 @@
           <div class="card-header border-0 pb-1">
             <div class="card-header-title" style="display: inline-flex;">
               <h3>Sales Report</h3>
-              <a href="#" class="btn btn-solid" onclick="downloadSalesReport()">Download sales report</a>
+              <a href="#" class="btn btn-solid" onclick="downloadSalesReport('pdf')">sales report (PDF)</a>
+              <a href="#" class="btn btn-solid" onclick="downloadSalesReport('xlsx')">sales report (Excel)</a>
             </div>
           </div>
 
@@ -241,12 +246,12 @@
   <!-- Container-fluid Ends-->
 
   <script>
-    function downloadSalesReport() {
+    function downloadSalesReport(format) {
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
       const isFiltered = startDate && endDate;
 
-      const url = '/admin/salesReport/download-salesreport';
+      const url = `/admin/salesReport/download-salesreport?format=${format}`;
       fetch(url)
         .then(response => response.blob())
         .then(blob => {
@@ -254,7 +259,8 @@
           const a = document.createElement('a');
           a.style.display = 'none';
           a.href = url;
-          a.download = 'report.pdf';
+          console.log(a.href,'asdfghj');
+          a.download = `sales report.${format === 'pdf' ? 'pdf': 'xlsx'}`;
           document.body.appendChild(a);
           a.click();
           window.URL.revokeObjectURL(url);

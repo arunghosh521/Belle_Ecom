@@ -56,6 +56,6 @@ walletSchema.methods.addTransaction = function (transaction) {
   return this.save();
 };
 
-const Wallet = mongoose.model('Wallet', walletSchema);
+const wallet = mongoose.model('Wallet', walletSchema);
 
-module.exports = Wallet;
+module.exports = wallet;

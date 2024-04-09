@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const crypto = require("crypto");
-const WalletDB = require("../models/Wallet");
+const WalletDB = require("../models/wallet");
 const UserDB = require("../models/userModel");
 const orderId = require("order-id")("key");
 const Razorpay = require("razorpay");

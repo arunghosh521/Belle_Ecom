@@ -76,14 +76,14 @@ const addNewCoupon = asyncHandler(async (req, res) => {
           message: "Minimum amount must be a number.",
         });
     } 
-    //  if (minimumAmount <= discountAmount) {
-    //   return res
-    //     .status(200)
-    //     .json({
-    //       successMinAmt: false,
-    //       message: "Minimum amount cannot be less than or equals the discount amount.",
-    //     });
-    // }
+     if (minimumAmount <= discountAmount) {
+      return res
+        .status(200)
+        .json({
+          successMinAmt: false,
+          message: "Minimum amount cannot be less than or equals the discount amount.",
+        });
+    }
 
     const descriptionWords = description.split(/\s+/);
     if (descriptionWords.length < 5 || descriptionWords.length > 15) {
