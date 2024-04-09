@@ -10,6 +10,8 @@ const AddressDB = require("../models/address");
 const ProductDB = require("../models/products");
 const orderDB = require("../models/order");
 const orderIdGenerator = require("order-id")("key");
+const dotenv = require("dotenv");
+dotenv.config();
 const Razorpay = require("razorpay");
 const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
 
