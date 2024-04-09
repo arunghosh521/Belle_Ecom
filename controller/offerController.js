@@ -17,7 +17,7 @@ const createOfferControl = asyncHandler(async (req, res) => {
   try {
     const { title, percentage, startDate, endDate, description } = req.body;
     const alphanumericRegex = /^[a-zA-Z0-9]{6}$/;
-    const numericRegex = /^\d+$/;
+    const numericRegex = /^\d+(\.\d+)?$/;
     const titleRegex = /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
     const descriptionWords = description.split(/\s+/);
 
@@ -37,11 +37,11 @@ const createOfferControl = asyncHandler(async (req, res) => {
       });
     }
 
-    if (!numericRegex.test(percentage)) {
+    if (!numericRegex.test(percentage) || parseFloat(percentage) > 100) {
       return res.status(200).json({
         successPercentage: false,
         message:
-          "Coupon code must be exactly 6 characters long and can only contain alphabets and numbers.",
+          "Percentage must be numbers and not greater than 100.",
       });
     }
 

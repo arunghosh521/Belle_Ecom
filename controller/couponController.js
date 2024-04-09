@@ -76,7 +76,7 @@ const addNewCoupon = asyncHandler(async (req, res) => {
           message: "Minimum amount must be a number.",
         });
     } 
-     if (minimumAmount <= discountAmount) {
+     if (minimumAmount > discountAmount) {
       return res
         .status(200)
         .json({
@@ -170,7 +170,6 @@ const editCouponControl = asyncHandler(async (req, res) => {
       minimumAmount,
       description,
     } = req.body;
-
     const numericRegex = /^\d+$/;
     const titleRegex = /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
 
@@ -224,14 +223,14 @@ const editCouponControl = asyncHandler(async (req, res) => {
           message: "Minimum amount must be a number.",
         });
     } 
-    //  if (minimumAmount <= discountAmount) {
-    //   return res
-    //     .status(200)
-    //     .json({
-    //       successMinAmt: false,
-    //       message: "Minimum amount cannot be less than or equals the discount amount.",
-    //     });
-    // }
+     if (minimumAmount > discountAmount) {
+      return res
+        .status(200)
+        .json({
+          successMinAmt: false,
+          message: "Minimum amount cannot be less than or equals the discount amount.",
+        });
+    }
 
     const descriptionWords = description.split(/\s+/);
     if (descriptionWords.length < 5 || descriptionWords.length > 15) {
