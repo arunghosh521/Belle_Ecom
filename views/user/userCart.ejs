@@ -180,7 +180,6 @@
 
       const quantityInput = document.getElementById(`Quantity_${productId}`);
       const currentQuantity = parseInt(quantityInput.value);
-      console.log(("quantityValue", currentQuantity));
       
       if (currentQuantity + increment < 1) {
         toastr.info("Quantity cannot be less than 1", "info!");
@@ -231,7 +230,6 @@
 
 <script>
   async function removeItem(productId) {
-    console.log("productID", productId);
     try {
 
       const result = await Swal.fire({
@@ -256,7 +254,6 @@
         });
         const data = await response.json();
         if (data.success) {
-          console.log("item removed");
           Swal.fire({
             title: "Deleted!",
             text: "Your item has been removed from the cart.",

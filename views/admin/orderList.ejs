@@ -263,7 +263,6 @@
 
 <script>
   function downloadOrders() {
-    console.log("sdvfdv");
     fetch('/admin/orderList/download-Orders')
       .then(response => response.blob())
       .then(blob => {

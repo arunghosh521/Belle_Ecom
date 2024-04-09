@@ -187,8 +187,6 @@
 
       const productId = button.dataset.productId;
       const isListed = button.dataset.isListed;
-      console.log("User ID: ", productId);
-      console.log("Is Listed: ", isListed);
 
       $.ajax({
         type: 'POST',
@@ -227,15 +225,12 @@
 
   <script>
     function offerListing(button) {
-      console.log(button);
       const productId = button.dataset.productId;
-      console.log(productId);
       document.querySelector('#offerDetailsModal').dataset.productId = productId;
       $.ajax({
         url: '/admin/offerListing',
         type: 'POST',
         success: function(response) {
-          console.log("ghbjn", response);
           let offersHtml = `
           <table class="table">
             <thead>
@@ -275,14 +270,10 @@
           $('#offerDetailsModal').modal('show');
 
           document.querySelector('#offerDetailsModal .modal-body table').addEventListener('click', function(event) {
-            console.log("sdffd");
             if (event.target.classList.contains('apply-offer-btn')) {
               const row = event.target.closest('tr');
-              console.log(row);
               const offerName = row.querySelector('td:nth-child(1)').textContent;
-              console.log('Applying offer:', offerName);
               const productId = document.querySelector('#offerDetailsModal').dataset.productId;
-              console.log(productId);
               $.ajax({
                 url: '/admin/applyOfferToProduct',
                 type: 'POST',
@@ -292,7 +283,6 @@
                 },
                 success: function(response) {
                   alert(response.message);
-                  console.log(response.message);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                   console.error('Error applying offer:', textStatus, errorThrown);
@@ -302,14 +292,10 @@
           });
 
           document.querySelector('#offerDetailsModal .modal-body table').addEventListener('click', function(event) {
-            console.log("sdffd");
             if (event.target.classList.contains('remove-offer-btn')) {
               const row = event.target.closest('tr');
-              console.log(row);
               const offerName = row.querySelector('td:nth-child(1)').textContent;
-              console.log('Removing offer:', offerName);
               const productId = document.querySelector('#offerDetailsModal').dataset.productId;
-              console.log(productId);
               $.ajax({
                 url: '/admin/removeOfferProduct',
                 type: 'POST',
@@ -319,7 +305,6 @@
                 },
                 success: function(response) {
                   alert(response.message);
-                  console.log(response.message);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                   console.error('Error applying offer:', textStatus, errorThrown);
@@ -345,7 +330,6 @@
       fetch(`/admin/product/pagination?page=${page}&limit=${itemsPerPage}`)
         .then(response => response.json())
         .then(data => {
-          console.log("products", data.products);
           updateTable(data.products);
           updatePagination(data.totalPages, data.currentPage);
         })

@@ -319,7 +319,6 @@
       max: maxPrice,
       values: [0, maxPrice],
       slide: function(event, ui) {
-        console.log("Slider values:", ui.values[0], ui.values[1]);
         $("#amount").val("₹" + ui.values[0] + " - ₹" + ui.values[1]);
       }
     });
@@ -343,7 +342,6 @@
   $(function() {
     $(".swacth-btn").on("click", function() {
       const selectedSize = $(this).data("size");
-      console.log(selectedSize);
       const Url = `/productView?page=<%= currentPage %>&size=${selectedSize}`
       window.location.href = Url;
 
@@ -353,9 +351,7 @@
   function handleSortChange(selectElement) {
     const sortOption = selectElement.value;
     //  const currentPage = document.querySelector('.current-page').value;
-    //  console.log(currentPage, "asdfghjkl");
     const currentCatId = new URLSearchParams(window.location.search).get('catId');
-    console.log(currentCatId);
 
     let url = `/productView?page=<%= currentPage %>&sort=${sortOption}`;
     if (currentCatId) {

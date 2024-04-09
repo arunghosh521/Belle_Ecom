@@ -201,13 +201,10 @@
         if (pNameAlert.innerText || pPriceAlert.innerText || pQuantityAlert.innerText || pDescriptionAlert.innerText) {
           event.preventDefault();
           toastr.info('validation Failed. form submission prevented');
-
-          console.log('validation Failed. form submission prevented');
         }
       });
 
       productName.addEventListener('input', function() {
-        console.log('typing');
         let pName = productName.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -225,7 +222,6 @@
             } else {
               pNameAlert.innerText = '';
             }
-            console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -234,7 +230,6 @@
 
 
       productPrice.addEventListener('input', function() {
-        console.log('typing');
         let pQuantity = productPrice.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -252,7 +247,6 @@
             } else {
               pPriceAlert.innerText = '';
             }
-            console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -261,7 +255,6 @@
 
 
       pDescription.addEventListener('input', function() {
-        console.log('typing');
         let pDescriptionInput = pDescription.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -280,7 +273,6 @@
               pDescriptionAlert.innerText = '';
             }
             updateWordCount(pDescriptionInput);
-            console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -296,7 +288,6 @@
 
 
       productQuantity.addEventListener('input', function() {
-        console.log('typing');
         let pPrice = productQuantity.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -314,7 +305,6 @@
             } else {
               pQuantityAlert.innerText = '';
             }
-            console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -334,7 +324,6 @@
             let existingImage = document.getElementById('existingImage');
           if (existingImage) {
             existingImage.src = e.target.result;
-            //console.log(existingImage.src, 'imagesource');
             const img = document.createElement('img');
             img.id = `image-${i}`;
             img.src = e.target.result;
@@ -342,7 +331,6 @@
             img.style.maxWidth = '100px';
             previewDiv.appendChild(img);
           } else {
-            console.log('not existingImage');
             const img = document.createElement('img');
             img.id = `image-${i}`;
             img.src = e.target.result;
@@ -390,7 +378,6 @@
                     'success'
                   );
                 } else {
-                  console.log('Failed to delete image');
                   Swal.fire(
                     'Failed!',
                     'There was an error deleting your image.',

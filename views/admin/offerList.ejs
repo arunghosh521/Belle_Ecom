@@ -191,14 +191,12 @@
       document.querySelectorAll('[data-bs-target="#exampleModalToggle"]').forEach(function(deleteButton) {
           deleteButton.addEventListener('click', function() {
               var offerID = this.dataset.offerId;
-              console.log(offerID);
               document.getElementById('confirmDeleteBtn').dataset.offerId = offerID;
           });
       });
   
       document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
           var offerID = this.dataset.offerId;
-          console.log('confirmdeleteBtn', offerID);
   
           $.ajax({
               url: '/admin/deleteOffer',

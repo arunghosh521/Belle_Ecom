@@ -568,7 +568,6 @@
             productId
           }),
           success: function(data) {
-            console.log(data,'sdfghjk');
             if (data.success === true) {
               toastr.success(data.message, "Added");
               $('#wishlistDiv').html(data.isInWishlist);
@@ -669,7 +668,6 @@
               });
             }
           } catch (error) {
-            console.log("cartBtnError", error);
             Swal.fire({
               icon: 'error',
               title: 'Error',

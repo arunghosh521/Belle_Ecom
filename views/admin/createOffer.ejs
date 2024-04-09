@@ -135,7 +135,6 @@
         if (response.success) {
           window.location.href = '/admin/offerList?success=true&message=' + encodeURIComponent(response.message);
         } else {
-          console.error(response.message);
           if (response.successValidation === false) {
             $('#offerValidationAlert').text(response.message);
           } else {

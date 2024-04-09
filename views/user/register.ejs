@@ -151,7 +151,6 @@
     let alertOtp = document.getElementById('alertOtp');
     let submitOtpBtn = document.getElementById('submitBtnOtp');
 
-    console.log("before disabled out side event");
     SubmitButton.disabled = true;
 
     registerForm.addEventListener('submit', function(event) {
@@ -344,7 +343,6 @@
         .then(data => {
           loader.style.display = 'none';
           if (data.success) {
-            console.log(data, 'asdfghjkl');
             // OTP sent successfully, show OTP section
             otpSection.removeAttribute('hidden');
             // Optionally, hide unnecessary form fields

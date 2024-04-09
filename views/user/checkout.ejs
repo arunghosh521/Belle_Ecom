@@ -371,7 +371,6 @@
       "order_id": order.id,
       // "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
       "handler": function(response) {
-        console.log(response, 'qwertyui');
         verifyPayment(response, order, newOrderId)
       
       },
@@ -451,7 +450,6 @@
       },
       success: (response) => {
         if (response.successWallet === true) {
-          console.log("res", response);
           window.location.href = `/orderPlaced?orderId=${encodeURIComponent(response.orderId)}`;
         }else {
           toastr["error"](response.message,"Info!");

@@ -203,13 +203,10 @@
         if (pNameAlert.innerText || pPriceAlert.innerText || pQuantityAlert.innerText || pDescriptionAlert.innerText) {
           event.preventDefault();
           toastr.info('validation Failed. form submission prevented');
-
-          console.log('validation Failed. form submission prevented');
         }
       });
 
       productName.addEventListener('change', function() {
-        console.log('typing');
         let pName = productName.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -227,7 +224,6 @@
             } else {
               pNameAlert.innerText = ''; 
             }
-            console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -236,7 +232,6 @@
 
 
       productPrice.addEventListener('change', function() {
-        console.log('typing');
         let pQuantity = productPrice.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -254,7 +249,6 @@
             } else {
               pPriceAlert.innerText = ''; 
             }
-            console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -263,7 +257,6 @@
 
 
       pDescription.addEventListener('input', function() {
-        console.log('typing');
         let pDescriptionInput = pDescription.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -282,7 +275,6 @@
               pDescriptionAlert.innerText = ''; 
             }
             updateWordCount(pDescriptionInput);
-            console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);
@@ -298,7 +290,6 @@
 
 
       productQuantity.addEventListener('change', function() {
-        console.log('typing');
         let pPrice = productQuantity.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -316,7 +307,6 @@
             } else {
               pQuantityAlert.innerText = '';
             }
-            console.log(data);
           })
           .catch(error => {
             console.error('Error:', error);

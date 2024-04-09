@@ -120,7 +120,6 @@
     event.preventDefault();
 
     var formData = $(this).serialize();
-    console.log(formData);
 
     $.ajax({
       url: '/admin/editOffer',
@@ -131,7 +130,6 @@
             window.location.href = '/admin/offerList?success=true&message=' + encodeURIComponent(response.message);
         } else {
             toastr.info(response.message, 'Info!');
-          console.error(response.message);
         }
 
       },

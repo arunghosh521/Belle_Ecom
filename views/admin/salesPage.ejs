@@ -286,7 +286,6 @@
           const a = document.createElement('a');
           a.style.display = 'none';
           a.href = url;
-          console.log(a.href,'asdfghj');
           a.download = `sales report.${format === 'pdf' ? 'pdf': 'xlsx'}`;
           document.body.appendChild(a);
           a.click();

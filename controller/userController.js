@@ -121,7 +121,7 @@ const validateUser = asyncHandler(async (req, res) => {
     }
     if (!email || email.trim() === "") {
       response.emailStatus = "Email address is required";
-    } else if (!/^\S+@gmail\.com$|^\S+@gufum\.com$/.test(email)) {
+    } else if (!/\S+@\S+\.\S{2,}/.test(email)) {
       response.emailStatus = "Invalid email address";
     } else {
       response.emailStatus = "";

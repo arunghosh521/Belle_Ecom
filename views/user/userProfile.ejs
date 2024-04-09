@@ -826,7 +826,6 @@
         method: 'POST',
         data: formData,
         success: function(response) {
-          console.log(response);
           if (response.success === true) {
             Swal.fire({
               title: 'Success!',
@@ -1215,7 +1214,6 @@
     // Attach click event listener to the #invoiceBtn element
     $(document).on('click', '#invoiceBtn', function() {
       const invoiceButton = $(this);
-      console.log(invoiceButton, 'btninvoice');
       const orderId = invoiceButton.data('invoice-id');
       const url = '/orderPlaced/downloadInvoice?id=' + orderId;
 
@@ -1250,7 +1248,6 @@
     $(document).on('click', '#returnBtn', function() {
       const returnButton = $(this);
       const orderId = returnButton.data('return');
-      console.log(orderId);
 
       Swal.fire({
         title: "Are you sure?",
@@ -1299,7 +1296,6 @@
     $(document).on('click', '#retryBtn', function() {
       const retryButton = $(this);
       const orderId = retryButton.data('retry-id');
-      console.log(orderId);
       Swal.fire({
         title: "Are you sure?",
         text: "You want to be Retry the Payment!",
@@ -1322,8 +1318,6 @@
               }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-              // Handle errors here
-              console.error(textStatus, errorThrown);
             }
           });
         }
@@ -1342,7 +1336,6 @@
         "order_id": order.id,
         // "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
         "handler": function(response) {
-          console.log("razor", response);
           verifyRetryPayment(response, order)
         },
         "prefill": {
@@ -1383,7 +1376,6 @@
         }),
       };
       $.ajax(settings).done(function(data) {
-        console.log("Payment verification response:", data); // Debugging line
         if (data.success) {
           toastr.success(data.message, "Success!");
           window.location.reload();
@@ -1411,7 +1403,6 @@
       }).then((result) => {
         if (result.isConfirmed) {
           const orderId = cancelButton.data('order-id');
-          console.log("OrderId", orderId);
 
           $.ajax({
             url: '/orderPlaced/orderCancel',
@@ -1466,7 +1457,6 @@
   function updateTable(orders) {
     const tableBody = document.querySelector('#table_body');
     tableBody.innerHTML = '';
-    console.log(orders, 'orders');
     orders.forEach(order => {
       const newRow = document.createElement('tr');
       newRow.innerHTML = `
@@ -1555,7 +1545,6 @@
   function openRazorpayCheckout() {
     const enteredAmount = document.getElementById('enteredMoney').value
     const amount = parseInt(enteredAmount) * 100;
-    console.log(amount);
     if (!amount || amount < 0) {
       toastr.error("Enter a valid amount", "Info!");
       return;
@@ -1567,7 +1556,6 @@
         amount
       },
       success: (response) => {
-        console.log(response);
         if (response) {
           razorPayPayment(response.order);
         }
@@ -1586,7 +1574,6 @@
       "order_id": order.id,
       // "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
       "handler": function(response) {
-        console.log("razor", response);
         verifyPayment(response, order)
       },
       "prefill": {
@@ -1627,7 +1614,6 @@
       }),
     };
     $.ajax(settings).done(function(data) {
-      console.log('bifhiejv', data);
       if (data.success) {
         alert(data.message)
         window.location.reload();

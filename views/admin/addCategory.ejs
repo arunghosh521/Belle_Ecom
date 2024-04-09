@@ -107,7 +107,6 @@
             }
           },
           error: function(xhr, status, error) {
-            console.error("Error", error);
             toastr.error('An error occurred while validating the input. Please try again later.');
           }
         });
@@ -130,7 +129,6 @@
             }
           },
           error: function(xhr, status, error) {
-            console.error("Error", error);
             toastr.error('An error occurred while validating the input. Please try again later.');
           }
         });
@@ -154,7 +152,6 @@
             updateWordCount(descriptionField); // Update word count
           },
           error: function(xhr, status, error) {
-            console.error("Error", error);
             toastr.error('An error occurred while validating the input. Please try again later.');
           }
         });

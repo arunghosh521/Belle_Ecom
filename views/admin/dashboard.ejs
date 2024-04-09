@@ -362,7 +362,6 @@
 
       reportPeriodSelect.addEventListener('change', function() {
         const selectedOption = this.value;
-        console.log(selectedOption, 'selectedOption');
         fetchDate(selectedOption);
       });
     });
@@ -371,12 +370,10 @@
 
       const baseUrl = '/admin/dashboard/report';
       const url = `${baseUrl}?period=${option}`;
-      console.log(url, 'url');
 
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          console.log(data, 'dataaaaaaaaaaaaaaaaaaaaaaa');
           if (data.successMonthly === true) {
             const newData = data.monthlyReport;
             const newCategories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

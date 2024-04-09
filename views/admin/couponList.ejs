@@ -246,14 +246,11 @@
  $(document).ready(function() {
     $('.check-it').change(function() {
         var couponId = $(this).val();
-        console.log(couponId, "asdfg");
         var status = $(this).is(':checked') ? 'active' : 'inactive';
-        console.log(status, "12345");
 
         $('#customAlert').show();
 
         $('#yesButton').off('click').on('click', function() {
-          console.log("asdfghjk");
             $.ajax({
                 url: '/admin/statusChangeCoupon',
                 type: 'POST',

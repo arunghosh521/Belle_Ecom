@@ -151,7 +151,6 @@
         if (response.success === true) {
             window.location.href = '/admin/couponList?success=true&message=' + encodeURIComponent(response.message);
         } else {
-          console.error(response.message);
           if (response.successValidation === false) {
               $('#couponValidationAlert').text(response.message);
             } else {
