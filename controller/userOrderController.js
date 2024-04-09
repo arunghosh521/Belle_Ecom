@@ -46,7 +46,6 @@ const placeOrder = asyncHandler(async (req, res) => {
     const cartTotal = totalAmount / 100;
     const findCart = await CartDB.findOne({ orderBy: req.session.userId });
     const cartItems = findCart.products;
-    console.log(cartItems, "itemssssssssss");
     const cartTotalFromDB = findCart.cartTotal;
     const wallet = await WalletDb.findOne({ user: req.session.userId });
     const orderDb = await orderDB.findOne({ orderBy: req.session.userId });
@@ -102,11 +101,12 @@ const placeOrder = asyncHandler(async (req, res) => {
             orderedDate: orderDate,
             orderTotal: findCart.cartTotal,
             paymentStatus: "pending",
+            refferOrder: true,
           });
           await newOrder.save();
           await CartDB.updateOne(
             { orderBy: req.session.userId },
-            { products: [], cartTotal: 0 }
+            { products: [], cartTotal: 0, couponApplied: false }
           );
 
           //?refferal offer for the reffered person
@@ -207,7 +207,7 @@ const placeOrder = asyncHandler(async (req, res) => {
           await newOrder.save();
           await CartDB.updateOne(
             { orderBy: req.session.userId },
-            { products: [], cartTotal: 0 }
+            { products: [], cartTotal: 0, couponApplied: false }
           );
           res.json({ CodSuccess: true, orderId: newOrder.orderId });
         }
@@ -256,7 +256,7 @@ const placeOrder = asyncHandler(async (req, res) => {
       await newOrder.save();
       await CartDB.updateOne(
         { orderBy: req.session.userId },
-        { products: [], cartTotal: 0 }
+        { products: [], cartTotal: 0, couponApplied: false }
       );
       res.json({ successBanking: true, order, orderId: newOrder.orderId });
     }
@@ -307,7 +307,7 @@ const placeOrder = asyncHandler(async (req, res) => {
         await newOrder.save();
         await CartDB.updateOne(
           { orderBy: req.session.userId },
-          { products: [], cartTotal: 0 }
+          { products: [], cartTotal: 0, couponApplied: false }
         );
 
         res.json({ successWallet: true, orderId: newOrder.orderId });
@@ -393,7 +393,9 @@ const orderListPagination = asyncHandler(async (req, res) => {
       .limit(itemsPerPage)
       .sort({ createdAt: -1 });
 
-    const totalOrders = await orderDB.countDocuments();
+    const totalOrders = await orderDB.countDocuments({
+      orderBy: req.session.userId,
+    });
 
     const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
@@ -411,6 +413,9 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: userId });
+    if(order.refferOrder === true) {
+      return res.json({ success: false, message: "This order cannot be returned as it was placed using a referral reward." });
+    }
     const updatePromises = order.products.map(async (product) => {
       return ProductDB.findByIdAndUpdate(
         product._id,
@@ -458,7 +463,7 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     };
     await wallet.addTransaction(transaction);
 
-    res.json({ success: true, ordeData: updatedReturnOrder });
+    res.json({ success: true, ordeData: updatedReturnOrder, message: 'Order returned successfully' });
   } catch (error) {
     console.log("returnOrderError", error);
     res.json({ success: false, error: "Filed to cancel the order" });
@@ -472,7 +477,9 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: req.session.userId });
-
+    if(order.refferOrder === true) {
+      return res.json({ success: false, message: "This order cannot be cancelled as it was placed using a referral reward." });
+    }
     const updatePromises = order.products.map(async (product) => {
       return ProductDB.findByIdAndUpdate(
         product._id,
@@ -494,7 +501,7 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
       { new: true }
     );
 
-    if (order.paymentStatus === "Failed") {
+    if (order.paymentStatus === "Pending") {
       res.json({ success: true, orderData: updatedCancelOrder });
     } else {
       if (!wallet) {
@@ -523,7 +530,7 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
       };
       await wallet.addTransaction(transaction);
 
-      res.json({ success: true, orderData: updatedCancelOrder });
+      res.json({ success: true, orderData: updatedCancelOrder, message: 'Order cancelled successfully' });
     }
   } catch (error) {
     console.log("cancelOrderError", error);

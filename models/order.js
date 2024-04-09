@@ -58,6 +58,10 @@ var orderSchema = new mongoose.Schema(
     expectedDelivery: {
       type: String,
     },
+    refferOrder: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

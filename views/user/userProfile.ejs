@@ -271,9 +271,6 @@
         <aside class="col-md-4 col-lg-3">
           <ul class="nav nav-dashboard flex-column mb-3 mb-md-0" role="tablist">
             <li class="nav-item">
-              <a class="nav-link active" id="tab-dashboard-link" data-toggle="tab" href="#tab-dashboard" role="tab" aria-controls="tab-dashboard" aria-selected="true">Dashboard</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
             </li>
             <li class="nav-item">
@@ -293,14 +290,7 @@
 
         <div class="col-md-8 col-lg-9">
           <div class="tab-content">
-            <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
-              <p>Hello <span class="font-weight-normal text-dark">User</span> (not <span class="font-weight-normal text-dark">User</span>? <a href="#">Log out</a>)
-                <br>
-                From your account dashboard you can view your <a href="#tab-orders" class="tab-trigger-link link-underline">recent orders</a>, manage your <a href="#tab-address" class="tab-trigger-link">shipping and billing addresses</a>, and <a href="#tab-account" class="tab-trigger-link">edit your password and account details</a>.
-              </p>
-            </div><!-- .End .tab-pane -->
-
-            <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
+            <div class="tab-pane fade show active" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
               <!-- Wrap the table with .table-responsive to make it responsive -->
               <div>
                 <h2 class="content-title card-title">My Orders</h2>
@@ -1122,22 +1112,22 @@
 <!-- orderList -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const viewButtons = document.querySelectorAll('.view-order-btn');
+    const tableBody = document.querySelector('#table_body');
+    tableBody.addEventListener('click', function(event) {
 
-    viewButtons.forEach(button => {
-      button.addEventListener('click', function(event) {
-        event.preventDefault();
+      if (event.target.classList.contains('view-order-btn')) {
+            event.preventDefault();
+            const orderId = event.target.dataset.orderId;
 
-        const orderId = this.getAttribute('data-order-id');
-
-        $.ajax({
-          url: '/orderPlaced/orderList',
-          type: 'POST',
-          data: JSON.stringify({
-            orderId: orderId
-          }),
-          contentType: 'application/json',
-          success: function(response) {
+            // AJAX call should be inside this block
+            $.ajax({
+                url: '/orderPlaced/orderList',
+                type: 'POST',
+                data: JSON.stringify({
+                    orderId: orderId
+                }),
+                contentType: 'application/json',
+                success: function(response) {
 
             document.querySelector('#orderTrackingModal .order-id').textContent = response.orderData.orderId;
             document.querySelector('#orderTrackingModal .order-date').textContent = response.orderData.orderedDate;
@@ -1151,7 +1141,6 @@
             cancelButton.setAttribute('data-order-id', response.orderData._id);
             cancelButton.setAttribute('data-order-status', response.orderData.orderStatus);
             const orderStatus = cancelButton.getAttribute('data-order-status');
-            console.log(orderStatus);
             const returnButton = document.getElementById('returnBtn');
             returnButton.setAttribute('data-return', response.orderData._id);
             returnButton.setAttribute('data-product-id', response.orderData.products)
@@ -1179,8 +1168,10 @@
             }
 
 
-            if (paymentStatus && paymentStatus === 'Failed') {
+            if (paymentStatus && paymentStatus === 'Pending') {
               retryButton.hidden = false;
+            }else {
+              retryButton.hidden = true;
             }
 
             if (orderStatus && orderStatus === 'Cancelled') {
@@ -1212,13 +1203,14 @@
             })
             // Show the modal
             $('#orderTrackingModal').modal('show');
-          },
-          error: function(error) {
-            console.error('Error fetching order details:', error);
-          }
-        });
-      });
+                },
+                error: function(error) {
+                    console.error('Error fetching order details:', error);
+                }
+            });
+        }
     });
+
 
     // Attach click event listener to the #invoiceBtn element
     $(document).on('click', '#invoiceBtn', function() {
@@ -1254,9 +1246,6 @@
       });
     });
 
-
-
-
     //return order
     $(document).on('click', '#returnBtn', function() {
       const returnButton = $(this);
@@ -1280,12 +1269,21 @@
               orderId: orderId
             },
             success: function(response) {
-              Swal.fire("Success!", "Order cancelled successfully", "success")
+              if(response.success) {
+              Swal.fire("Success!", response.message, "success")
                 .then((value) => {
                   if (value) {
                     window.location.href = '/userProfile';
                   }
                 });
+              } else {
+                Swal.fire("Warning!", response.message , "Warning")
+                .then((value) => {
+                  if (value) {
+                    window.location.href = '/userProfile';
+                  }
+                });
+              }
             },
             error: function(jqXHR, textStatus, errorThrown) {
               // Handle errors here
@@ -1361,7 +1359,7 @@
       };
       var rzp1 = new Razorpay(options);
       rzp1.on('payment.failed', function(response) {
-        window.location.href = '/Cart?paymentFailed=true';
+        window.location.href = '/userProfile?paymentFailed=true';
       });
 
       rzp1.open();
@@ -1422,12 +1420,21 @@
               orderId: orderId
             },
             success: function(response) {
-              Swal.fire("Success!", "Order cancelled successfully", "success")
+              if(response.success){
+              Swal.fire("Success!", response.message, "success")
                 .then((value) => {
                   if (value) {
                     window.location.href = '/userProfile';
                   }
                 });
+              } else{
+                Swal.fire("Warning!", response.message, "Warning")
+                .then((value) => {
+                  if (value) {
+                    window.location.href = '/userProfile';
+                  }
+                });
+              }
             },
             error: function(xhr, status, error) {
               Swal.fire("Error!", "Failed to cancel the order.", "error");
@@ -1446,7 +1453,7 @@
   let currentPageOrders = [];
 
   function fetchOrders(page) {
-    
+
     fetch(`/orderPlaced/pagination?page=${page}&itemsPerPage=${itemsPerPage}`)
       .then(response => response.json())
       .then(data => {
@@ -1459,7 +1466,7 @@
   function updateTable(orders) {
     const tableBody = document.querySelector('#table_body');
     tableBody.innerHTML = '';
-
+    console.log(orders, 'orders');
     orders.forEach(order => {
       const newRow = document.createElement('tr');
       newRow.innerHTML = `
@@ -1675,19 +1682,16 @@
     fetch(`/userProfile/wallet/pagination?page=${page}&itemsPerPage=${itemsPerPageOfWallet}`)
       .then(response => response.json())
       .then(data => {
-        console.log("1234567890", data.transactions);
         updateTableOfWallet(data.transactions);
         updatePaginationOfWallet(data.totalPages, data.currentPage);
       })
   }
 
   function updateTableOfWallet(transactions) {
-    console.log(transactions, "sdfghjk");
     const tableBody = document.querySelector('#wallet_table_body');
     tableBody.innerHTML = '';
 
     transactions.forEach(transaction => {
-      console.log(transaction.transactionId, "asdfghjk");
       if (transaction.description !== "Initial balance") {
         const newRow = document.createElement('tr');
         newRow.innerHTML = `

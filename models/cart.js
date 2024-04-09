@@ -21,6 +21,7 @@ var cartSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    discountAmount: Number,
     cartTotal: Number,
     orderBy: {
       type: mongoose.Schema.Types.ObjectId,

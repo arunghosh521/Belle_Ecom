@@ -4,35 +4,54 @@ const ejs = require("ejs");
 const path = require("path");
 const puppeteer = require("puppeteer");
 const ExcelJS = require("exceljs");
+const moment = require('moment');
 
 //* Load salesReport page
 const loadSalesReport = asyncHandler(async (req, res) => {
   try {
-    const orderData = await OrderDB.find({ orderStatus: "Delivered" })
+    const type = req.query.type;
+
+    const year = new Date().getFullYear();
+    const week = moment().isoWeek();
+
+    //* Query database to get all delivered orders
+    let orderQuery = OrderDB.find({ orderStatus: "Delivered" })
       .populate("products.product")
       .populate({ path: "address", model: "Address" })
       .populate("orderBy");
-    //console.log("orderData", orderData);
 
+      if (type === 'week') {
+        const startDate = moment().year(year).week(week).startOf('week');
+        const endDate = moment().year(year).week(week).endOf('week');
+        orderQuery = orderQuery.where('createdAt').gte(startDate).lte(endDate);
+      } else if (type === 'year') {
+        const startDate = moment().year(year).startOf('year');
+        const endDate = moment().year(year).endOf('year');
+  
+        orderQuery = orderQuery.where('createdAt').gte(startDate).lte(endDate);
+      }
+
+    const orderData = await orderQuery;
+    //* Calculate total sum of orders
     const ordersWithActualPrice = orderData.map((order) => {
       return order.products.reduce(
         (acc, product) => acc + product.product.price * product.quantity,
         0
       );
     });
-    console.log("Orders with total price", ordersWithActualPrice);
     const totalSum = ordersWithActualPrice.reduce(
       (acc, totalPrice) => acc + totalPrice,
       0
     );
-    console.log(totalSum, "zxcvbnm");
 
+    //* Calculate total order amount
     const orderTotalAmt = orderData.reduce((total, order) => {
       return total + order.orderTotal;
     }, 0);
-    //console.log(orderTotalAmt);
+
+    //* Calculate discount amount
     const discountAmount = totalSum - orderTotalAmt;
-    console.log(discountAmount, "DiscountAmount");
+
     res.render("admin/salesPage", {
       orderData,
       orderTotalAmt,
@@ -41,6 +60,7 @@ const loadSalesReport = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     console.log("loadSalesPageError", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -196,7 +216,7 @@ const downloadSalesReport = asyncHandler(async (req, res) => {
 
       orderData.forEach((order, index) => {
         const product = order.products[0];
-        console.log('product', product)
+        console.log("product", product);
         worksheet.addRow({
           orderId: order.orderId,
           customerName: `${order.orderBy.firstname} ${order.orderBy.lastname}`,

@@ -220,7 +220,6 @@ const applyCoupon = asyncHandler(async (req, res) => {
     const { couponCode } = req.body;
     const userId = req.session.userId;
     const userObjectId = mongoose.Types.ObjectId(userId);
-    console.log(userId);
     if (!couponCode || couponCode.length < 5 || couponCode.length > 5) {
       return res.status(200).json({
         success: false,
@@ -241,7 +240,9 @@ const applyCoupon = asyncHandler(async (req, res) => {
         .status(200)
         .json({ success: false, message: "Coupon not found" });
     }
-
+    const alreadyUsedCoupon = await CouponDB.findOne({
+      userUsed: { $elemMatch: { user_id: userObjectId } },
+    });
     const userHasUsedCoupon = couponDetails.userUsed.some((user) =>
       user.user_id.equals(userObjectId)
     );
@@ -249,6 +250,20 @@ const applyCoupon = asyncHandler(async (req, res) => {
       return res
         .status(200)
         .json({ sucess: false, message: "You have already used this coupon." });
+    }
+    if (userCart.couponApplied) {
+      userCart.cartTotal += userCart.discountAmount;
+      userCart.couponApplied = false;
+      userCart.discountAmount = 0;
+      await userCart.save();
+      await alreadyUsedCoupon.updateOne({
+        $pull: {
+          userUsed: { user_id: userObjectId },
+        },
+      });
+
+      alreadyUsedCoupon.Availability++;
+      await alreadyUsedCoupon.save();
     }
 
     const cartTotal = userCart.cartTotal;
@@ -258,6 +273,7 @@ const applyCoupon = asyncHandler(async (req, res) => {
     if (cartTotal >= minAmount) {
       userCart.cartTotal -= discountAmount;
       userCart.couponApplied = true;
+      userCart.discountAmount = discountAmount;
       await userCart.save();
       couponDetails.userUsed.push({ user_id: userId });
       couponDetails.Availability--;
@@ -305,6 +321,7 @@ const removeCoupon = asyncHandler(async (req, res) => {
     } else {
       userCart.cartTotal += couponDetails.discountAmount;
       userCart.couponApplied = false;
+      userCart.discountAmount = 0;
       userCart.save();
       const userObjectId = mongoose.Types.ObjectId(userId);
       couponDetails.userUsed.pull({ user_id: userObjectId });

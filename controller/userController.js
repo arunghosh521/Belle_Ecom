@@ -49,7 +49,11 @@ const loadHome = async (req, res) => {
     const cartProduct = await CartDB.findOne({
       orderBy: req.session.userId,
     }).populate("products.product");
-    res.render("user/home", { user: userData, cartProduct });
+    const products = await ProductModel.find({is_listed: true})
+      .sort({createdAt:-1})
+      .limit(10)
+      .populate("offer");
+    res.render("user/home", { user: userData, cartProduct, products });
   } catch (error) {
     console.log(error);
   }
@@ -279,7 +283,7 @@ const forgetPasswordControl = asyncHandler(async (req, res) => {
 const loadProductUserView = asyncHandler(async (req, res) => {
   try {
     var page = 1;
-    const limit = 4;
+    const limit = 8;
     const sort = req.query.sort;
     const size = req.query.size;
     const minPrice = req.query.priceFrom;
@@ -547,7 +551,7 @@ const editProfileCntrl = asyncHandler(async (req, res) => {
       return res
         .status(200)
         .json({ success: false, message: "Email address is required." });
-    } else if (!/^\S+@gmail\.com$|^\S+@glaslack\.com$/.test(Email)) {
+    } else if (!/\S+@\S+\.\S{2,}/.test(Email)) {
       return res
         .status(200)
         .json({ success: false, message: "Invalid email address." });
@@ -585,7 +589,7 @@ const editProfileCntrl = asyncHandler(async (req, res) => {
           .json({ success: false, message: "This email is already in use." });
       }
       const token = generateResetToken();
-      userData.email = Email;
+      userData.pendingEmail = Email;
       userData.is_verified = false;
       userData.passwordResetToken = token;
       userData.passwordResetExpires = Date.now() + 2 * 24 * 60 * 60 * 1000; // 2 days
@@ -653,12 +657,13 @@ const changedEmailVerify = asyncHandler(async (req, res) => {
       return res.status(400).send("Token is missing");
     }
     const user = await User.findOne({ passwordResetToken: token });
-    if (!user) {
+    if (!user || user.passwordResetExpires < Date.now()) {
       return res.render("user/404");
     }
+    user.email = user.pendingEmail;
     user.is_verified = true;
     user.passwordResetToken = "";
-
+    user.passwordResetExpires = "";
     await user.save();
     req.flash("fmessage", "Email verified successfully");
     res.redirect("/login");

@@ -72,12 +72,11 @@
   }
 
   .btn.btn-solid {
-    margin-left: 100px;
-    width: 150px; 
-    max-width: 150px; 
-    padding: 10px 20px; 
+    margin-left: 30px;
+    width: 180px; 
+    max-width: 200px; 
+    padding: 10px 0px; 
 }
-
 
   .product-name {
     font-size: 12px;
@@ -96,6 +95,25 @@
   .total-amount {
     margin-left: 100px;
   }
+.dropdown-menu {
+ background-color: #ffffff; 
+ border: 1px solid #466f99; 
+ border-radius: 5px; 
+ padding: 10px; 
+}
+
+.dropdown-item {
+ color: #333; 
+ padding: 10px 20px; 
+ text-decoration: #b40707; 
+}
+
+
+.dropdown-item:hover {
+ background-color: #2676c7; 
+ color: #b40707; 
+}
+
 </style>
 <!-- Reports Section Start -->
 <div class="page-body">
@@ -132,8 +150,17 @@
           <div class="card-header border-0 pb-1">
             <div class="card-header-title" style="display: inline-flex;">
               <h3>Sales Report</h3>
-              <a href="#" class="btn btn-solid" onclick="downloadSalesReport('pdf')">sales report (PDF)</a>
-              <a href="#" class="btn btn-solid" onclick="downloadSalesReport('xlsx')">sales report (Excel)</a>
+              <div class="dropdown">
+                <button class="btn btn-solid dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Download Sales Report
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" href="#" onclick="downloadSalesReport('pdf')" style="color: black;">PDF</a>
+                  <a class="dropdown-item" href="#" onclick="downloadSalesReport('xlsx')" style="color: black;">Excel</a>                  
+                </div>
+              </div>
+              <a href="#" class="btn btn-solid" onclick="weeklyReport('week')">Weekly Report</a>
+              <a href="#" class="btn btn-solid" onclick="yearlyReport('year')">Yearly Report</a>
             </div>
           </div>
 
@@ -274,6 +301,15 @@
 
       var url = '/admin/salesReport/filterSalesReport?startDate=' + startDate + '&endDate=' + endDate;
 
+      window.location.href = url;
+    }
+
+    function weeklyReport(week) {
+      var url = `/admin/salesReport?type=${week}`;
+      window.location.href = url;
+    }
+    function yearlyReport(year) {
+      var url = `/admin/salesReport?type=${year}`;
       window.location.href = url;
     }
   </script>
