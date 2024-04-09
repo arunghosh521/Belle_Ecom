@@ -289,7 +289,6 @@ const deleteCouponControl = asyncHandler(async (req, res) => {
 
 //* Enable and disable coupon
 const statusChangeOfCoupon = asyncHandler(async (req, res) => {
-  console.log("asdfghjkl");
   try {
     const { couponID, status } = req.body;
     console.log(req.body, "bodydata");

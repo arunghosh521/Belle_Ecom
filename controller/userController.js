@@ -356,7 +356,7 @@ const loadProductUserView = asyncHandler(async (req, res) => {
       size
     );
 
-    res.render("user/ProductPage", {
+    res.render("user/productPage", {
       products,
       categories,
       totalPages: totalPages,
