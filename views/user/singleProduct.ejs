@@ -31,7 +31,6 @@
                 <img class="blur-up lazyload zoompro" data-zoom-image="/uploads/<%= product.images[0] %>" alt="" src="/uploads/<%= product.images[0] %>" />
               </div>
               <div class="product-buttons">
-                <a href="#" class="btn popup-video" title="View Video"><i class="icon anm anm-play-r" aria-hidden="true"></i></a>
                 <a href="#" class="btn prlightbox" title="Zoom"><i class="icon anm anm-expand-l-arrows" aria-hidden="true"></i></a>
               </div>
             </div>
@@ -63,9 +62,7 @@
                 <% } else { %>
                 <div class="product-stock"> <span class="instock ">Out Stock</span> <span class="outstock hide">Unavailable</span>
                   <% } %>
-                </div>
-                <div class="product-sku">SKU: <span class="variant-sku">19115-rdxs</span></div>
-                <div class="product-review"><a class="reviewLink" href="#tab2"><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star-o"></i><i class="font-13 fa fa-star-o"></i><span class="spr-badge-caption">6 reviews</span></a></div>
+                </div>  
               </div>
               <% if (product.offerApplied) { %>
               <p class="product-single__price product-single__price-product-template">
@@ -114,7 +111,7 @@
                     <label class="header">Size: <span class="slVariant"><%= product.size %></span></label>
                   </div>
                 </div>
-                <p class="infolinks"><a href="#sizechart" class="sizelink btn"> Size Guide</a> <a href="#productInquiry" class="emaillink btn"> Ask About this Product</a></p>
+                
                 <!-- Product Action -->
                 <div class="product-action clearfix">
                   <div class="product-form__item--quantity">
@@ -167,25 +164,7 @@
                     <a class="wishlist add-to-wishlist" href="#" id="addWishlist" title="Add to Wishlist"><i class="icon anm anm-heart-l heart-icon" aria-hidden="true"></i> <span>Add to Wishlist</span></a>
                   </div>
                 </div>
-                <div class="display-table-cell text-right">
-                  <div class="social-sharing">
-                    <a target="_blank" href="#" class="btn btn--small btn--secondary btn--share share-facebook" title="Share on Facebook">
-                      <i class="fa fa-facebook-square" aria-hidden="true"></i> <span class="share-title" aria-hidden="true">Share</span>
-                    </a>
-                    <a target="_blank" href="#" class="btn btn--small btn--secondary btn--share share-twitter" title="Tweet on Twitter">
-                      <i class="fa fa-twitter" aria-hidden="true"></i> <span class="share-title" aria-hidden="true">Tweet</span>
-                    </a>
-                    <a href="#" title="Share on google+" class="btn btn--small btn--secondary btn--share">
-                      <i class="fa fa-google-plus" aria-hidden="true"></i> <span class="share-title" aria-hidden="true">Google+</span>
-                    </a>
-                    <a target="_blank" href="#" class="btn btn--small btn--secondary btn--share share-pinterest" title="Pin on Pinterest">
-                      <i class="fa fa-pinterest" aria-hidden="true"></i> <span class="share-title" aria-hidden="true">Pin it</span>
-                    </a>
-                    <a href="#" class="btn btn--small btn--secondary btn--share share-pinterest" title="Share by Email" target="_blank">
-                      <i class="fa fa-envelope" aria-hidden="true"></i> <span class="share-title" aria-hidden="true">Email</span>
-                    </a>
-                  </div>
-                </div>
+             
               </div>
             </div>
             <p id="freeShipMsg" class="freeShipMsg" data-price="199"><i class="fa fa-truck" aria-hidden="true"></i> GETTING CLOSER! ONLY <b class="freeShip"><span class="money" data-currency-usd="$199.00" data-currency="USD">$199.00</span></b> AWAY FROM <b>FREE SHIPPING!</b></p>
@@ -229,7 +208,6 @@
         <div class="tabs-listing">
           <ul class="product-tabs">
             <li rel="tab1"><a class="tablink">Product Details</a></li>
-            <li rel="tab2"><a class="tablink">Product Reviews</a></li>
             <li rel="tab3"><a class="tablink">Size Chart</a></li>
             <li rel="tab4"><a class="tablink">Shipping &amp; Returns</a></li>
           </ul>
@@ -240,97 +218,6 @@
               </div>
             </div>
             <br>
-            <div id="tab2" class="tab-content">
-              <div id="shopify-product-reviews">
-                <div class="spr-container">
-                  <div class="spr-header clearfix">
-                    <div class="spr-summary">
-                      <span class="product-review"><a class="reviewLink"><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star-o"></i><i class="font-13 fa fa-star-o"></i> </a><span class="spr-summary-actions-togglereviews">Based on 6 reviews456</span></span>
-                      <span class="spr-summary-actions">
-                        <a href="#" class="spr-summary-actions-newreview btn">Write a review</a>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="spr-content">
-                    <div class="spr-form clearfix">
-                      <form method="post" action="#" id="new-review-form" class="new-review-form">
-                        <h3 class="spr-form-title">Write a review</h3>
-                        <fieldset class="spr-form-contact">
-                          <div class="spr-form-contact-name">
-                            <label class="spr-form-label" for="review_author_10508262282">Name</label>
-                            <input class="spr-form-input spr-form-input-text " id="review_author_10508262282" type="text" name="review[author]" value="" placeholder="Enter your name">
-                          </div>
-                          <div class="spr-form-contact-email">
-                            <label class="spr-form-label" for="review_email_10508262282">Email</label>
-                            <input class="spr-form-input spr-form-input-email " id="review_email_10508262282" type="email" name="review[email]" value="" placeholder="john.smith@example.com">
-                          </div>
-                        </fieldset>
-                        <fieldset class="spr-form-review">
-                          <div class="spr-form-review-rating">
-                            <label class="spr-form-label">Rating</label>
-                            <div class="spr-form-input spr-starrating">
-                              <div class="product-review"><a class="reviewLink" href="#"><i class="fa fa-star-o"></i><i class="font-13 fa fa-star-o"></i><i class="font-13 fa fa-star-o"></i><i class="font-13 fa fa-star-o"></i><i class="font-13 fa fa-star-o"></i></a></div>
-                            </div>
-                          </div>
-
-                          <div class="spr-form-review-title">
-                            <label class="spr-form-label" for="review_title_10508262282">Review Title</label>
-                            <input class="spr-form-input spr-form-input-text " id="review_title_10508262282" type="text" name="review[title]" value="" placeholder="Give your review a title">
-                          </div>
-
-                          <div class="spr-form-review-body">
-                            <label class="spr-form-label" for="review_body_10508262282">Body of Review <span class="spr-form-review-body-charactersremaining">(1500)</span></label>
-                            <div class="spr-form-input">
-                              <textarea class="spr-form-input spr-form-input-textarea " id="review_body_10508262282" data-product-id="10508262282" name="review[body]" rows="10" placeholder="Write your comments here"></textarea>
-                            </div>
-                          </div>
-                        </fieldset>
-                        <fieldset class="spr-form-actions">
-                          <input type="submit" class="spr-button spr-button-primary button button-primary btn btn-primary" value="Submit Review">
-                        </fieldset>
-                      </form>
-                    </div>
-                    <div class="spr-reviews">
-                      <div class="spr-review">
-                        <div class="spr-review-header">
-                          <span class="product-review spr-starratings spr-review-header-starratings"><span class="reviewLink"><i class="fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i></span></span>
-                          <h3 class="spr-review-header-title">Lorem ipsum dolor sit amet</h3>
-                          <span class="spr-review-header-byline"><strong>dsacc</strong> on <strong>Apr 09, 2019</strong></span>
-                        </div>
-                        <div class="spr-review-content">
-                          <p class="spr-review-content-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                        </div>
-                      </div>
-                      <div class="spr-review">
-                        <div class="spr-review-header">
-                          <span class="product-review spr-starratings spr-review-header-starratings"><span class="reviewLink"><i class="fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i></span></span>
-                          <h3 class="spr-review-header-title">Lorem Ipsum is simply dummy text of the printing</h3>
-                          <span class="spr-review-header-byline"><strong>larrydude</strong> on <strong>Dec 30, 2018</strong></span>
-                        </div>
-
-                        <div class="spr-review-content">
-                          <p class="spr-review-content-body">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-                          </p>
-                        </div>
-                      </div>
-                      <div class="spr-review">
-                        <div class="spr-review-header">
-                          <span class="product-review spr-starratings spr-review-header-starratings"><span class="reviewLink"><i class="fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i><i class="font-13 fa fa-star"></i></span></span>
-                          <h3 class="spr-review-header-title">Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...</h3>
-                          <span class="spr-review-header-byline"><strong>quoctri1905</strong> on <strong>Dec 30, 2018</strong></span>
-                        </div>
-
-                        <div class="spr-review-content">
-                          <p class="spr-review-content-body">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled.<br>
-                            <br>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
 
             <div id="tab3" class="tab-content">
               <h3>WOMEN'S BODY SIZING CHART</h3>
