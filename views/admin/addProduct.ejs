@@ -40,7 +40,9 @@
                 <div class="card-header-2">
                   <h5>Product Information</h5>
                 </div>
-
+                <% if (locals.message) { %>
+                <div class="alert alert-danger text-center"><%= message %></div>
+                <% } %>
                 <form class="theme-form theme-form-2 mega-form" method="post" id="productForm" enctype="multipart/form-data">
                   <div class="mb-4 row align-items-center">
                     <label class="form-label-title col-sm-3 mb-0">Product
@@ -54,7 +56,7 @@
                     <label class="form-label-title col-sm-3 mb-0">Product
                       Price</label>
                     <div class="col-sm-9">
-                      <input class="form-control" name="productPrice" type="text" id="productPriceField" placeholder="Product Price">
+                      <input class="form-control" name="productPrice" type="number" id="productPriceField" placeholder="Product Price">
                       <p id="pPriceAlert" style="color: red;"></p>
                     </div>
                   </div>
@@ -149,6 +151,7 @@
                   <div class="col-sm-3"></div>
                   <div class="col-sm-9">
                     <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                    <p id="validationAlert" style="color: red;"></p>
                   </div>
                 </div>
                 </form>
@@ -164,29 +167,29 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
   <script>
     toastr.options = {
-  "closeButton": false,
-  "debug": false,
-  "newestOnTop": true,
-  "progressBar": false,
-  "positionClass": "toast-top-right",
-  "preventDuplicates": false,
-  "onclick": null,
-  "showDuration": "300",
-  "hideDuration": "1000",
-  "timeOut": "5000",
-  "extendedTimeOut": "1000",
-  "showEasing": "swing",
-  "hideEasing": "linear",
-  "showMethod": "fadeIn",
-  "hideMethod": "fadeOut"
-};
+      "closeButton": false,
+      "debug": false,
+      "newestOnTop": true,
+      "progressBar": false,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    };
     document.addEventListener('DOMContentLoaded', function() {
       let productForm = document.getElementById('productForm');
       let productName = document.getElementById('productNameField');
@@ -198,15 +201,24 @@
       let pDescription = document.querySelector('textarea[name="description"]');
       let pDescriptionAlert = document.getElementById('pDescriptionAlert');
       let wordCountDisplay = document.getElementById('wordCountDisplay');
+      let validationAlert = document.getElementById('validationAlert');
+
+      let productNameValue = productName.value;
+      let productPriceValue = productPrice.value;
+      let productQuantityValue = productQuantity.value;
+      let productDescriptionValue = pDescription.value;
 
       productForm.addEventListener('submit', function(event) {
         if (pNameAlert.innerText || pPriceAlert.innerText || pQuantityAlert.innerText || pDescriptionAlert.innerText) {
           event.preventDefault();
-          toastr.info('validation Failed. form submission prevented');
+          toastr.info('Please correct the highlighted fields');
+        } else {
+
         }
+
       });
 
-      productName.addEventListener('change', function() {
+      productName.addEventListener('input', function() {
         let pName = productName.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -222,7 +234,7 @@
             if (data.pNameStatus) {
               pNameAlert.innerText = data.pNameStatus;
             } else {
-              pNameAlert.innerText = ''; 
+              pNameAlert.innerText = '';
             }
           })
           .catch(error => {
@@ -231,7 +243,7 @@
       });
 
 
-      productPrice.addEventListener('change', function() {
+      productPrice.addEventListener('input', function() {
         let pQuantity = productPrice.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -247,7 +259,7 @@
             if (data.pPriceStatus) {
               pPriceAlert.innerText = data.pPriceStatus;
             } else {
-              pPriceAlert.innerText = ''; 
+              pPriceAlert.innerText = '';
             }
           })
           .catch(error => {
@@ -272,7 +284,7 @@
             if (data.pDescriptionStatus) {
               pDescriptionAlert.innerText = data.pDescriptionStatus;
             } else {
-              pDescriptionAlert.innerText = ''; 
+              pDescriptionAlert.innerText = '';
             }
             updateWordCount(pDescriptionInput);
           })
@@ -289,7 +301,7 @@
       }
 
 
-      productQuantity.addEventListener('change', function() {
+      productQuantity.addEventListener('input', function() {
         let pPrice = productQuantity.value;
         fetch('/admin/product/validateProduct', {
             method: 'POST',
@@ -326,14 +338,14 @@
         container.remove(); // Remove the container from the DOM
         const index = imageContainers.indexOf(container);
         if (index !== -1) {
-          imageContainers.splice(index, 1); 
+          imageContainers.splice(index, 1);
         }
       }
 
       fileInput.addEventListener('change', function(event) {
         const files = event.target.files;
 
-     
+
         imageContainers.forEach(container => removeImageContainer(container));
 
         for (let i = 0; i < files.length; i++) {
@@ -347,15 +359,15 @@
             const img = document.createElement('img');
             img.src = e.target.result;
             img.classList.add('img-thumbnail');
-            img.style.width = '130px'; 
-            img.style.height = '180px'; 
+            img.style.width = '130px';
+            img.style.height = '180px';
             imgContainer.appendChild(img);
 
             const closeButton = document.createElement('button');
-            closeButton.innerHTML = '&times;'; 
+            closeButton.innerHTML = '&times;';
             closeButton.classList.add('close-button');
             closeButton.addEventListener('click', function() {
-              removeImageContainer(imgContainer); 
+              removeImageContainer(imgContainer);
             });
             imgContainer.appendChild(closeButton);
 

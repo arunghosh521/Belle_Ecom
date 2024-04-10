@@ -19,9 +19,10 @@ const loadProducts = asyncHandler(async (req, res) => {
 //* Load add products page
 const loadAddProducts = asyncHandler(async (req, res) => {
   try {
+    const success = req.flash("productMsg")[0];
     const category = await CategoryDB.find({ is_listed: true });
     const categoryData = Array.isArray(category) ? category : [];
-    res.render("admin/addProduct", { categoryData });
+    res.render("admin/addProduct", { categoryData, message: success});
   } catch (error) {
     console.log("addProductPageError", error);
   }
@@ -30,10 +31,11 @@ const loadAddProducts = asyncHandler(async (req, res) => {
 //* Load products listing page
 const loadProductsView = asyncHandler(async (req, res) => {
   try {
+    const success = req.flash("productMsg")[0];
     const products = await Product.find()
       .sort({ createdAt: -1 })
       .populate("category");
-    res.render("admin/productView", { products });
+    res.render("admin/productView", { products, message: success});
   } catch (error) {
     console.log("productPageError", error);
   }
@@ -63,16 +65,15 @@ const paginationForProductView = asyncHandler(async (req, res) => {
   }
 });
 
-//* Validation for add products fields 
+//* Validation for add products fields
 const validateProduct = asyncHandler(async (req, res) => {
   try {
     const { productName, productPrice, productQuantity, productDescription } =
       req.body;
-
-    let response = {};
-    const min_word = 10;
-    const max_word = 100;
-
+      let response = {};
+      const min_word = 10;
+      const max_word = 100;
+      
     if (productName && (productName.trim() === "" || productName.length < 3)) {
       response.pNameStatus =
         "Productname cannot be Empty it must contain 3 or more letters";
@@ -134,6 +135,16 @@ const addProductsCntrl = asyncHandler(async (req, res) => {
       size,
       color,
     } = req.body;
+
+    if (
+      !productName ||
+      !productPrice ||
+      !productQuantity ||
+      !productDescription
+    ) {
+      req.flash("productMsg", "All fields required.");
+     return res.redirect("/admin/product/addProduct");
+    }
 
     const filenames = await resizeAndSaveImages(req.files);
 
@@ -236,7 +247,6 @@ const updateEditProducts = asyncHandler(async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 //* Deleting products from edit product page
 const deleteImageControl = asyncHandler(async (req, res) => {
