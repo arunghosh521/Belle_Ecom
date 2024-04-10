@@ -132,27 +132,22 @@
     background-color: tan;
     color: #ffffff;
     border-radius: 10px 10px 0 0;
-    /* Rounded corners for the header */
   }
 
   /* Style for the modal title */
   .custom-modal-body .modal-title {
     font-size: 20px;
-    /* Larger font size for the title */
   }
 
   /* Style for the close button */
   .custom-modal-body .close {
     color: #ffffff;
-    /* White color for the close button */
     opacity: 1;
-    /* Ensure the close button is visible */
   }
 
   /* Style for the modal body */
   .custom-modal-body .modal-body {
     padding: 20px;
-    /* Increased padding for the modal body */
   }
 
   .progtrckr {
@@ -191,58 +186,58 @@
   /* Style for the table within the modal */
   .custom-modal-body .table {
     margin-top: 20px;
-    /* Add some space above the table */
+
   }
 
   .custom-modal-body .table th,
   .custom-modal-body .table td {
     padding: 10px;
-    /* Increased padding for table cells */
+
   }
 
   .custom-modal-body .table thead {
     background-color: #f8f9fa;
-    /* Light background for the table header */
+
   }
 
   .custom-modal-body .table tbody tr:nth-child(even) {
     background-color: #e9ecef;
-    /* Light grey background for even rows */
+
   }
 
   .custom-modal-body .table tbody tr:hover {
     background-color: #f8f9fa;
-    /* Light background for hovered rows */
+
   }
 
-  /* Style for the modal footer */
+
   .custom-modal-body .modal-footer {
     background-color: #f8f9fa;
-    /* Light background for the footer */
+
     border-radius: 0 0 10px 10px;
-    /* Rounded corners for the footer */
+
   }
 
   .highlight-price {
     background-color: yellow;
-    /* Change the background color */
+
     color: black;
-    /* Change the text color */
+
     font-weight: bold;
-    /* Make the text bold */
+
     padding: 2px 5px;
-    /* Add some padding */
+
   }
 
   .highlight-quantity {
     background-color: lightblue;
-    /* Change the background color */
+
     color: black;
-    /* Change the text color */
+
     font-weight: bold;
-    /* Make the text bold */
+
     padding: 2px 5px;
-    /* Add some padding */
+
   }
 
   .input-button-container {
@@ -260,6 +255,12 @@
   .modal-body p {
     font-size: 11px;
 
+  }
+
+  .custom-swal-input {
+    width: 50%;
+    max-width: 100px;
+    margin: 0 auto;
   }
 </style>
 
@@ -1115,18 +1116,18 @@
     tableBody.addEventListener('click', function(event) {
 
       if (event.target.classList.contains('view-order-btn')) {
-            event.preventDefault();
-            const orderId = event.target.dataset.orderId;
+        event.preventDefault();
+        const orderId = event.target.dataset.orderId;
 
-            // AJAX call should be inside this block
-            $.ajax({
-                url: '/orderPlaced/orderList',
-                type: 'POST',
-                data: JSON.stringify({
-                    orderId: orderId
-                }),
-                contentType: 'application/json',
-                success: function(response) {
+        // AJAX call should be inside this block
+        $.ajax({
+          url: '/orderPlaced/orderList',
+          type: 'POST',
+          data: JSON.stringify({
+            orderId: orderId
+          }),
+          contentType: 'application/json',
+          success: function(response) {
 
             document.querySelector('#orderTrackingModal .order-id').textContent = response.orderData.orderId;
             document.querySelector('#orderTrackingModal .order-date').textContent = response.orderData.orderedDate;
@@ -1169,7 +1170,7 @@
 
             if (paymentStatus && paymentStatus === 'Pending') {
               retryButton.hidden = false;
-            }else {
+            } else {
               retryButton.hidden = true;
             }
 
@@ -1202,12 +1203,12 @@
             })
             // Show the modal
             $('#orderTrackingModal').modal('show');
-                },
-                error: function(error) {
-                    console.error('Error fetching order details:', error);
-                }
-            });
-        }
+          },
+          error: function(error) {
+            console.error('Error fetching order details:', error);
+          }
+        });
+      }
     });
 
 
@@ -1249,6 +1250,11 @@
       const returnButton = $(this);
       const orderId = returnButton.data('return');
 
+      const returnReasons = {
+        'Damaged Goods': 'Damaged Goods',
+        'Wrong Item': 'Wrong Item',
+        'No Reason': 'No Reason',
+      };
       Swal.fire({
         title: "Are you sure?",
         text: "You want to be Return this!",
@@ -1256,30 +1262,43 @@
         showCancelButton: true,
         confirmButtonColor: "#000000",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, Return it!"
+        confirmButtonText: "Yes, Return it!",
+        input: 'select',
+        inputOptions: returnReasons,
+        inputPlaceholder: "Select ",
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Please select a reason for return.';
+          }
+        },
+        customClass: {
+          input: 'custom-swal-input'
+        }
       }).then((result) => {
         if (result.isConfirmed) {
+          const returnReason = result.value;
           $.ajax({
             url: '/orderPlaced/orderReturn',
             method: 'POST',
             data: {
-              orderId: orderId
+              orderId: orderId,
+              returnReason: returnReason
             },
             success: function(response) {
-              if(response.success) {
-              Swal.fire("Success!", response.message, "success")
-                .then((value) => {
-                  if (value) {
-                    window.location.href = '/userProfile';
-                  }
-                });
+              if (response.success) {
+                Swal.fire("Success!", response.message, "success")
+                  .then((value) => {
+                    if (value) {
+                      window.location.href = '/userProfile';
+                    }
+                  });
               } else {
-                Swal.fire("Warning!", response.message , "Warning")
-                .then((value) => {
-                  if (value) {
-                    window.location.href = '/userProfile';
-                  }
-                });
+                Swal.fire("Warning!", response.message, "Warning")
+                  .then((value) => {
+                    if (value) {
+                      window.location.href = '/userProfile';
+                    }
+                  });
               }
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -1317,8 +1336,7 @@
                 razorPayPayment(response.order);
               }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
-            }
+            error: function(jqXHR, textStatus, errorThrown) {}
           });
         }
       });
@@ -1411,20 +1429,20 @@
               orderId: orderId
             },
             success: function(response) {
-              if(response.success){
-              Swal.fire("Success!", response.message, "success")
-                .then((value) => {
-                  if (value) {
-                    window.location.href = '/userProfile';
-                  }
-                });
-              } else{
+              if (response.success) {
+                Swal.fire("Success!", response.message, "success")
+                  .then((value) => {
+                    if (value) {
+                      window.location.href = '/userProfile';
+                    }
+                  });
+              } else {
                 Swal.fire("Warning!", response.message, "Warning")
-                .then((value) => {
-                  if (value) {
-                    window.location.href = '/userProfile';
-                  }
-                });
+                  .then((value) => {
+                    if (value) {
+                      window.location.href = '/userProfile';
+                    }
+                  });
               }
             },
             error: function(xhr, status, error) {

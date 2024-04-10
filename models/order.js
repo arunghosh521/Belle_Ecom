@@ -23,7 +23,7 @@ var orderSchema = new mongoose.Schema(
     paymentStatus: {
       type: String,
     },
-    cancleReason: {
+    returnReason: {
       type: String,
       default: "Not Processed",
     },

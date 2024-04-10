@@ -408,7 +408,8 @@ const orderListPagination = asyncHandler(async (req, res) => {
 //* Return order control
 const returnMyOrder = asyncHandler(async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { orderId, returnReason } = req.body;
+    console.log('body', returnReason)
     const userId = req.session.userId;
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
@@ -433,7 +434,7 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     const updatedProducts = await Promise.all(updatePromises);
     const updatedReturnOrder = await orderDB.findOneAndUpdate(
       { _id: orderId },
-      { $set: { orderStatus: "Returned" } },
+      { $set: { orderStatus: "Returned", returnReason: returnReason } },
       { new: true }
     );
 
