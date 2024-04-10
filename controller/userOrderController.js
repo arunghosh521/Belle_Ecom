@@ -100,7 +100,7 @@ const placeOrder = asyncHandler(async (req, res) => {
             expectedDelivery: deliveryDate,
             orderedDate: orderDate,
             orderTotal: findCart.cartTotal,
-            paymentStatus: "pending",
+            paymentStatus: "Pending",
             refferOrder: true,
           });
           await newOrder.save();
@@ -202,7 +202,7 @@ const placeOrder = asyncHandler(async (req, res) => {
             expectedDelivery: deliveryDate,
             orderedDate: orderDate,
             orderTotal: findCart.cartTotal,
-            paymentStatus: "pending",
+            paymentStatus: "Pending",
           });
           await newOrder.save();
           await CartDB.updateOne(
