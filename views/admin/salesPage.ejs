@@ -73,7 +73,7 @@
 
   .btn.btn-solid {
     margin-left: 30px;
-    width: 180px; 
+    width: 170px; 
     max-width: 200px; 
     padding: 10px 0px; 
 }
@@ -140,10 +140,6 @@
         </div>
       </div>
       <!-- Sales / search by date end-->
-
-
-      <div style="margin-bottom: 20px;"> <input type="search" class="form-control" placeholder="Search by name..">
-      </div>
       <!-- Booking history start-->
       <div class="col-12">
         <div class="card">
@@ -160,6 +156,7 @@
                 </div>
               </div>
               <a href="#" class="btn btn-solid" onclick="weeklyReport('week')">Weekly Report</a>
+              <a href="#" class="btn btn-solid" onclick="monthlyReport('month')">Monthly Report</a>
               <a href="#" class="btn btn-solid" onclick="yearlyReport('year')">Yearly Report</a>
             </div>
           </div>
@@ -309,6 +306,10 @@
     }
     function yearlyReport(year) {
       var url = `/admin/salesReport?type=${year}`;
+      window.location.href = url;
+    }
+    function monthlyReport(month) {
+      var url = `/admin/salesReport?type=${month}`;
       window.location.href = url;
     }
   </script>

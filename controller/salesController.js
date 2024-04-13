@@ -4,15 +4,15 @@ const ejs = require("ejs");
 const path = require("path");
 const puppeteer = require("puppeteer");
 const ExcelJS = require("exceljs");
-const moment = require('moment');
+const moment = require("moment");
+const { log } = require("util");
 
 //* Load salesReport page
 const loadSalesReport = asyncHandler(async (req, res) => {
   try {
-    const type = req.query.type;
-
     const year = new Date().getFullYear();
     const week = moment().isoWeek();
+    const month = moment().month();
 
     //* Query database to get all delivered orders
     let orderQuery = OrderDB.find({ orderStatus: "Delivered" })
@@ -20,16 +20,28 @@ const loadSalesReport = asyncHandler(async (req, res) => {
       .populate({ path: "address", model: "Address" })
       .populate("orderBy");
 
-      if (type === 'week') {
-        const startDate = moment().year(year).week(week).startOf('week');
-        const endDate = moment().year(year).week(week).endOf('week');
-        orderQuery = orderQuery.where('createdAt').gte(startDate).lte(endDate);
-      } else if (type === 'year') {
-        const startDate = moment().year(year).startOf('year');
-        const endDate = moment().year(year).endOf('year');
-  
-        orderQuery = orderQuery.where('createdAt').gte(startDate).lte(endDate);
-      }
+    const type = req.query.type;
+
+    if (type === "week") {
+      const startDate = moment().year(year).week(week).startOf("week");
+      const endDate = moment().year(year).week(week).endOf("week");
+      orderQuery = orderQuery.where("createdAt").gte(startDate).lte(endDate);
+    } else if (type === "year") {
+      const startDate = moment().year(year).startOf("year");
+      const endDate = moment().year(year).endOf("year");
+
+      orderQuery = orderQuery.where("createdAt").gte(startDate).lte(endDate);
+    } else if (type === "month") {
+      const startDate = moment()
+        .year(year)
+        .month(month - 1)
+        .startOf("month");
+      const endDate = moment()
+        .year(year)
+        .month(month - 1)
+        .endOf("month");
+      orderQuery = orderQuery.where("createdAt").gte(startDate).lte(endDate);
+    }
 
     const orderData = await orderQuery;
     //* Calculate total sum of orders
@@ -162,7 +174,6 @@ const generateSalesReportPdf = async (
 const downloadSalesReport = asyncHandler(async (req, res) => {
   try {
     const format = req.query.format || "pdf";
-    console.log(format, "format");
     const orderData = await OrderDB.find({ orderStatus: "Delivered" })
       .populate("products.product")
       .populate({ path: "address", model: "Address" })
@@ -184,49 +195,96 @@ const downloadSalesReport = asyncHandler(async (req, res) => {
 
     let buffer;
     if (format === "pdf") {
-      console.log("sdfghjk");
       buffer = await generateSalesReportPdf(
         orderData,
         orderTotalAmt,
         totalSum,
         discountAmount
       );
-      console.log("bufferpdf", buffer);
-
       res.set({
         "Content-Type": "application/pdf",
         "Content-Length": buffer.length,
       });
     } else if (format === "xlsx") {
       const workbook = new ExcelJS.Workbook();
-      //console.log("workbook", workbook);
       const worksheet = workbook.addWorksheet("Sales Report");
-      //console.log("worksheet", worksheet);
 
       worksheet.columns = [
-        { header: "Order ID", key: "orderId", width: 10 },
-        { header: "Customer Name", key: "Customer Name", width: 20 },
-        { header: "Address", key: "address", width: 20 },
-        { header: "Product Name", key: "productname", width: 20 },
-        { header: "Quantity", key: "quantity", width: 10 },
-        { header: "Order Total", key: "orderTotal", width: 15 },
-        { header: "Status", key: "status", width: 15 },
-        { header: "Order Date", key: "orderDate", width: 15 },
+        { header: "Order ID", key: "orderId", width: 20, wrapText: true },
+        {
+          header: "Customer Name",
+          key: "CustomerName",
+          width: 15,
+          wrapText: true,
+        },
+        { header: "Address", key: "address", width: 50, wrapText: true },
+        {
+          header: "Product Name",
+          key: "productName",
+          width: 30,
+          wrapText: true,
+        },
+        { header: "Quantity", key: "quantity", width: 10, wrapText: true },
+        { header: "Order Total", key: "orderTotal", width: 10, wrapText: true },
+        { header: "Status", key: "status", width: 10, wrapText: true },
+        { header: "Order Date", key: "orderDate", width: 15, wrapText: true },
       ];
 
       orderData.forEach((order, index) => {
-        const product = order.products[0];
-        console.log("product", product);
+        let productNames = [];
+        let Quantities = [];
+        order.products.forEach((product) => {
+          productNames.push(product.product.name);
+          Quantities.push(product.quantity);
+        });
+        const productName = productNames.join(",\n");
+        const Quantity = Quantities.join("\n");
+        const customerName = order.orderBy?.firstname || "N/A";
+        const addressDetails = order.address[0]
+          ? `${order.address[0].address}, ${order.address[0].apartment}, ${order.address[0].city}, ${order.address[0].state}, ${order.address[0].pincode}, ${order.address[0].country}`
+          : "N/A";
+
         worksheet.addRow({
           orderId: order.orderId,
-          customerName: `${order.orderBy.firstname} ${order.orderBy.lastname}`,
-          address: `${order.address.address}, ${order.address.apartment}, ${order.address.city}, ${order.address.state}, ${order.address.pincode}, ${order.address.country}`,
-          productName: product.product.name,
-          quantity: product.quantity,
+          CustomerName: customerName,
+          address: addressDetails,
+          productName: productName,
+          quantity: Quantity,
           orderTotal: order.orderTotal,
           status: order.orderStatus,
           orderDate: order.orderedDate,
         });
+      });
+      worksheet.addRow({
+        orderId: "Total",
+        CustomerName: "",
+        address: "",
+        productName: "",
+        quantity: "",
+        orderTotal: totalSum,
+        status: "",
+        orderDate: "",
+      });
+
+      worksheet.addRow({
+        orderId: "Discount",
+        CustomerName: "",
+        address: "",
+        productName: "",
+        quantity: "",
+        orderTotal: discountAmount,
+        status: "",
+        orderDate: "",
+      });
+      worksheet.addRow({
+        orderId: "Grant Total",
+        CustomerName: "",
+        address: "",
+        productName: "",
+        quantity: "",
+        orderTotal: orderTotalAmt,
+        status: "",
+        orderDate: "",
       });
       buffer = await workbook.xlsx.writeBuffer();
       res.set({

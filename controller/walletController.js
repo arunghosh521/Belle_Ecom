@@ -95,7 +95,7 @@ const refferalLinkGenerating = asyncHandler(async (req, res) => {
     const UserData = await UserDB.findOne({ _id: userId });
     if (UserData.refferalOfferToken) {
       const existingToken = UserData.refferalOfferToken;
-      const existedLink = `http://127.0.0.1:3000/register?token=${existingToken}`;
+      const existedLink = `https://bellle.store/register?token=${existingToken}`;
       res.json({
         success: false,
         link: existedLink,
@@ -103,7 +103,7 @@ const refferalLinkGenerating = asyncHandler(async (req, res) => {
       });
     } else {
       const token = generateRefferalToken();
-      const generatedLink = `http://127.0.0.1:3000/register?token=${token}`;
+      const generatedLink = `https://bellle.store/register?token=${token}`;
       UserData.refferalOfferToken = token;
       UserData.save();
       res.json({
