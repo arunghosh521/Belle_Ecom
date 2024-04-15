@@ -139,6 +139,7 @@
                   <label class="col-sm-3 col-form-label form-label-title">Images</label>
                   <div class="col-sm-9">
                     <input class="form-control form-choose" name="image" type="file" id="formFile" accept="image/*" multiple onchange="previewImages(event)">
+                    <small id="imageError" class="text-danger"></small>
                   </div>
                 </div>
                 <div class="mb-4 row align-items-center">
@@ -314,41 +315,68 @@
   </script>
 
   <script>
+    let selectedFiles = [];
+
     function previewImages(event) {
       const previewDiv = document.getElementById('image-preview');
+      const imageError = document.getElementById('imageError');
       const files = event.target.files;
+      const existingImagesCount = previewDiv.getElementsByTagName('img').length;
+      const totalImagesCount = existingImagesCount + files.length;
+
+      if (totalImagesCount > 4) {
+        event.target.value = '';
+        imageError.textContent = 'You can only select up to 4 images in total.';
+        return;
+      } else {
+        imageError.textContent = '';
+      }
+      selectedFiles = [...selectedFiles, ...Array.from(files)];
+
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const reader = new FileReader();
         reader.onload = function(e) {
-            let existingImage = document.getElementById('existingImage');
-          if (existingImage) {
-            existingImage.src = e.target.result;
-            const img = document.createElement('img');
-            img.id = `image-${i}`;
-            img.src = e.target.result;
-            img.className = 'img-thumbnail';
-            img.style.maxWidth = '100px';
-            previewDiv.appendChild(img);
-          } else {
-            const img = document.createElement('img');
-            img.id = `image-${i}`;
-            img.src = e.target.result;
-            img.className = 'img-thumbnail';
-            img.style.maxWidth = '100px';
-            previewDiv.appendChild(img);
-          }
+          const imgContainer = document.createElement('div');
+          imgContainer.className = 'image-container';
+
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'img-thumbnail';
+          img.style.maxWidth = '100px';
+
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = 'Remove';
+          removeBtn.className = 'btn btn-sm btn-danger remove-btn';
+          removeBtn.onclick = function() {
+            imgContainer.remove();
+            selectedFiles = selectedFiles.filter(inputFile => inputFile !== file);
+            // Update the input element to reflect the new selectedFiles
+            const newFiles = new DataTransfer();
+            selectedFiles.forEach(file => newFiles.items.add(file));
+            event.target.files = newFiles.files;
+
+            event.target
+          };
+
+          imgContainer.appendChild(img);
+          imgContainer.appendChild(removeBtn);
+
+          previewDiv.appendChild(imgContainer);
         }
         reader.readAsDataURL(file);
       }
     }
+
 
     const productId = '<%= products._id %>';
 
     document.querySelectorAll('.close-image').forEach(btn => {
       btn.addEventListener('click', function() {
         const imageUrl = this.getAttribute('data-image');
+        console.log(imageUrl, 'imageurl');
         const previewDiv = this.closest('.image-preview-container');
+        console.log(previewDiv, 'previewDiv');
 
         Swal.fire({
           title: 'Are you sure?',

@@ -1410,6 +1410,11 @@
     //cancel order
     $(document).on('click', '#cancelBtn', function() {
       const cancelButton = $(this);
+      const cancelReasons = {
+        'Damaged Goods': 'Damaged Goods',
+        'Wrong Item': 'Wrong Item',
+        'No Reason': 'No Reason',
+      };
       const result = Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -1417,16 +1422,28 @@
         showCancelButton: true,
         confirmButtonColor: "#000000",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, cancel it!"
+        confirmButtonText: "Yes, cancel it!",
+        input: 'select',
+        inputOptions: cancelReasons,
+        inputPlaceholder: "Select ",
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Please select a reason for cancel.';
+          }
+        },
+        customClass: {
+          input: 'custom-swal-input'
+        }
       }).then((result) => {
         if (result.isConfirmed) {
           const orderId = cancelButton.data('order-id');
-
+          const cancelReason = result.value;
           $.ajax({
             url: '/orderPlaced/orderCancel',
             method: 'POST',
             data: {
-              orderId: orderId
+              orderId: orderId,
+              cancelReason: cancelReason
             },
             success: function(response) {
               if (response.success) {

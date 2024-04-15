@@ -30,6 +30,8 @@
                                         <li><%= totalQuantity %> item</li>
                                                                           
                                     <li>Total ₹<%= orderData.orderTotal %></li>
+                                    <li>Return reason: &nbsp;<%= orderData?.returnReason ?? null %></li>
+                                    <li><%= orderData?.cancelReason ?? null %></li>
                                 </ul>
                             </div>
                         </div>
@@ -97,16 +99,7 @@
                                                         <h4><del>₹50.00</del></h4>
                                                     </td>
                                                 </tr>
-
-                                                <!-- <tr class="table-order">
-                                                    <td colspan="3">
-                                                        <h5>Tax(GST) :</h5>
-                                                    </td>
-                                                    <td>
-                                                        <h4>$10.00</h4>
-                                                    </td>
-                                                </tr> -->
-
+                                    
                                                 <tr class="table-order">
                                                     <td colspan="3">
                                                         <h4 class="theme-color fw-bold">Total Price :</h4>

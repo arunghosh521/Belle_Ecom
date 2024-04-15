@@ -35,19 +35,17 @@
                       <td><%= order.orderedDate %></td>
                       <td><%= order.payment %></td>
                       <td class="order-status">
-                        <select id="orderStatusDropdown" onchange="updateOrderStatus(this)" data-order-id="<%= order._id %>" <% if(order.orderStatus === 'Cancelled') { %> disabled <% } %>>
-                          <option value="Not Processed" <% if (order.orderStatus === 'Not Processed') { %> selected <% } %>>Not Processing</option>
-                          <option value="Processing" <% if (order.orderStatus === 'Processing') { %> selected <% } %>>Processing</option>
-                          <option value="Dispatched" <% if (order.orderStatus === 'Dispatched') { %> selected <% } %>>Dispatched</option>
-                          <option value="Cancelled" <% if (order.orderStatus === 'Cancelled') { %> selected <% } %>>Cancelled</option>
-                          <option value="Delivered" <% if (order.orderStatus === 'Delivered') { %> selected <% } %>>Delivered</option>
-                          <option value="Returned" <% if (order.orderStatus === 'Returned') { %> selected <% } %>>Returned</option>
+                        <select class="order-status-dropdown" onchange="updateOrderStatus(this)" data-order-id="<%= order._id %>" <% if(order.orderStatus === 'Cancelled') { %> disabled <% } %>>
+                          <option value="Not Processed" <%= order.orderStatus === 'Not Processed' ? 'selected' : '' %>>Not Processing</option>
+                          <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                          <option value="Dispatched" <%= order.orderStatus === 'Dispatched' ? 'selected' : '' %>>Dispatched</option>
+                          <option value="Cancelled" <%= order.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                          <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                          <option value="Returned" <%= order.orderStatus === 'Returned' ? 'selected' : '' %>>Returned</option>
                         </select>
-                        <input type="hidden" id="orderId" value="<%= order._id %>">
+                        <input type="hidden" class="order-id" value="<%= order._id %>">
                       </td>
-
-
-
+                 
                       <td>$<%= order.orderTotal %></td>
                       <td>
                         <ul>
@@ -136,7 +134,7 @@
                   }
                 });
             } else {
-              Swal.fire("Error!", data.message, "error") 
+              Swal.fire("Error!", data.message, "error")
                 .then((value) => {
                   if (value) {
                     window.location.href = '/admin/orderList';

@@ -409,7 +409,6 @@ const orderListPagination = asyncHandler(async (req, res) => {
 const returnMyOrder = asyncHandler(async (req, res) => {
   try {
     const { orderId, returnReason } = req.body;
-    console.log('body', returnReason)
     const userId = req.session.userId;
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
@@ -424,7 +423,6 @@ const returnMyOrder = asyncHandler(async (req, res) => {
           $inc: {
             quantity: product.quantity,
             sold: -product.quantity,
-            statusChangedBy: "user",
           },
         },
         { new: true }
@@ -434,7 +432,7 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     const updatedProducts = await Promise.all(updatePromises);
     const updatedReturnOrder = await orderDB.findOneAndUpdate(
       { _id: orderId },
-      { $set: { orderStatus: "Returned", returnReason: returnReason } },
+      { $set: { orderStatus: "Returned", returnReason: returnReason, statusChangedBy: "user"} },
       { new: true }
     );
 
@@ -474,7 +472,7 @@ const returnMyOrder = asyncHandler(async (req, res) => {
 //* Cancel order control
 const cancelMyOrder = asyncHandler(async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { orderId, cancelReason } = req.body;
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: req.session.userId });
@@ -498,7 +496,7 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
     const updatedProducts = await Promise.all(updatePromises);
     const updatedCancelOrder = await orderDB.findOneAndUpdate(
       { _id: orderId },
-      { $set: { orderStatus: "Cancelled", statusChangedBy: "user" } },
+      { $set: { orderStatus: "Cancelled", cancleReason: cancelReason, statusChangedBy: "user" } },
       { new: true }
     );
 

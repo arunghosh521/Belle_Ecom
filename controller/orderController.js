@@ -6,6 +6,7 @@ const puppeteer = require("puppeteer");
 const loadOrderList = asyncHandler(async (req, res) => {
   try {
     const orderData = await OrderDB.find().populate("products");
+    //console.log('orderData', orderData)
     res.render("admin/orderList", { orderData });
   } catch (error) {
     console.log("loadOrderListError", error);
@@ -19,6 +20,7 @@ const loadOrderDetails = asyncHandler(async (req, res) => {
     const orderData = await OrderDB.findOne({ _id: id })
       .populate("products.product")
       .populate({ path: "address", model: "Address" });
+      console.log('orderData', orderData)
     res.render("admin/orderDetails", { orderData });
   } catch (error) {
     console.log("loadOrderDetailsError", error);
@@ -37,10 +39,10 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         message: "cannot change the status of a cancelled order.",
       });
     }
-    if(order.paymentStatus === "Failed"){
+    if(order.paymentStatus === "Pending"){
       return res.status(200).json({
         success: false,
-        message: "cannot change the status of a failed Payments.",
+        message: "cannot change the status of a pending Payments.",
       });
     }
 
