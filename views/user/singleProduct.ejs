@@ -76,7 +76,7 @@
                   <span id="SaveAmount-product-template" class="product-single__save-amount">
                     <span class="money">₹<%= product.price - product.offerPrice %></span>
                   </span>
-                  <span class="off">(<span><%= product.offer[0].percentage %>%</span>)</span>
+                  <span class="off">(<span><%= product.offer[0]?.percentage %>%</span>)</span>
                 </span>
               </p>
               <% } else { %>

@@ -59,24 +59,33 @@ const addNewCoupon = asyncHandler(async (req, res) => {
       });
     }
 
-    if (!numericRegex.test(discountAmount)) {
+    if (!numericRegex.test(discountAmount) || discountAmount > 5000) {
       return res
         .status(200)
         .json({
           successDiscount: false,
-          message: "Discount amount must be a number.",
+          message: "Discount amount must be  less than 5000.",
         });
     }
 
-    if (!numericRegex.test(minimumAmount)) {
+    if(availability > 500){
+      return res
+        .status(200)
+        .json({
+          successAvailability: false,
+          message: "Availability count  must be less than 500.",
+        });
+    }
+
+    if (!numericRegex.test(minimumAmount) || minimumAmount > 10000) {
       return res
         .status(200)
         .json({
           successMinAmt: false,
-          message: "Minimum amount must be a number.",
+          message: "Minimum amount must be a number and less than 10000.",
         });
     } 
-     if (minimumAmount > discountAmount) {
+     if (minimumAmount <= discountAmount) {
       return res
         .status(200)
         .json({
@@ -206,24 +215,33 @@ const editCouponControl = asyncHandler(async (req, res) => {
       });
     }
 
-    if (!numericRegex.test(discountAmount)) {
+    if (!numericRegex.test(discountAmount) || discountAmount > 5000) {
       return res
         .status(200)
         .json({
           successDiscount: false,
-          message: "Discount amount must be a number.",
+          message: "Discount amount must be  less than 5000.",
         });
     }
 
-    if (!numericRegex.test(minimumAmount)) {
+    if(availability > 500){
+      return res
+        .status(200)
+        .json({
+          successAvailability: false,
+          message: "Availability count  must be less than 500.",
+        });
+    }
+
+    if (!numericRegex.test(minimumAmount) || minimumAmount > 10000) {
       return res
         .status(200)
         .json({
           successMinAmt: false,
-          message: "Minimum amount must be a number.",
+          message: "Minimum amount must be a number and less than 10000.",
         });
     } 
-     if (minimumAmount > discountAmount) {
+    if (minimumAmount <= discountAmount) {
       return res
         .status(200)
         .json({

@@ -171,6 +171,11 @@
             } else {
               $('#couponDiscountAlert').text('');
             }
+            if (response.successAvailability === false) {
+              $('#couponAvailabilityAlert').text(response.message);
+            } else {
+              $('#couponAvailabilityAlert').text('');
+            }
           if (response.successMinAmt === false) {
               $('#couponMinAlert').text(response.message);
             } else {

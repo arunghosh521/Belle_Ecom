@@ -8,6 +8,7 @@ const CartDB = require("../models/cart");
 const WalletDb = require("../models/wallet");
 const AddressDB = require("../models/address");
 const ProductDB = require("../models/products");
+const couponDB = require("../models/coupon");
 const orderDB = require("../models/order");
 const orderIdGenerator = require("order-id")("key");
 const dotenv = require("dotenv");
@@ -45,6 +46,7 @@ const placeOrder = asyncHandler(async (req, res) => {
     const totalAmount = parseInt(subtotal);
     const cartTotal = totalAmount / 100;
     const findCart = await CartDB.findOne({ orderBy: req.session.userId });
+    const cartCoupon = findCart.couponCode;
     const cartItems = findCart.products;
     const cartTotalFromDB = findCart.cartTotal;
     const wallet = await WalletDb.findOne({ user: req.session.userId });
@@ -52,7 +54,6 @@ const placeOrder = asyncHandler(async (req, res) => {
     const user = await UserDB.findOne({ _id: req.session.userId });
     const refferedtoken = user.refferedToken;
     const date = new Date();
-
     const orderDate = date.toLocaleDateString("en-GB");
     const delivery = new Date(date.getTime() + 10 * 24 * 60 * 60 * 1000);
     const deliveryDate = delivery
@@ -62,6 +63,17 @@ const placeOrder = asyncHandler(async (req, res) => {
         day: "2-digit",
       })
       .replace(/\//g, "-");
+
+    if (cartCoupon) {
+      const appliedCoupon = await couponDB.findOne({ couponCode: cartCoupon });
+      if (!appliedCoupon) {
+        return res
+          .json({
+            success: false,
+            message: "The applied coupon is invalid or has been deleted.",
+          });
+      }
+    }
 
     //? COD payment
     if (selectedPayment === "COD") {
@@ -413,8 +425,12 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: userId });
-    if(order.refferOrder === true) {
-      return res.json({ success: false, message: "This order cannot be returned as it was placed using a referral reward." });
+    if (order.refferOrder === true) {
+      return res.json({
+        success: false,
+        message:
+          "This order cannot be returned as it was placed using a referral reward.",
+      });
     }
     const updatePromises = order.products.map(async (product) => {
       return ProductDB.findByIdAndUpdate(
@@ -432,7 +448,13 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     const updatedProducts = await Promise.all(updatePromises);
     const updatedReturnOrder = await orderDB.findOneAndUpdate(
       { _id: orderId },
-      { $set: { orderStatus: "Returned", returnReason: returnReason, statusChangedBy: "user"} },
+      {
+        $set: {
+          orderStatus: "Returned",
+          returnReason: returnReason,
+          statusChangedBy: "user",
+        },
+      },
       { new: true }
     );
 
@@ -462,7 +484,11 @@ const returnMyOrder = asyncHandler(async (req, res) => {
     };
     await wallet.addTransaction(transaction);
 
-    res.json({ success: true, ordeData: updatedReturnOrder, message: 'Order returned successfully' });
+    res.json({
+      success: true,
+      ordeData: updatedReturnOrder,
+      message: "Order returned successfully",
+    });
   } catch (error) {
     console.log("returnOrderError", error);
     res.json({ success: false, error: "Filed to cancel the order" });
@@ -476,8 +502,12 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
     const transactionId = orderIdGenerator.generate();
     const order = await orderDB.findById(orderId).populate("products");
     const wallet = await WalletDb.findOne({ user: req.session.userId });
-    if(order.refferOrder === true) {
-      return res.json({ success: false, message: "This order cannot be cancelled as it was placed using a referral reward." });
+    if (order.refferOrder === true) {
+      return res.json({
+        success: false,
+        message:
+          "This order cannot be cancelled as it was placed using a referral reward.",
+      });
     }
     const updatePromises = order.products.map(async (product) => {
       return ProductDB.findByIdAndUpdate(
@@ -496,7 +526,13 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
     const updatedProducts = await Promise.all(updatePromises);
     const updatedCancelOrder = await orderDB.findOneAndUpdate(
       { _id: orderId },
-      { $set: { orderStatus: "Cancelled", cancleReason: cancelReason, statusChangedBy: "user" } },
+      {
+        $set: {
+          orderStatus: "Cancelled",
+          cancleReason: cancelReason,
+          statusChangedBy: "user",
+        },
+      },
       { new: true }
     );
 
@@ -529,7 +565,11 @@ const cancelMyOrder = asyncHandler(async (req, res) => {
       };
       await wallet.addTransaction(transaction);
 
-      res.json({ success: true, orderData: updatedCancelOrder, message: 'Order cancelled successfully' });
+      res.json({
+        success: true,
+        orderData: updatedCancelOrder,
+        message: "Order cancelled successfully",
+      });
     }
   } catch (error) {
     console.log("cancelOrderError", error);

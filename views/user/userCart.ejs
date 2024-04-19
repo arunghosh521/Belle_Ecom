@@ -107,31 +107,20 @@
         </form>
       </div>
       <div class="col-12 col-sm-12 col-md-4 col-lg-4 cart__footer">
-        <!-- <div class="cart-note">
-          <div class="solid-border">
-            <h5><label for="CartSpecialInstructions" class="cart-note__label small--text-center">Add a note to your order</label></h5>
-            <textarea name="note" id="CartSpecialInstructions" class="cart-note__input"></textarea>
-          </div>
-        </div> -->
         <div class="solid-border">
           <div class="row">
             <span class="col-12 col-sm-6 cart__subtotal-title"><strong>Subtotal</strong></span>
             <span class="col-12 col-sm-6 cart__subtotal-title cart__subtotal text-right"><span class="money" id="subtotalReolad">
               ₹<%= cartProduct.cartTotal %></span></span>
           </div>
-          <div class="cart__shipping">Shipping &amp; taxes calculated at checkout</div>
-          <p class="cart_tearm">
-            <label>
-              <input type="checkbox" name="tearm" id="cartTearm" class="checkbox" value="tearm" required="">
-              I agree with the terms and conditions</label>
-          </p>
+         <br>
           <%  if(cartProduct.products.length > 0 ) { %>
           <a href="/cart/checkout">
             <input type="submit" name="checkout" id="cartCheckout" class="btn btn--small-wide checkout" value="Checkout">
           </a>
           <% } else { %>
           <a href="#">
-            <input type="submit" name="checkout" id="cartCheckout" class="btn btn--small-wide checkout" value="Checkout">
+            <input type="submit" name="checkout" id="cartCheckout" class="btn btn--small-wide checkout" value="Checkout" disabled >
           </a>
 
           <% } %>
@@ -196,9 +185,6 @@
           quantity: increment
         })
       });
-
-      const data = await response.json();
-
       if (data.success) {
 
       //   const CartCountSpan = document.getElementById('CartCount');

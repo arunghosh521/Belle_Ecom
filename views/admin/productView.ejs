@@ -282,7 +282,14 @@
                   productId: productId
                 },
                 success: function(response) {
-                  alert(response.message);
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Alert meaasge',
+                    text: response.message,
+                    willClose: () => {
+                      window.location.reload();
+                    }
+                  });
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                   console.error('Error applying offer:', textStatus, errorThrown);
@@ -304,7 +311,14 @@
                   productId: productId
                 },
                 success: function(response) {
-                  alert(response.message);
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Alert meaasge',
+                    text: response.message,
+                    willClose: () => {
+                      window.location.reload();
+                    }
+                  });
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                   console.error('Error applying offer:', textStatus, errorThrown);
@@ -337,10 +351,10 @@
     }
 
     function updateTable(products) {
-    const tableBody = document.querySelector('#table_id tbody');
-    tableBody.innerHTML = '';
+      const tableBody = document.querySelector('#table_id tbody');
+      tableBody.innerHTML = '';
 
-    products.forEach(product => {
+      products.forEach(product => {
         const newRow = document.createElement('tr');
 
         // Create and append the image cell
@@ -381,7 +395,9 @@
         const viewOffersCell = document.createElement('td');
         const viewOffersButton = document.createElement('button');
         viewOffersButton.style.marginLeft = '40px';
-        viewOffersButton.onclick = function() { offerListing(this); };
+        viewOffersButton.onclick = function() {
+          offerListing(this);
+        };
         viewOffersButton.type = 'button';
         viewOffersButton.className = 'btn btn-success';
         viewOffersButton.dataset.productId = product._id;
@@ -394,7 +410,9 @@
         const listCell = document.createElement('td');
         const listButton = document.createElement('button');
         listButton.style.marginLeft = '40px';
-        listButton.onclick = function() { listUser(this); };
+        listButton.onclick = function() {
+          listUser(this);
+        };
         listButton.type = 'button';
         listButton.dataset.productId = product._id;
         listButton.dataset.isListed = !product.is_listed; // Assuming you want to toggle the listed status
@@ -415,8 +433,8 @@
 
         // Append the new row to the table body
         tableBody.appendChild(newRow);
-    });
-}
+      });
+    }
 
     function updatePagination(totalPages, currentPage) {
       const paginationList = document.getElementById('paginationList');

@@ -1342,7 +1342,7 @@
       });
     });
 
-    //RETRY RAZORPAY
+    //RETRY RAZORPAY MODAL
     function razorPayPayment(order) {
       var options = {
         "key": "rzp_test_PIjycoYDuhOYTG",
@@ -1398,7 +1398,7 @@
           toastr.success(data.message, "Success!");
           window.location.reload();
         } else {
-          alert("Payment verification failed. please try again.")
+          toastr.error("Payment verification failed. please try again.", "Info!");
         }
       }).fail(function(jqXHR, textStatus, errorThrown) {
         console.error(("Error verifying Payment", textStatus, errorThrown));
@@ -1583,6 +1583,9 @@
     if (!amount || amount < 0) {
       toastr.error("Enter a valid amount", "Info!");
       return;
+    }else if(amount > 5000){
+      toastr.error("The maximum allowed amount for a single transaction is ₹5,000.", "Info!");
+      return;
     }
     $.ajax({
       url: '/userProfile/wallet',
@@ -1625,7 +1628,7 @@
     };
     var rzp1 = new Razorpay(options);
     rzp1.on('payment.failed', function(response) {
-      window.location.href = '/Cart?paymentFailed=true';
+      window.location.href = '/userProfile?paymentFailed=true';
     });
 
     rzp1.open();
@@ -1650,10 +1653,10 @@
     };
     $.ajax(settings).done(function(data) {
       if (data.success) {
-        alert(data.message)
+        toastr.success(data.message, "Info!");
         window.location.reload();
       } else {
-        alert("Payment verification failed. please try again.")
+        toastr.error("Payment verification failed. please try again.", "Info!");
       }
     }).fail(function(jqXHR, textStatus, errorThrown) {
       console.error(("Error verifying Payment", textStatus, errorThrown));
@@ -1676,13 +1679,13 @@
             const link = response.data.link;
             navigator.clipboard.writeText(link)
               .then(() => {
-                alert(response.data.message);
+                toastr.success(response.data.message, "success!");
               })
           } else {
             const link = response.data.link;
             navigator.clipboard.writeText(link)
               .then(() => {
-                alert(response.data.message);
+                toastr.success(response.data.message, "success!");
               })
           }
         })

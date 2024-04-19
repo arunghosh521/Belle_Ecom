@@ -39,7 +39,7 @@
                         <div class="mb-4 row align-items-center">
                           <label class="col-lg-2 col-md-3 col-form-label form-label-title">Percentage</label>
                           <div class="col-md-9 col-lg-10">
-                            <input class="form-control" placeholder="" name="percentage" type="text">
+                            <input class="form-control" placeholder="" name="percentage" min="1" max="100" type="number">
                             <p id="offerPercentageAlert" style="color: red;"></p>
                           </div>
                         </div>
@@ -154,6 +154,11 @@
             $('#offerDescriptionAlert').text(response.message);
           } else {
             $('#offerDescriptionAlert').text('');
+          }
+          if (response.successStartDate === false) {
+            $('#offerStartDateAlert').text(response.message);
+          } else {
+            $('#offerStartDateAlert').text('');
           }
           if (response.successDate === false) {
             $('#offerEndDateAlert').text(response.message);

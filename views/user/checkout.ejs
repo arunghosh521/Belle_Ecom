@@ -355,6 +355,8 @@
         if (response.successBanking === true) {
           const newOrderId = response.orderId
           razorpayPayment(response.order, newOrderId);
+        }else {
+          toastr["error"](response.message, "Info!");
         }
       }
     })

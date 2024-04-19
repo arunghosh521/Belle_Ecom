@@ -255,6 +255,7 @@ const applyCoupon = asyncHandler(async (req, res) => {
       userCart.cartTotal += userCart.discountAmount;
       userCart.couponApplied = false;
       userCart.discountAmount = 0;
+      userCart.couponCode = '';
       await userCart.save();
       await alreadyUsedCoupon.updateOne({
         $pull: {
@@ -274,6 +275,7 @@ const applyCoupon = asyncHandler(async (req, res) => {
       userCart.cartTotal -= discountAmount;
       userCart.couponApplied = true;
       userCart.discountAmount = discountAmount;
+      userCart.couponCode = couponCode;
       await userCart.save();
       couponDetails.userUsed.push({ user_id: userId });
       couponDetails.Availability--;

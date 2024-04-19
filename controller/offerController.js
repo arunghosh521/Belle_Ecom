@@ -16,7 +16,7 @@ const loadCreateOffer = asyncHandler(async (req, res) => {
 const createOfferControl = asyncHandler(async (req, res) => {
   try {
     const { title, percentage, startDate, endDate, description } = req.body;
-    const alphanumericRegex = /^[a-zA-Z0-9]{6}$/;
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
     const numericRegex = /^\d+(\.\d+)?$/;
     const titleRegex = /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
     const descriptionWords = description.split(/\s+/);
@@ -29,7 +29,7 @@ const createOfferControl = asyncHandler(async (req, res) => {
       });
     }
 
-    if (!titleRegex.test(title)) {
+    if (!titleRegex.test(title) || title.length < 4) {
       return res.status(200).json({
         successTitle: false,
         message:
@@ -37,20 +37,29 @@ const createOfferControl = asyncHandler(async (req, res) => {
       });
     }
 
-    if (!numericRegex.test(percentage) || parseFloat(percentage) > 100) {
+    if (!numericRegex.test(percentage) || parseFloat(percentage) > 100 || parseFloat(percentage) <= 0) {
       return res.status(200).json({
         successPercentage: false,
         message:
-          "Percentage must be numbers and not greater than 100.",
+          "Percentage must be numbers not greater than 100.",
       });
     }
 
+    const currentStartDate = new Date();
+    currentStartDate.setHours(0, 0, 0, 0);
+    if (new Date(startDate) < currentStartDate) {
+      return res.status(200).json({
+        successStartDate: false,
+        message: "The start date must not be earlier than today.",
+      });
+    }
+    
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
-    if (new Date(startDate) < currentDate) {
+    if (new Date(endDate) < currentDate) {
       return res.status(200).json({
         successDate: false,
-        message: "The expiry date must not be earlier than today.",
+        message: "The expiry date must not be earlier than startDate.",
       });
     }
 
@@ -253,7 +262,6 @@ const offerDetailsControl = asyncHandler(async (req, res) => {
       expiryDate: { $gte: currentData },
       isListed: true,
     });
-    console.log(offerDetails,'asdfghjkl');
     res.status(200).json({ success: true, offerDetails });
   } catch (error) {
     console.log("offerDetailsError", error);

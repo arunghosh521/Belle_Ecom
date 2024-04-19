@@ -206,7 +206,14 @@
                   categoryId: categoryId
                 },
                 success: function(response) {
-                  alert(response.message);
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Alert meaasge',
+                    text: response.message,
+                    willClose: () => {
+                      window.location.reload();
+                    }
+                  });
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                   console.error('Error applying offer:', textStatus, errorThrown);
@@ -228,7 +235,14 @@
                   categoryId: categoryId
                 },
                 success: function(response) {
-                  alert(response.message);
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Alert meaasge',
+                    text: response.message,
+                    willClose: () => {
+                      window.location.reload();
+                    }
+                  });
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                   console.error('Error applying offer:', textStatus, errorThrown);

@@ -73,10 +73,10 @@
 
   .btn.btn-solid {
     margin-left: 30px;
-    width: 170px; 
-    max-width: 200px; 
-    padding: 10px 0px; 
-}
+    width: 170px;
+    max-width: 200px;
+    padding: 10px 0px;
+  }
 
   .product-name {
     font-size: 12px;
@@ -95,25 +95,25 @@
   .total-amount {
     margin-left: 100px;
   }
-.dropdown-menu {
- background-color: #ffffff; 
- border: 1px solid #466f99; 
- border-radius: 5px; 
- padding: 10px; 
-}
 
-.dropdown-item {
- color: #333; 
- padding: 10px 20px; 
- text-decoration: #b40707; 
-}
+  .dropdown-menu {
+    background-color: #ffffff;
+    border: 1px solid #466f99;
+    border-radius: 5px;
+    padding: 10px;
+  }
+
+  .dropdown-item {
+    color: #333;
+    padding: 10px 20px;
+    text-decoration: #b40707;
+  }
 
 
-.dropdown-item:hover {
- background-color: #2676c7; 
- color: #b40707; 
-}
-
+  .dropdown-item:hover {
+    background-color: #2676c7;
+    color: #b40707;
+  }
 </style>
 <!-- Reports Section Start -->
 <div class="page-body">
@@ -152,7 +152,7 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <a class="dropdown-item" href="#" onclick="downloadSalesReport('pdf')" style="color: black;">PDF</a>
-                  <a class="dropdown-item" href="#" onclick="downloadSalesReport('xlsx')" style="color: black;">Excel</a>                  
+                  <a class="dropdown-item" href="#" onclick="downloadSalesReport('xlsx')" style="color: black;">Excel</a>
                 </div>
               </div>
               <a href="#" class="btn btn-solid" onclick="weeklyReport('week')">Weekly Report</a>
@@ -268,8 +268,31 @@
     </div>
   </div>
   <!-- Container-fluid Ends-->
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
 
   <script>
+    toastr.options = {
+      "closeButton": false,
+      "debug": false,
+      "newestOnTop": true,
+      "progressBar": false,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    };
     function downloadSalesReport(format) {
       const startDate = document.getElementById('startDate').value;
       const endDate = document.getElementById('endDate').value;
@@ -295,6 +318,17 @@
       var startDate = document.getElementById('startDate').value;
       var endDate = document.getElementById('endDate').value;
 
+      if (!startDate || !endDate) {
+        toastr.warning('Please enter both start date and end date.', 'Warning!');
+        return;
+      }
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
+
+      if (endDateObj < startDateObj) {
+        toastr.warning('End date must be after start date.', 'Warning!');
+        return;
+      }
       var url = '/admin/salesReport/filterSalesReport?startDate=' + startDate + '&endDate=' + endDate;
 
       window.location.href = url;
@@ -304,10 +338,12 @@
       var url = `/admin/salesReport?type=${week}`;
       window.location.href = url;
     }
+
     function yearlyReport(year) {
       var url = `/admin/salesReport?type=${year}`;
       window.location.href = url;
     }
+
     function monthlyReport(month) {
       var url = `/admin/salesReport?type=${month}`;
       window.location.href = url;

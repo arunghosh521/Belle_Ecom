@@ -34,6 +34,12 @@ const loadDashboard = asyncHandler(async (req, res) => {
     }
     const formattedUserCount = formatUserCount(userCount);
 
+    const orderData = await OrderDB.find({orderStatus: 'Delivered'});
+
+    const TotalOrderCost = orderData.reduce((total, order)=> {
+      return total + order.orderTotal;
+    },0)
+
     //* query for find best selling category
     const query = [
       {
@@ -112,6 +118,7 @@ const loadDashboard = asyncHandler(async (req, res) => {
       bestSellingProducts,
       arrayDayWise,
       bestSellingCategory,
+      TotalOrderCost
     });
   } catch (error) {
     if(error instanceof MongooseError){
@@ -269,7 +276,6 @@ const AdminLoginCntrl = asyncHandler(async (req, res) => {
 const logout = asyncHandler(async (req, res) => {
   try {
     req.session.adminID = null;
-    console.log("admin logout successfully");
     res.redirect("/admin");
   } catch (error) {
     throw new InternalServerError('Internal server error');
